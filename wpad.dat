@@ -1,0 +1,8 @@
+/*
+  PAC file created via OPNsense
+  To use this file you have to enter its URL into your browsers network settings.
+*/
+function FindProxyForURL(url, host) {
+   // If no rule exists - use a direct connection
+   return "DIRECT";
+}
