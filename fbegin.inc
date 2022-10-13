@@ -32,18 +32,18 @@
 $aclObj = new \OPNsense\Core\ACL();
 
 /* display a top alert bar if need be */
-$need_alert_display = false;
-$found_notices = are_notices_pending();
-if($found_notices == true) {
-    $notices = get_notices();
-    if(!$notices) {
-        $need_alert_display = true;
-        $display_text = print_notices($notices) . "<br />";
-    }
-}
-if($need_alert_display == true) {
-    echo "<div class=\"col-xs-12\"><div class=\"alert alert-info\"><p>".$display_text."</p></div></div>";
-}
+// $need_alert_display = false;
+// $found_notices = are_notices_pending();
+// if($found_notices == true) {
+//     $notices = get_notices();
+//     if(!$notices) {
+//         $need_alert_display = true;
+//         $display_text = print_notices($notices) . "<br />";
+//     }
+// }
+// if($need_alert_display == true) {
+//     echo "<div class=\"col-xs-12\"><div class=\"alert alert-info\"><p>".$display_text."</p></div></div>";
+// }
 
 ?>
 
