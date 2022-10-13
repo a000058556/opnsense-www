@@ -506,7 +506,14 @@ function get_menu_messages()
 {
     global $config;
 
-    $menu_messages = '';
+    return sprintf(
+        '<span class="navbar-text">%s@%s.%s</span>',
+        $_SESSION['Username'],
+        $config['system']['hostname'],
+        $config['system']['domain']
+      );
+
+    // $menu_messages = '';
 
     // if (are_notices_pending()) {
     //     $notices = get_notices();
@@ -542,7 +549,7 @@ function get_menu_messages()
     //     );
     // }
 
-    return $menu_messages;
+    // return $menu_messages;
 }
 
 function service_control_icon($service, $xs = false)
