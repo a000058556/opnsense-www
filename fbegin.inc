@@ -98,7 +98,7 @@ $aclObj = new \OPNsense\Core\ACL();
                           foreach($menuSystem as $topMenuItem): ?>
 <?php
                           if (count($topMenuItem->Children) >= 1): ?>
-                            <a href="#<?=$topMenuItem->Id;?>" class="list-group-item <?= $topMenuItem->Selected ? 'active-menu-title' : ''; ?>" data-toggle="collapse" data-parent="#mainmenu"><span class="<?=$topMenuItem->CssClass;?> __iconspacer"></span><?=html_safe(gettext($topMenuItem->VisibleName));?>  </a>
+                            <a href="#<?=$topMenuItem->Id;?>" class="menu-a-radius list-group-item <?= $topMenuItem->Selected ? 'active-menu-title' : ''; ?>" data-toggle="collapse" data-parent="#mainmenu"><span class="<?=$topMenuItem->CssClass;?> __iconspacer"></span><?=html_safe(gettext($topMenuItem->VisibleName));?>  </a>
                             <div class="collapse <?=$topMenuItem->Selected ? 'active-menu in' :'';?>" id="<?=$topMenuItem->Id;?>">
 <?php
                             foreach($topMenuItem->Children as $subMenuItem): ?>
