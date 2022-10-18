@@ -127,7 +127,7 @@ $aclObj = new \OPNsense\Core\ACL();
                                 </div>
 <?php
                               elseif ($subMenuItem->IsExternal == "Y" ):?>
-                                <a href="<?=$subMenuItem->Url;?>" target="_blank" rel="noopener noreferrer" class="list-group-item <?=$subMenuItem->Selected ? 'active' : '';?>" aria-expanded="<?=$subMenuItem->Selected ? 'true' : 'false';?>">
+                                <a href="<?=$subMenuItem->Url;?>" target="_blank" rel="noopener noreferrer" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? 'active' : '';?>" aria-expanded="<?=$subMenuItem->Selected ? 'true' : 'false';?>">
                                   <div style="display: table;width: 100%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
