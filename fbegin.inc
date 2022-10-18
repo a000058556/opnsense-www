@@ -137,7 +137,7 @@ $aclObj = new \OPNsense\Core\ACL();
                                 </a>
 <?php
                               elseif ($aclObj->isPageAccessible($_SESSION['Username'],$subMenuItem->Url)):?>
-                                <a href="<?=$subMenuItem->Url;?>" class="list-group-item <?=$subMenuItem->Selected ? 'active' :'';?>">
+                                <a href="<?=$subMenuItem->Url;?>" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? 'active' :'';?>">
                                   <div style="display: table;width: 100%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
@@ -155,12 +155,12 @@ $aclObj = new \OPNsense\Core\ACL();
                           else: ?>
 <?php
                               if ($topMenuItem->IsExternal == "Y" ):?>
-                                <a href="<?=$topMenuItem->Url;?>" target="_blank" rel="noopener noreferrer" class="list-group-item <?=$topMenuItem->Selected ? 'active-menu-title' : '';?>" data-parent="#mainmenu">
+                                <a href="<?=$topMenuItem->Url;?>" target="_blank" rel="noopener noreferrer" class="menu-a-radius list-group-item <?=$topMenuItem->Selected ? 'active-menu-title' : '';?>" data-parent="#mainmenu">
                                     <span class="<?=$topMenuItem->CssClass;?> __iconspacer"></span><?=html_safe(gettext($topMenuItem->VisibleName));?>
                                 </a>
 <?php
                               elseif ($aclObj->isPageAccessible($_SESSION['Username'],$topMenuItem->Url)):?>
-                                <a href="<?=$topMenuItem->Url;?>" class="list-group-item <?=$topMenuItem->Selected ? 'active-menu-title' : '';?>" data-parent="#mainmenu">
+                                <a href="<?=$topMenuItem->Url;?>" class="menu-a-radius list-group-item <?=$topMenuItem->Selected ? 'active-menu-title' : '';?>" data-parent="#mainmenu">
                                     <span class="<?=$topMenuItem->CssClass;?> __iconspacer"></span><?=html_safe(gettext($topMenuItem->VisibleName));?>
                                 </a>
 
