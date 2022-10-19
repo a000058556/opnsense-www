@@ -138,7 +138,7 @@ $aclObj = new \OPNsense\Core\ACL();
 <?php
                               elseif ($aclObj->isPageAccessible($_SESSION['Username'],$subMenuItem->Url)):?>
                                 <a href="<?=$subMenuItem->Url;?>" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? 'active' :'';?>">
-                                  <div style="display: table;width: 100%;">
+                                  <div style="display: table;width: 90%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
                                         <div style="display: table-cell; text-align:right; vertical-align:middle;"><span class="<?=$subMenuItem->CssClass;?>"></span></div>
