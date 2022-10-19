@@ -105,7 +105,7 @@ $aclObj = new \OPNsense\Core\ACL();
 <?php
                               if ($subMenuItem->Url == '' ):?>
                                <a href="#<?=$topMenuItem->Id;?>_<?=$subMenuItem->Id;?>" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? "active-menu-title" : '';?>" data-toggle="collapse" data-parent="#<?=$topMenuItem->Id;?>" aria-expanded="<?=$subMenuItem->Selected ? "true" : "false";?>">
-                                  <div style="display: table;width: 100%;">
+                                  <div style="display: table;width: 90%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
                                         <div style="display: table-cell; text-align:right; vertical-align:middle;"><span class="<?=$subMenuItem->CssClass;?>"></span></div>
@@ -128,7 +128,7 @@ $aclObj = new \OPNsense\Core\ACL();
 <?php
                               elseif ($subMenuItem->IsExternal == "Y" ):?>
                                 <a href="<?=$subMenuItem->Url;?>" target="_blank" rel="noopener noreferrer" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? 'active' : '';?>" aria-expanded="<?=$subMenuItem->Selected ? 'true' : 'false';?>">
-                                  <div style="display: table;width: 100%;">
+                                  <div style="display: table;width: 90%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
                                         <div style="display: table-cell; text-align:right; vertical-align:middle;"><span class="<?=$subMenuItem->CssClass;?>"></span></div>
