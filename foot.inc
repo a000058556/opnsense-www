@@ -94,5 +94,15 @@
         });
       });
     </script>
+    <!-- 選單按鈕 -->
+    <script>
+      $(document).ready(function() {
+        $(".wrapper").on("click", function() {
+            $(".bar-top").toggleClass("top top-close");
+            $(".bar-middle").toggleClass("middle middle-close");
+            $(".bar-bottom").toggleClass("bottom bottom-close");
+        });
+      });
+    </script>
   </body>
 </html>

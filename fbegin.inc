@@ -65,9 +65,9 @@ $aclObj = new \OPNsense\Core\ACL();
         </a>
         <button type="button" class="wrapper collapsed" data-toggle="collapse" data-target="#navigation">
           <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar top bar"></span>
-          <span class="icon-bar middle bar"></span>
-          <span class="icon-bar bottom bar"></span>
+          <span class="icon-bar top bar bar-top"></span>
+          <span class="icon-bar middle bar bar-middle"></span>
+          <span class="icon-bar bottom bar bar-bottom"></span>
         </button>
       </div>
       <button class="toggle-sidebar" data-toggle="tooltip right" title="<?= html_safe(gettext('Toggle sidebar')) ?>" style="display:none"><i class="fa fa-chevron-left"></i></button>
