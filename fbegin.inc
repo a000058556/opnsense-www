@@ -179,7 +179,7 @@ $aclObj = new \OPNsense\Core\ACL();
     <header class="page-content-head">
       <div class="container-fluid">
         <ul class="list-inline">
-          <li><h1><?= html_safe(gentitle($menuBreadcrumbs)) ?></h1></li>
+          <li class="pb-10"><h1><?= html_safe(gentitle($menuBreadcrumbs)) ?></h1></li>
           <li class="btn-group-container">
             <form method="post">
               <?php
