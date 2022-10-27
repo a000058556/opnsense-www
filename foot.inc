@@ -104,7 +104,7 @@ $product = product::getInstance();
     <script>
       $(document).ready(function() {
         $(".wrapper").on("click", function() {
-            $(".bar-top").toggleClass("top top-close");
+            $(".bar-top").toggleClass("nenu-top top-close");
             $(".bar-middle").toggleClass("middle middle-close");
             $(".bar-bottom").toggleClass("bottom bottom-close");
         });

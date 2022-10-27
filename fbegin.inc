@@ -65,7 +65,7 @@ $aclObj = new \OPNsense\Core\ACL();
         </a>
         <button type="button" class="wrapper collapsed" data-toggle="collapse" data-target="#navigation">
           <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar top bar bar-top"></span>
+          <span class="icon-bar nenu-top bar bar-top"></span>
           <span class="icon-bar middle bar bar-middle"></span>
           <span class="icon-bar bottom bar bar-bottom"></span>
         </button>
