@@ -80,15 +80,17 @@ include("head.inc");
 ?>
 <body>
   <script>
+    // 刪除按鈕動作設定
   $( document ).ready(function() {
     // link delete buttons
     $(".act_delete").click(function(event){
       event.preventDefault();
       var id = $(this).data("id");
-      // delete single
+      // delete single，BootstrapDialog.show 為Bootstrap自定義彈出視窗
       BootstrapDialog.show({
-        type:BootstrapDialog.TYPE_DANGER,
-        title: "<?= gettext("Group");?>",
+        type:BootstrapDialog.TYPE_DANGER, // 顏色
+        // title: "<?= gettext("Group");?>",
+        title: id,
         message: "<?=gettext("Do you really want to delete this group? All elements that still use it will become invalid (e.g. filter rules)!");?>",
         buttons: [{
                   label: "<?= gettext("No");?>",
