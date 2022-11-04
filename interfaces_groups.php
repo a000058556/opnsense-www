@@ -33,7 +33,7 @@ require_once("interfaces.inc");
 require_once("filter.inc");
 require_once("system.inc");
 
-$a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry');
+$a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($a_ifgroups[$_POST['id']])) {
@@ -84,58 +84,74 @@ include("head.inc");
   $( document ).ready(function() {
     // link delete buttons
     $(".act_delete").click(function(event){
-      event.preventDefault();
-      var id = $(this).data("id");
-      var alldata = $(this).data();
+      event.preventDefault(); // 取消事件的預設行為
+      var id = $(this).data("id"); // 取要刪除的資料id
+      var alldata = $(this).data(); // {id: 0, toggle: 'tooltip', bs.tooltip: m}
       console.log(alldata);
-      // delete single，BootstrapDialog.show 為Bootstrap自定義彈出視窗
+      // delete single，BootstrapDialog.show 為Bootstrap自定義彈出視窗 更多:https://www.cnblogs.com/zzwlong/p/8509085.html
       BootstrapDialog.show({
-        type:BootstrapDialog.TYPE_DANGER, // 顏色
+        type:BootstrapDialog.TYPE_DANGER,
+        //BootstrapDialog.TYPE_DEFAULT,   
+        //BootstrapDialog.TYPE_INFO,   
+        //BootstrapDialog.TYPE_PRIMARY,   
+        //BootstrapDialog.TYPE_SUCCESS,   
+        //BootstrapDialog.TYPE_WARNING,   
+        //BootstrapDialog.TYPE_DANGER];
+
         // title: "<?= gettext("Group");?>",
         title: "<?= gettext("Group");?>",
         message: "<?=gettext("Do you really want to delete this group? All elements that still use it will become invalid (e.g. filter rules)!");?>",
         buttons: [{
                   label: "<?= gettext("No");?>",
+                  // dialogRef = 這個彈出視窗
                   action: function(dialogRef) {
-                      dialogRef.close();
+                      dialogRef.close(); // 關閉視窗
                   }}, {
                   label: "<?= gettext("Yes");?>",
                   action: function(dialogRef) {
-                    $("#id").val(id);
-                    $("#action").val("del");
-                    $("#iform").submit()
+                    $("#id").val(id); // 要刪除的id
+                    $("#action").val("del"); // 動作
+                    $("#iform").submit() // 要提交的表格
                 }
               }]
       });
     });
-
+    console.log("----------php $a_ifgroups-------");
+    console.log(<?php $a_ifgroups ?>);
   });
   </script>
-<?php include("fbegin.inc"); ?>
+  <!-- 導入head -->
+<?php include("fbegin.inc"); ?> 
   <section class="page-content-main">
     <div class="container-fluid">
       <div class="row">
+        <!-- 套用的提示訊息 -->
         <?php print_service_banner('firewall'); ?>
-        <?php if (isset($savemsg)) print_info_box($savemsg); ?>
+        <!-- $savemsg = 儲存成功的顯示訊息 -->
+        <?php if (isset($savemsg)) print_info_box($savemsg); ?> 
         <?php if (is_subsystem_dirty('filter')): ?><p>
         <?php print_info_box_apply(gettext("The firewall rule configuration has been changed.<br />You must apply the changes in order for them to take effect."));?>
         <?php endif; ?>
+        <!-- 套用的提示訊息end -->
         <section class="col-xs-12">
           <div class="tab-content content-box col-xs-12">
             <form  method="post" name="iform" id="iform">
+              <!-- 刪除時使用的表格input -->
               <input type="hidden" id="action" name="action" value="">
               <input type="hidden" id="id" name="id" value="">
+              <!-- 刪除時使用的表格input end -->
               <table class="table table-striped">
                 <thead>
                   <tr>
                     <th><?=gettext("Name");?></th>
                     <th><?=gettext("Members");?></th>
                     <th><?=gettext("Description");?></th>
+                    <!-- 新增按鈕 -->
                     <th class="text-nowrap">
                       <a href="interfaces_groups_edit.php" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<?= html_safe(gettext('Add')) ?>">
                         <i class="fa fa-plus fa-fw"></i>
                       </a>
-		    </th>
+		                </th>
                   </tr>
                 </thead>
                 <tbody>
