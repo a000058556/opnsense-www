@@ -34,6 +34,7 @@ require_once("filter.inc");
 require_once("system.inc");
 
 $a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
+// /usr/local/etc/inc/config.inc > &config_read_array()
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($a_ifgroups[$_POST['id']])) {
