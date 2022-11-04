@@ -116,8 +116,7 @@ include("head.inc");
               }]
       });
     });
-    console.log("----------php $a_ifgroups-------");
-    console.log(<?php print_r ($a_ifgroups); ?>);
+
   });
   </script>
   <!-- 導入head -->
