@@ -157,6 +157,7 @@ include("head.inc");
                 <tbody>
 <?php
                 $i = 0;
+                echo '<div>'.$a_ifgroups.'</div>';
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
                     <td>
