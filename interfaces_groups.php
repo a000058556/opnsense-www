@@ -34,7 +34,7 @@ require_once("filter.inc");
 require_once("system.inc");
 
 $a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
-print_r ($a_ifgroups);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($a_ifgroups[$_POST['id']])) {
         $id = $_POST['id'];
@@ -157,7 +157,7 @@ include("head.inc");
                 <tbody>
 <?php
                 $i = 0;
-                print_r ($a_ifgroups);
+                print_r ('$a_ifgroups'.$a_ifgroups);
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
