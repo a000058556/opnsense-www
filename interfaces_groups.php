@@ -157,7 +157,7 @@ include("head.inc");
                 <tbody>
 <?php
                 $i = 0;
-                echo '<div>'.'$a_ifgroups'.print_r ($a_ifgroups).'</div>';
+                print_r ($a_ifgroups);
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
