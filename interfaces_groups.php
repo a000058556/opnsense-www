@@ -34,6 +34,8 @@ require_once("filter.inc");
 require_once("system.inc");
 
 $a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
+// /usr/local/www/interfaces_groups.php > require_once("guiconfig.inc");
+// /usr/local/www/guiconfig.inc > require_once("config.inc");
 // /usr/local/etc/inc/config.inc > &config_read_array()
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
