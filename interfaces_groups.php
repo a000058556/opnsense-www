@@ -86,11 +86,13 @@ include("head.inc");
     $(".act_delete").click(function(event){
       event.preventDefault();
       var id = $(this).data("id");
+      var alldata = $(this).data();
+      console.log(alldata);
       // delete single，BootstrapDialog.show 為Bootstrap自定義彈出視窗
       BootstrapDialog.show({
         type:BootstrapDialog.TYPE_DANGER, // 顏色
         // title: "<?= gettext("Group");?>",
-        title: id,
+        title: "<?= gettext("Group");?>",
         message: "<?=gettext("Do you really want to delete this group? All elements that still use it will become invalid (e.g. filter rules)!");?>",
         buttons: [{
                   label: "<?= gettext("No");?>",
