@@ -34,7 +34,7 @@ require_once("filter.inc");
 require_once("system.inc");
 
 $a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
-
+echo '<div>'.print_r ($a_ifgroups).'</div>';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($a_ifgroups[$_POST['id']])) {
         $id = $_POST['id'];
@@ -78,6 +78,7 @@ legacy_html_escape_form_data($a_ifgroups);
 include("head.inc");
 
 ?>
+
 <body>
   <script>
     // 刪除按鈕動作設定
@@ -157,6 +158,7 @@ include("head.inc");
 <?php
                 $i = 0;
                 print_r ($a_ifgroups);
+                // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
                     <td>
@@ -164,6 +166,7 @@ include("head.inc");
                     </td>
                     <td>
 <?php
+                    // member欄位 foreach取所有成員
                     $iflist = legacy_config_get_interfaces();
                     foreach (explode(" ", $ifgroupentry['members']) as $id => $memb):?>
                       <?=$id > 0 ? "," : "";?>
@@ -171,7 +174,9 @@ include("head.inc");
 <?php
                     endforeach;?>
                     </td>
+                    <!-- descr欄位 -->
                     <td><?=$ifgroupentry['descr'];?></td>
+                    <!-- 編輯欄位 -->
                     <td class="text-nowrap">
                       <a href="interfaces_groups_edit.php?id=<?=$i;?>" class="btn btn-xs btn-default" data-toggle="tooltip" title="<?= html_safe(gettext('Edit')) ?>">
                         <i class="fa fa-pencil fa-fw"></i>
