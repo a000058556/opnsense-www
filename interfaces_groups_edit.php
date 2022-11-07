@@ -32,7 +32,10 @@ require_once("guiconfig.inc");
 require_once("interfaces.inc");
 require_once("filter.inc");
 
-$a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry');
+$a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry');//取config資料
+// /usr/local/www/interfaces_groups.php > require_once("guiconfig.inc");
+// /usr/local/www/guiconfig.inc > require_once("config.inc");
+// /usr/local/etc/inc/config.inc > &config_read_array()
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // read form data
@@ -169,7 +172,9 @@ legacy_html_escape_form_data($pconfig);
 <section class="page-content-main">
   <div class="container-fluid">
     <div class="row">
+      <!-- 輸入錯誤提示 -->
       <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
+      <!-- 輸入錯誤提示end -->
       <section class="col-xs-12">
         <div class="content-box">
           <div class="table-responsive">
@@ -178,27 +183,34 @@ legacy_html_escape_form_data($pconfig);
                 <thead>
                   <tr>
                     <td style="width:22%"><strong><?=gettext("Interface Groups Edit");?></strong></td>
+                    <!-- 顯示提示按鈕 -->
                     <td style="width:78%; text-align:right">
                       <small><?=gettext("full help"); ?> </small>
                       <i class="fa fa-toggle-off text-danger"  style="cursor: pointer;" id="show_all_help_page"></i>
                       &nbsp;
                     </td>
+                    <!-- 顯示提示按鈕end -->
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
+                    <!-- 電腦版表頭+提示按鈕，手機板時會顯示tr隱藏此td -->
                     <td><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Name') ?></td>
                     <td>
+                      <!-- 輸入框，將資料寫到$pconfig['ifname'] -->
                       <input type="text" name="ifname" value="<?=$pconfig['ifname'];?>" />
+                      <!-- 顯示name提示 -->
                       <div class="hidden" data-for="help_for_ifname">
                         <?=gettext("No numbers or spaces are allowed. Only characters in a-zA-Z");?>
                       </div>
                     </td>
                   </tr>
                   <tr>
+                    <!-- 電腦版表頭+提示按鈕 -->
                     <td><a id="help_for_descr" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Description"); ?></td>
                     <td>
                       <input name="descr" type="text" value="<?=$pconfig['descr'];?>" />
+                      <!-- 顯示descr提示 -->
                       <div class="hidden" data-for="help_for_descr">
                         <?= gettext('You may enter a description here for your reference.') ?>
                       </div>
@@ -207,7 +219,9 @@ legacy_html_escape_form_data($pconfig);
                   <tr>
                     <td><a id="help_for_members" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Members') ?></td>
                     <td>
+                      <!-- 選擇按鈕 -->
                         <select name="members[]" multiple="multiple" class="selectpicker" data-size="5" data-live-search="true">
+                          <!-- 生成下拉選單選項 <option value="wan"> WAN </option> -->
 <?php
                         foreach (legacy_config_get_interfaces() as $ifn => $ifdetail):
                           if (!empty($ifdetail['type']) && $ifdetail['type'] == 'group') {
@@ -220,18 +234,22 @@ legacy_html_escape_form_data($pconfig);
 <?php
                         endforeach;?>
                         </select>
+                      <!-- 顯示members提示 -->
                       <div class="hidden" data-for="help_for_members">
                         <?= gettext('Rules for WAN type interfaces in groups do not contain the reply-to mechanism upon which Multi-WAN typically relies.') ?>
                       </div>
                     </td>
                   </tr>
                   <tr>
+                    <!-- 提交按鈕排版空格 -->
                     <td>&nbsp;</td>
                     <td>
+                      <!-- 保存/取消按鈕 -->
                       <input name="submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" />
                       <input type="button" class="btn btn-default" value="<?=html_safe(gettext('Cancel'));?>" onclick="window.location.href='/interfaces_groups.php'" />
                       <?php if (isset($id)): ?>
-                      <input name="id" type="hidden" value="<?=$id;?>" />
+                      <input name="id" type="" value="<?=$id;?>" />
+                      <!-- <input name="id" type="hidden" value="<?=$id;?>" /> -->
                       <?php endif; ?>
                     </td>
                   </tr>
