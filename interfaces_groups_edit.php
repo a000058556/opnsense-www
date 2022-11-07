@@ -195,7 +195,7 @@ legacy_html_escape_form_data($pconfig);
                 <tbody>
                   <tr>
                     <!-- 電腦版表頭+提示按鈕，手機板時會顯示tr隱藏此td -->
-                    <td><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Name') ?></td>
+                    <td><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Name') ?>確認用</td>
                     <td>
                       <!-- 輸入框，將資料寫到$pconfig['ifname'] -->
                       <input type="text" name="ifname" value="<?=$pconfig['ifname'];?>" />
