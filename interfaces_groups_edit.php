@@ -170,6 +170,9 @@ legacy_html_escape_form_data($pconfig);
 <?php include("fbegin.inc"); ?>
 
 <section class="page-content-main">
+  <div>
+    確認用文字
+  </div>
   <div class="container-fluid">
     <div class="row">
       <!-- 輸入錯誤提示 -->
@@ -195,7 +198,7 @@ legacy_html_escape_form_data($pconfig);
                 <tbody>
                   <tr>
                     <!-- 電腦版表頭+提示按鈕，手機板時會顯示tr隱藏此td -->
-                    <td><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Name') ?>確認用</td>
+                    <td><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Name') ?></td>
                     <td>
                       <!-- 輸入框，將資料寫到$pconfig['ifname'] -->
                       <input type="text" name="ifname" value="<?=$pconfig['ifname'];?>" />
