@@ -46,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['apply'])) {
-        system_cron_configure();
-        filter_configure();
-        clear_subsystem_dirty('filter');
+        system_cron_configure(); // 從system.inc調用
+        filter_configure(); // 從filter.inc調用
+        clear_subsystem_dirty('filter'); // 從util.inc調用
         $savemsg = gettext('The settings have been applied and the rules are now reloading in the background.');
     } elseif (!empty($_POST['action']) && $_POST['action'] == "del" && isset($id)) {
       // 當$_POST['action']非空值、$_POST['action']=="del" 、isset($id)
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 用空白分割取得成員array
         foreach ($members as $ifs) {
             // 用要刪除的資料id取得$a_ifgroups[$id]['ifname'] 、$a_ifgroups[$id]['members']
-            // 調用util.inc.php的mwexecf()執行cmd指令
+            // 調用util.inc的mwexecf()執行cmd指令
             // 調用interfaces.inc中的get_real_interface()帶入$ifs  $ifs內容示意:[members] => wan lo0
             mwexecf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[$id]['ifname']));
         }
