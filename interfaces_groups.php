@@ -29,16 +29,18 @@
  */
 
 require_once("guiconfig.inc");
-require_once("interfaces.inc");
+require_once("interfaces.inc"); // 調用get_real_interface();
 require_once("filter.inc");
-require_once("system.inc");
+require_once("system.inc"); // 調用system_cron_configure();
 
 $a_ifgroups = &config_read_array('ifgroups', 'ifgroupentry'); //取config資料
 // /usr/local/www/interfaces_groups.php > require_once("guiconfig.inc");
 // /usr/local/www/guiconfig.inc > require_once("config.inc");
 // /usr/local/etc/inc/config.inc > &config_read_array()
 
+// 接收表格post訊息
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 若非空值 $id = $_POST['id'];
     if (!empty($a_ifgroups[$_POST['id']])) {
         $id = $_POST['id'];
     }
@@ -49,8 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         clear_subsystem_dirty('filter');
         $savemsg = gettext('The settings have been applied and the rules are now reloading in the background.');
     } elseif (!empty($_POST['action']) && $_POST['action'] == "del" && isset($id)) {
+      // 當$_POST['action']非空值、$_POST['action']=="del" 、isset($id)
         $members = explode(" ", $a_ifgroups[$id]['members']);
+        // 用空白分割取得成員array
         foreach ($members as $ifs) {
+            // 用要刪除的資料id取得$a_ifgroups[$id]['ifname'] 、$a_ifgroups[$id]['members']
+            // 調用util.inc.php的mwexecf()執行cmd指令
+            // 調用interfaces.inc中的get_real_interface()帶入$ifs  $ifs內容示意:[members] => wan lo0
             mwexecf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[$id]['ifname']));
         }
         $pointers = [
@@ -160,12 +167,17 @@ include("head.inc");
                 <tbody>
 <?php
                 $i = 0;
-                // 資料內容
+                // $a_ifgroupsㄔ資料內容示意:
+                // Array ( 
+                //  [0] => Array ( [members] => lo0 [descr] => test [ifname] => group ) 
+                //  [1] => Array ( [members] => wan lo0 [descr] => test_for_group txt [ifname] => test_for_group ) 
+                // )
                 print_r ($a_ifgroups);
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
                     <td>
+                    <!-- 鏈接範例:  https://130.211.251.29/firewall_rules.php?if=test_for_group -->
                       <a href="/firewall_rules.php?if=<?=$ifgroupentry['ifname'];?>"><?=$ifgroupentry['ifname'];?></a>
                     </td>
                     <td>
@@ -182,9 +194,11 @@ include("head.inc");
                     <td><?=$ifgroupentry['descr'];?></td>
                     <!-- 編輯欄位 -->
                     <td class="text-nowrap">
+                      <!-- 編輯鏈接範例:  https://130.211.251.29/interfaces_groups_edit.php?id=0 -->
                       <a href="interfaces_groups_edit.php?id=<?=$i;?>" class="btn btn-xs btn-default" data-toggle="tooltip" title="<?= html_safe(gettext('Edit')) ?>">
                         <i class="fa fa-pencil fa-fw"></i>
                       </a>
+                      <!-- 刪除按鈕 -->
                       <button title="<?= html_safe(gettext('Delete')) ?>" data-toggle="tooltip" data-id="<?=$i;?>" class="btn btn-default btn-xs act_delete" type="submit">
                         <i class="fa fa-trash fa-fw"></i>
                       </button>
@@ -194,6 +208,7 @@ include("head.inc");
                 $i++;
                 endforeach; ?>
                   <tr>
+                    <!-- 表格下方說明文 -->
                     <td colspan="4">
                       <?=gettext("Interface Groups allow you to create rules that apply to multiple interfaces without duplicating the rules. If you remove members from an interface group, the group rules no longer apply to that interface.");?>
                     </td>
