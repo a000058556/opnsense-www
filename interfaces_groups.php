@@ -181,7 +181,8 @@ include("head.inc");
 
                 foreach ($mbers as $ifs) {
                   // $mber = get_real_interface($ifs);
-                  echo(sprintf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[1]['ifname'])));
+                  $cmdst = sprintf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[1]['ifname']));
+                  echo($cmdst.'/n');
                 }
 
                 // name欄位
