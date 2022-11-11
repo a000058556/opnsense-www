@@ -205,7 +205,7 @@ include("head.inc");
                   // call_user_func_array：把第一个参数作为回调函数进行调用，第二个参数传入数组，将数组中的值作为回调函数的参数
                   // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
                   $refff = &call_user_func_array('config_read_array', $section); 
-                  echo ($refff);
+                  print_r ($refff);
                   // if (!empty($ref)) {
                   //     foreach ($ref as $x => $rule) {
                   //         if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
