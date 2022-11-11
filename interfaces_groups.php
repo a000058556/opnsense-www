@@ -78,15 +78,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
             $ref = &call_user_func_array('config_read_array', $sections); 
             if (!empty($ref)) {
+                // &call_user_func_array('config_read_array', $sections); 內容:
+                // [0] => Array ( [@attributes] => Array ( [uuid] => 401a19cd-53fe-4387-b5d1-305ced7a32d5 ) [type] => pass [ipprotocol] => inet [descr] => Default allow LAN to any rule [interface] => lan [source] => Array ( [network] => lan ) [destination] => Array ( [any] => ) ) 
+                // [1] => Array ( [@attributes] => Array ( [uuid] => 02cf1f41-bd87-40d4-9446-d5eec543d857 ) [type] => pass [ipprotocol] => inet6 [descr] => Default allow LAN IPv6 to any rule [interface] => lan [source] => Array ( [network] => lan ) [destination] => Array ( [any] => ) )
+                // $x = Key / $rule = Value
                 foreach ($ref as $x => $rule) {
+                    // [interface] => lan
                     if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
-                      unset($ref[$x]);
+                      unset($ref[$x]); // 清除該筆變數資料
                     }
                 }
             }
         }
         unset($a_ifgroups[$id]); // 清除變數資料
-        write_config(); // 從config.inc調用
+        write_config(); // 從config.inc調用,將跟新後config寫入?
         header(url_safe('Location: /interfaces_groups.php')); // 轉跳回group頁面 
         exit;
     }
@@ -190,9 +195,9 @@ include("head.inc");
 
                 foreach ($mbers as $ifs) {
                   // $mber = get_real_interface($ifs);
-                  echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
+                  echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']).'/n');
                 }
-
+                echo('<br/>');
                 // &config_read_array()資料內容示意:
                 $point = [
                   ['filter', 'rule'],
@@ -205,7 +210,7 @@ include("head.inc");
                   // call_user_func_array：把第一个参数作为回调函数进行调用，第二个参数传入数组，将数组中的值作为回调函数的参数
                   // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
                   $refff = &call_user_func_array('config_read_array', $section); 
-                  print_r ($refff);
+                  
                   // if (!empty($ref)) {
                   //     foreach ($ref as $x => $rule) {
                   //         if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
@@ -214,6 +219,7 @@ include("head.inc");
                   //     }
                   // }
                 }
+                print_r ($refff);
 
 
 
