@@ -180,8 +180,8 @@ include("head.inc");
                 // echo (get_real_interface($mbers));
 
                 foreach ($mbers as $ifs) {
-                  $mber = get_real_interface($ifs);
-                  print_r ($mber);
+                  // $mber = get_real_interface($ifs);
+                  print_r('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[1]['ifname']));
                 }
 
                 // name欄位
