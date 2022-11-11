@@ -205,7 +205,7 @@ include("head.inc");
                   // $mber = get_real_interface($ifs);
                   echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
                 }
-                echo('<br/>');
+                echo('<br/>刪除資料時 &config_read_array()資料內容示意:<br/>');
                 // &config_read_array()資料內容示意:
                 $point = [
                   ['filter', 'rule'],
@@ -221,7 +221,10 @@ include("head.inc");
                   print_r ($refff);
                   echo('<br/>');
                 }
-                
+
+                echo('<br/>$a_ifgroups資料內容<br/>');
+                $get_ifgroups = &config_read_array('ifgroups', 'ifgroupentry');
+                print_r ($get_ifgroups);
 
 
 
