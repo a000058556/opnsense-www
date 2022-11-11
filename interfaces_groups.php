@@ -58,7 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 用要刪除的資料id取得$a_ifgroups[$id]['ifname'] 、$a_ifgroups[$id]['members']
             // 調用util.inc的mwexecf()執行cmd指令
             // 調用interfaces.inc中的get_real_interface()帶入$ifs  $ifs內容示意:[members] => wan lo0
+            // mwexecf('/sbin/ifconfig %s -group %s', array('wan lo0', 'test_for_group'));
             mwexecf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[$id]['ifname']));
+            // cmd指令  /sbin/ifconfig wan lo0 -group test_for_group
         }
         $pointers = [
             ['filter', 'rule'],
@@ -173,6 +175,12 @@ include("head.inc");
                 //  [1] => Array ( [members] => wan lo0 [descr] => test_for_group txt [ifname] => test_for_group ) 
                 // )
                 print_r ($a_ifgroups);
+                $mbers = explode(" ", $a_ifgroups[$id]['members']);
+                print_r ($mbers);
+                foreach ($mbers as $ifs) {
+                  $mber = get_real_interface($ifs);
+                  print_r ($mber);
+                }
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
