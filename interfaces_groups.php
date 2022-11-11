@@ -91,12 +91,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         unset($a_ifgroups[$id]); // 清除變數資料
-        write_config(); // 從config.inc調用,將跟新後config寫入?
+        write_config(); // 從config.inc調用,將更新後config寫入?
         header(url_safe('Location: /interfaces_groups.php')); // 轉跳回group頁面 
         exit;
     }
 }
-
+// 從guiconfig.inc > config.inc > legacy_bindings.inc調用
+// 將資料拆為Key => Value
+// 並使用htmlspecialchars把Value的預定義字符轉換為HTML實體
+// 預定義的字符：
+//  & （和號）成為&
+//  " （雙引號）成為"
+//  ' （單引號）成為'
+//  < （小於）成為<
+//  > （大於）成為>
 legacy_html_escape_form_data($a_ifgroups);
 
 include("head.inc");
