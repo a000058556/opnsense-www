@@ -83,9 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // [1] => Array ( [@attributes] => Array ( [uuid] => 02cf1f41-bd87-40d4-9446-d5eec543d857 ) [type] => pass [ipprotocol] => inet6 [descr] => Default allow LAN IPv6 to any rule [interface] => lan [source] => Array ( [network] => lan ) [destination] => Array ( [any] => ) )
                 // $x = Key / $rule = Value
                 foreach ($ref as $x => $rule) {
-                    // [interface] => lan
+                    // 當要刪除的id group名稱與config的interface名稱一樣時 示意: [interface] => lan
                     if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
-                      unset($ref[$x]); // 清除該筆變數資料
+                      unset($ref[$x]); // 清除該筆資料
                     }
                 }
             }
