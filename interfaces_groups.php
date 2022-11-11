@@ -197,14 +197,18 @@ include("head.inc");
                 print_r ($a_ifgroups);
 
                 // mwexecf() 與 get_real_interface()資料內容示意:
+                echo('<br/>取得要刪除群組的interface<br/>');
                 $mbers = explode(" ", $a_ifgroups[1]['members']);
                 print_r ($mbers);
                 // echo (get_real_interface($mbers));
 
                 foreach ($mbers as $ifs) {
                   // $mber = get_real_interface($ifs);
+                  echo('<br/>mwexecf()指令內容示意:<br/>');
                   echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
+                  echo('<br/>');
                 }
+
                 echo('<br/>刪除資料時 &config_read_array()資料內容示意:<br/>');
                 // &config_read_array()資料內容示意:
                 $point = [
