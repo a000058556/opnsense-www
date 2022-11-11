@@ -61,6 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // mwexecf('/sbin/ifconfig %s -group %s', array('wan lo0', 'test_for_group'));
             mwexecf('/sbin/ifconfig %s -group %s', array(get_real_interface($ifs), $a_ifgroups[$id]['ifname']));
             // cmd指令  /sbin/ifconfig wan lo0 -group test_for_group
+            // 經過get_real_interface()後會換成真實的interface名稱
+            // /sbin/ifconfig vtnet0 -group test_for_group
+            // /sbin/ifconfig lo0 -group test_for_group
+            // 功能為從interface的group清單中移除group
+            // /sbin/ifconfig lo0 group test_for_group *此為增加group
         }
         $pointers = [
             ['filter', 'rule'],
@@ -69,7 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['nat', 'outbound', 'rule'],
         ];
         foreach ($pointers as $sections) {
-            $ref = &call_user_func_array('config_read_array', $sections);
+            // call_user_func_array：把第一个参数作为回调函数进行调用，第二个参数传入数组，将数组中的值作为回调函数的参数
+            // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
+            $ref = &call_user_func_array('config_read_array', $sections); 
             if (!empty($ref)) {
                 foreach ($ref as $x => $rule) {
                     if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
@@ -78,9 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        unset($a_ifgroups[$id]);
-        write_config();
-        header(url_safe('Location: /interfaces_groups.php'));
+        unset($a_ifgroups[$id]); // 清除變數資料
+        write_config(); // 從config.inc調用
+        header(url_safe('Location: /interfaces_groups.php')); // 轉跳回group頁面 
         exit;
     }
 }
@@ -175,6 +182,8 @@ include("head.inc");
                 //  [1] => Array ( [members] => wan lo0 [descr] => test_for_group txt [ifname] => test_for_group ) 
                 // )
                 print_r ($a_ifgroups);
+
+                // mwexecf() 與 get_real_interface()資料內容示意:
                 $mbers = explode(" ", $a_ifgroups[1]['members']);
                 print_r ($mbers);
                 // echo (get_real_interface($mbers));
@@ -183,6 +192,30 @@ include("head.inc");
                   // $mber = get_real_interface($ifs);
                   echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
                 }
+
+                // &config_read_array()資料內容示意:
+                $point = [
+                  ['filter', 'rule'],
+                  ['nat', 'rule'],
+                  ['nat', 'onetoone'],
+                  ['nat', 'outbound', 'rule'],
+                ];
+
+                foreach ($point as $section) {
+                  // call_user_func_array：把第一个参数作为回调函数进行调用，第二个参数传入数组，将数组中的值作为回调函数的参数
+                  // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
+                  $refff = &call_user_func_array('config_read_array', $section); 
+                  echo ($refff);
+                  // if (!empty($ref)) {
+                  //     foreach ($ref as $x => $rule) {
+                  //         if ($rule['interface'] == $a_ifgroups[$id]['ifname']) {
+                  //           unset($ref[$x]);
+                  //         }
+                  //     }
+                  // }
+                }
+
+
 
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
