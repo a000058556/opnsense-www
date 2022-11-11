@@ -195,7 +195,7 @@ include("head.inc");
 
                 foreach ($mbers as $ifs) {
                   // $mber = get_real_interface($ifs);
-                  echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']).'/n');
+                  echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
                 }
                 echo('<br/>');
                 // &config_read_array()資料內容示意:
