@@ -177,13 +177,13 @@ include("head.inc");
                 print_r ($a_ifgroups);
                 $mbers = explode(" ", $a_ifgroups[1]['members']);
                 print_r ($mbers);
-                print_r (get_real_interface($mbers));
+                echo (get_real_interface($mbers));
 
-                // foreach ($mbers as $ifs) {
-                //   $mber = get_real_interface($ifs);
-                //   print_r ($mber);
-                // }
-                
+                foreach ($mbers as $ifs) {
+                  $mber = get_real_interface($ifs);
+                  print_r ($mber);
+                }
+
                 // name欄位
                 foreach ($a_ifgroups as $ifgroupentry): ?>
                   <tr>
