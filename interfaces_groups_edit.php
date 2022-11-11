@@ -185,7 +185,7 @@ legacy_html_escape_form_data($pconfig);
                     <td style="width:22%"><strong><?=gettext("Interface Groups Edit");?></strong></td>
                     <!-- 顯示提示按鈕 -->
                     <td style="width:78%; text-align:right">
-                      <small><?=gettext("full help"); ?> </small>
+                      <small><?=gettext("full help xxxxx"); ?> </small>
                       <i class="fa fa-toggle-off text-danger"  style="cursor: pointer;" id="show_all_help_page"></i>
                       &nbsp;
                     </td>
