@@ -197,7 +197,7 @@ include("head.inc");
                   // $mber = get_real_interface($ifs);
                   echo (sprintf('/sbin/ifconfig %s -group %s', get_real_interface($ifs), $a_ifgroups[1]['ifname']));
                 }
-                echo('<br/>');
+                // echo('<br/>');
                 // &config_read_array()資料內容示意:
                 $point = [
                   ['filter', 'rule'],
