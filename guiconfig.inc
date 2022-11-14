@@ -64,6 +64,11 @@ function get_current_theme()
 function html_safe($text)
 {
     /* gettext() embedded in JavaScript can cause syntax errors */
+    // str_replace(尋找, 替換, 字串) 使用一個字符串替換字符串中的字符 將"\n"換為'&#10;'
+    // htmlspecialchars() 把預定義的字符轉換為HTML實體
+    // htmlspecialchars(string,flags,character-set,double_encode)
+    // flags > 規定如何編碼單引號和雙引號(ENT_QUOTES - 編碼雙引號和單引號)
+    // flags > 規定使用的文檔類型(ENT_HTML401 - 默認。作為HTML 4.01 處理代碼)
     return str_replace("\n", '&#10;', htmlspecialchars($text, ENT_QUOTES | ENT_HTML401));
 }
 

@@ -189,7 +189,7 @@ include("head.inc");
                 <tbody>
 <?php
                 $i = 0;
-                // $a_ifgroupsㄔ資料內容示意:
+                // $a_ifgroupsㄔ資料內容示意:t
                 // Array ( 
                 //  [0] => Array ( [members] => lo0 [descr] => test [ifname] => group ) 
                 //  [1] => Array ( [members] => wan lo0 [descr] => test_for_group txt [ifname] => test_for_group ) 
@@ -219,7 +219,7 @@ include("head.inc");
                 ];
 
                 foreach ($point as $section) {
-                  // call_user_func_array：把第一个参数作为回调函数进行调用，第二个参数传入数组，将数组中的值作为回调函数的参数
+                  // call_user_func_array：把第一個參數作為回調函數進行調用，第二個參數傳入數組，將數組中的值作為回調函數的參數
                   // 使用call_user_func_array()調用config.inc的function &config_read_array() 帶入$sections內容
                   $refff = &call_user_func_array('config_read_array', $section); 
                   print_r ($refff);

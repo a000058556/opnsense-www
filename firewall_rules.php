@@ -54,12 +54,19 @@ function firewall_rule_item_proto($filterent)
         // when ipprotocol is not set, pf would normally figure out the ip proto itself.
         // reconstruct ipproto depending on source/destination address.
         if (!empty($filterent['from']) && is_ipaddr(explode("/", $filterent['from'])[0])) {
+            // is_ipaddr() 從util.inc調用
+            // strpos($filterent['from'], ":")為找出 ":"第一次出現的位置 ， false=沒有在($filterent['from']中
+            // 如果沒有":"     $record_ipprotocol = "IPv4 "
+            // 有":"    $record_ipprotocol = "IPv6 "
             $record_ipprotocol = strpos($filterent['from'], ":") === false ? "IPv4 " :  "IPv6 ";
+          // 取$filterent['to'] 確認 $record_ipprotocol 
         } elseif (!empty($filterent['to']) && is_ipaddr(explode("/", $filterent['to'])[0])) {
             $record_ipprotocol = strpos($filterent['to'], ":") === false ? "IPv4 " :  "IPv6 ";
+          // 取$filterent['source']['address'] 確認 $record_ipprotocol 
         } elseif (isset($filterent['source']['address'])
                     && is_ipaddr(explode("/", $filterent['source']['address'])[0])) {
             $record_ipprotocol = strpos($filterent['source']['address'], ":") === false ? "IPv4 " : "IPv6 ";
+          // 取$filterent['destination']['address'] 確認 $record_ipprotocol 
         } elseif (isset($filterent['destination']['address'])
                     && is_ipaddr(explode("/", $filterent['destination']['address'])[0])) {
             $record_ipprotocol = strpos($filterent['destination']['address'], ":") === false ? "IPv4 " : "IPv6 ";
@@ -115,14 +122,18 @@ function firewall_rule_item_proto($filterent)
       "mtraceresp" => gettext("mtrace response"),
       "mtrace" => gettext("mtrace messages")
     );
+    // 當$filterent['protocol']有內容&& == "icmp" && !empty($filterent['icmptype'])
     if (isset($filterent['protocol']) && $filterent['protocol'] == "icmp" && !empty($filterent['icmptype'])) {
         $result = $record_ipprotocol;
+        // html_safe()調用於guiconfig.inc
+        // strtoupper()把字符串轉換為大寫
         $result .= sprintf(
           "<span data-toggle=\"tooltip\" title=\"ICMP type: %s \"> %s </span>",
           html_safe($icmptypes[$filterent['icmptype']]),
           isset($filterent['protocol']) ? strtoupper($filterent['protocol']) : "*"
         );
         return $result;
+    // 當$filterent['protocol']有內容 && !empty($filterent['icmp6-type'])
     } elseif (isset($filterent['protocol']) && !empty($filterent['icmp6-type'])) {
         $result = $record_ipprotocol;
         $result .= sprintf(
