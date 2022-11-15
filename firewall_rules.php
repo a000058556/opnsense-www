@@ -74,53 +74,59 @@ function firewall_rule_item_proto($filterent)
             $record_ipprotocol = "IPv4+6 ";
         }
     }
+    // ICMP 協定(ICMP 協定說明 : http://www.tsnien.idv.tw/Internet_WebBook/chap5/5-4%20ICMP%20%E9%80%9A%E8%A8%8A%E5%8D%94%E5%AE%9A.html)
+    // Internet中一種稱為『網際控制訊息協定』（Internet Control Message Protocol, ICMP）的通訊軟體，用來偵測網路的狀況。
+    // Ping是透過ICMP的Echo Request和Echo Reply來完成檢測。
+
+    // ICMP 訊息型態:
     $icmptypes = array(
       "" => gettext("any"),
-      "echoreq" => gettext("Echo Request"),
-      "echorep" => gettext("Echo Reply"),
-      "unreach" => gettext("Destination Unreachable"),
-      "squench" => gettext("Source Quench (Deprecated)"),
-      "redir" => gettext("Redirect"),
-      "althost" => gettext("Alternate Host Address (Deprecated)"),
-      "routeradv" => gettext("Router Advertisement"),
-      "routersol" => gettext("Router Solicitation"),
-      "timex" => gettext("Time Exceeded"),
-      "paramprob" => gettext("Parameter Problem"),
-      "timereq" => gettext("Timestamp"),
-      "timerep" => gettext("Timestamp Reply"),
-      "inforeq" => gettext("Information Request (Deprecated)"),
-      "inforep" => gettext("Information Reply (Deprecated)"),
-      "maskreq" => gettext("Address Mask Request (Deprecated)"),
-      "maskrep" => gettext("Address Mask Reply (Deprecated)")
+      "echoreq" => gettext("Echo Request"), // 回應要求
+      "echorep" => gettext("Echo Reply"),   // 回應答覆
+      "unreach" => gettext("Destination Unreachable"), // 目的地無法到達
+      "squench" => gettext("Source Quench (Deprecated)"), // 來源抑制(已棄用)
+      "redir" => gettext("Redirect"), // 改變傳輸路徑
+      "althost" => gettext("Alternate Host Address (Deprecated)"), // 備用主機地址(已棄用)
+      "routeradv" => gettext("Router Advertisement"), // 路由器宣傳
+      "routersol" => gettext("Router Solicitation"), // 路由器請求
+      "timex" => gettext("Time Exceeded"), // 溢時傳輸
+      "paramprob" => gettext("Parameter Problem"), // 參數問題
+      "timereq" => gettext("Timestamp"), // 時間標籤要求
+      "timerep" => gettext("Timestamp Reply"), // 時間標籤回覆
+      "inforeq" => gettext("Information Request (Deprecated)"), // 資訊要求(已棄用)
+      "inforep" => gettext("Information Reply (Deprecated)"), // 資訊回覆(已棄用)
+      "maskreq" => gettext("Address Mask Request (Deprecated)"), // 位址遮罩要求(已棄用)
+      "maskrep" => gettext("Address Mask Reply (Deprecated)")// 位址遮罩回覆(已棄用)
     );
+    // ICMPv6 訊息型態:
     $icmp6types = array(
       "" => gettext("any"),
-      "unreach" => gettext("Destination unreachable"),
-      "toobig" => gettext("Packet too big"),
-      "timex" => gettext("Time exceeded"),
-      "paramprob" => gettext("Invalid IPv6 header"),
-      "echoreq" => gettext("Echo service request"),
-      "echorep" => gettext("Echo service reply"),
-      "groupqry" => gettext("Group membership query"),
-      "listqry" => gettext("Multicast listener query"),
-      "grouprep" => gettext("Group membership report"),
-      "listenrep" => gettext("Multicast listener report"),
-      "groupterm" => gettext("Group membership termination"),
-      "listendone" => gettext("Multicast listener done"),
-      "routersol" => gettext("Router solicitation"),
-      "routeradv" => gettext("Router advertisement"),
-      "neighbrsol" => gettext("Neighbor solicitation"),
-      "neighbradv" => gettext("Neighbor advertisement"),
-      "redir" => gettext("Shorter route exists"),
-      "routrrenum" => gettext("Route renumbering"),
-      "fqdnreq" => gettext("FQDN query"),
-      "niqry" => gettext("Node information query"),
-      "wrureq" => gettext("Who-are-you request"),
-      "fqdnrep" => gettext("FQDN reply"),
-      "nirep" => gettext("Node information reply"),
-      "wrurep" => gettext("Who-are-you reply"),
-      "mtraceresp" => gettext("mtrace response"),
-      "mtrace" => gettext("mtrace messages")
+      "unreach" => gettext("Destination unreachable"), // 目的地無法到達
+      "toobig" => gettext("Packet too big"), // 數據包太大
+      "timex" => gettext("Time exceeded"), // 溢時傳輸
+      "paramprob" => gettext("Invalid IPv6 header"), // 無效的 IPv6 標頭
+      "echoreq" => gettext("Echo service request"), // 服務請求
+      "echorep" => gettext("Echo service reply"), // 服務回覆
+      "groupqry" => gettext("Group membership query"), // 群組成員查詢
+      "listqry" => gettext("Multicast listener query"), // 聆聽者查詢
+      "grouprep" => gettext("Group membership report"),// 群組成員查詢回覆
+      "listenrep" => gettext("Multicast listener report"), // 聆聽者查詢
+      "groupterm" => gettext("Group membership termination"), // 群組成員資格終止
+      "listendone" => gettext("Multicast listener done"), // 聆聽者查詢終止
+      "routersol" => gettext("Router solicitation"), // 路由器請求
+      "routeradv" => gettext("Router advertisement"), // 路由器宣傳
+      "neighbrsol" => gettext("Neighbor solicitation"), // 鄰居請求
+      "neighbradv" => gettext("Neighbor advertisement"), // 鄰居宣傳
+      "redir" => gettext("Shorter route exists"), // 存在較短的路線
+      "routrrenum" => gettext("Route renumbering"), // 路線重新編號
+      "fqdnreq" => gettext("FQDN query"), // 完整網域名稱 FQDN（Fully Qualified Domain Name）請求
+      "niqry" => gettext("Node information query"), // 節點信息查詢
+      "wrureq" => gettext("Who-are-you request"), // 你是誰請求
+      "fqdnrep" => gettext("FQDN reply"), // 網域名稱 FQDN（Fully Qualified Domain Name）回覆
+      "nirep" => gettext("Node information reply"), // 節點信息回覆
+      "wrurep" => gettext("Who-are-you reply"), // 你是誰回覆
+      "mtraceresp" => gettext("mtrace response"), // 跟踪響應
+      "mtrace" => gettext("mtrace messages") // 跟踪消息
     );
     // 當$filterent['protocol']有內容&& == "icmp" && !empty($filterent['icmptype'])
     if (isset($filterent['protocol']) && $filterent['protocol'] == "icmp" && !empty($filterent['icmptype'])) {
@@ -151,24 +157,31 @@ function firewall_rule_item_proto($filterent)
 function firewall_rule_item_icons($filterent)
 {
     $result = "";
+    // 若$filterent['direction']為空值 or $filterent['direction'] == "in"
     if (empty($filterent['direction']) || $filterent['direction'] == "in") {
+        // $result = <i class="fa fa-long-arrow-right fa-fw text-info" data-toggle="tooltip" title="in"></i>
         $result .= sprintf(
             "<i class=\"fa fa-long-arrow-right fa-fw text-info\" data-toggle=\"tooltip\" title=\"%s\"></i>",
             gettext("in")
         );
+    // 若$filterent['direction']非為空值 and $filterent['direction'] == "out"
     } elseif (!empty($filterent['direction']) && $filterent['direction'] == "out") {
+        // $result = <i class="fa fa-long-arrow-left fa-fw" data-toggle="tooltip" title="out"></i>
         $result .= sprintf(
             "<i class=\"fa fa-long-arrow-left fa-fw\" data-toggle=\"tooltip\" title=\"%s\"></i>",
             gettext("out")
         );
     } else {
+        // $result = <i class="fa fa-exchange fa-fw" data-toggle="tooltip" title="any"></i>
         $result .= sprintf(
             "<i class=\"fa fa-exchange fa-fw\" data-toggle=\"tooltip\" title=\"%s\"></i>",
             gettext("any")
         );
     }
+    // 若$filterent['floating']為空值 and $filterent['quick'] === null
     if (empty($filterent['floating']) && $filterent['quick'] === null){
         $is_quick = true;
+    // 若$filterent['floating']為非空值 and $filterent['quick'] === null
     } elseif (!empty($filterent['floating']) && $filterent['quick'] === null) {
         $is_quick = false;
     } else {
@@ -176,11 +189,13 @@ function firewall_rule_item_icons($filterent)
     }
 
     if ($is_quick) {
+        // <i class="fa fa-flash fa-fw text-warning" data-toggle="tooltip" title="first match"></i>
         $result .= sprintf(
             "<i class=\"fa fa-flash fa-fw text-warning\" data-toggle=\"tooltip\" title=\"%s\"></i>",
             gettext('first match')
         );
     } else {
+      // <i class="fa fa-flash fa-fw text-muted" data-toggle="tooltip" title="last match"></i>
       $result .= sprintf(
           "<i class=\"fa fa-flash fa-fw text-muted\" data-toggle=\"tooltip\" title=\"%s\"></i>",
           gettext('last match')
@@ -192,14 +207,19 @@ function firewall_rule_item_icons($filterent)
 
 function firewall_rule_item_action($filterent)
 {
+    // 若$filterent['type'] == "block" and $filterent['disabled']為空值
     if ($filterent['type'] == "block" && empty($filterent['disabled'])) {
         return "fa fa-times fa-fw text-danger";
+    // 若$filterent['type'] == "block" and $filterent['disabled']非為空值
     } elseif ($filterent['type'] == "block" && !empty($filterent['disabled'])) {
         return "fa fa-times fa-fw text-muted";
+    // 若$filterent['type'] == "reject" and $filterent['disabled']為空值
     }  elseif ($filterent['type'] == "reject" && empty($filterent['disabled'])) {
         return "fa fa-times-circle fa-fw text-danger";
+    // 若$filterent['type'] == "reject" and $filterent['disabled']為空值
     }  elseif ($filterent['type'] == "reject" && !empty($filterent['disabled'])) {
         return "fa fa-times-circle fa-fw text-muted";
+    // 若$filterent['disabled']為空值
     } elseif (empty($filterent['disabled'])) {
         return "fa fa-play fa-fw text-success";
     } else {
@@ -209,6 +229,7 @@ function firewall_rule_item_action($filterent)
 
 function firewall_rule_item_log($filterent)
 {
+    // 當$filterent['log'] == true
     if ($filterent['log'] == true) {
         return "fa fa-info-circle fa-fw text-info";
     } else {
@@ -219,7 +240,7 @@ function firewall_rule_item_log($filterent)
  *
  ***********************************************************************************************************/
 
-$a_filter = &config_read_array('filter', 'rule');
+$a_filter = &config_read_array('filter', 'rule'); // 回傳取得的config_array資料
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_GET['if'])) {
@@ -227,21 +248,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $current_if = "FloatingRules";
     }
+    // 取得POST傳遞的資料
     $pconfig = $_POST;
+    // 當$pconfig['id']存在並$a_filter[$pconfig['id']])也存在時
     if (isset($pconfig['id']) && isset($a_filter[$pconfig['id']])) {
         // id found and valid
         $id = $pconfig['id'];
     }
+    // 當$pconfig['act']存在並== "apply"時
     if (isset($pconfig['act']) && $pconfig['act'] == "apply") {
-        system_cron_configure();
-        filter_configure();
-        clear_subsystem_dirty('filter');
-        $savemsg = get_std_save_message();
+        system_cron_configure(); // 從system.inc調用
+        filter_configure(); // 從filter.inc調用
+        clear_subsystem_dirty('filter'); // 從util.inc調用
+        $savemsg = get_std_save_message(); // 從guiconfig.inc調用
+    // 當$pconfig['act']存在 並 == "del" 並且有$id時
     } elseif (isset($pconfig['act']) && $pconfig['act'] == 'del' && isset($id)) {
         // delete single item
+        // 當$a_filter[$id]['associated-rule-id'])非空值時
         if (!empty($a_filter[$id]['associated-rule-id'])) {
             // unlink nat entry
+            // 當$config['nat']['rule']存在時
             if (isset($config['nat']['rule'])) {
+                // 取得config_array資料
                 $a_nat = &config_read_array('nat', 'rule');
                 foreach ($a_nat as &$natent) {
                     if ($natent['associated-rule-id'] == $a_filter[$id]['associated-rule-id']) {
@@ -250,8 +278,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        unset($a_filter[$id]);
-        write_config();
+        unset($a_filter[$id]); // 清除變數內容
+        write_config(); // 從config.inc調用，寫入
         mark_subsystem_dirty('filter');
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
@@ -1005,5 +1033,10 @@ $( document ).ready(function() {
       </section>
     </div>
   </div>
+<?php
+          echo('<br/>$a_nat資料內容<br/>');
+          $a_nat = &config_read_array('nat', 'rule');
+          print_r ($a_nat);
+?>
 </section>
 <?php include("foot.inc"); ?>

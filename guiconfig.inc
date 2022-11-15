@@ -285,12 +285,15 @@ function get_std_save_message($plain = false)
     global $config;
 
     /* we need this wrapped in gettext at least once */
+    // 當$config['hasync']['synchronizetoip']非空值時
     if (!empty($config['hasync']['synchronizetoip'])) {
+        // 當$plain = !false 時
         if (!$plain) {
             $lnk_start = '<a href="status_habackup.php">';
             $lnk_end = '</a>';
         }
         return sprintf(
+            //<a href="status_habackup.php">System: High availability: status</a>
             gettext("The changes have been applied successfully, ".
                     "remember to update your backup server in %sSystem: High availability: status%s"),
             $lnk_start, $lnk_end
@@ -305,6 +308,11 @@ function get_specialnets($only_enabled = false)
     $specialnets = array();
     $specialnets["any"] = gettext("any");
     $specialnets["(self)"] = gettext("This Firewall");
+    // Array
+    // (
+    //     [any] => any
+    //     [(self)] => This Firewall
+    // )
     $filter = $only_enabled ? array("enable" => true) : array();
     foreach (legacy_config_get_interfaces($filter) as $ifent => $ifdetail) {
         $specialnets[$ifent] = htmlspecialchars($ifdetail['descr']) . " " . gettext("net");
