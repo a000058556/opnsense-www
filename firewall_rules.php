@@ -1030,6 +1030,9 @@ $( document ).ready(function() {
           echo('<br/>$config['.'interfaces'.']資料內容<br/>');
           print_r ($config['interfaces']);
           
+          $path = '/usr/local/etc/inc/plugins.inc.d/';
+          $clash = '/usr/local/etc/inc/';
+          $ext = '.inc';
           echo('<br/>$plugins資料內容<br/>');
           $plugins = glob($path . '*' . $ext);
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
