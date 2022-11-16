@@ -1041,25 +1041,25 @@ $( document ).ready(function() {
           
           echo('<br/>plugins有function的檔名:<br/>');
           if (function_exists('ipsec_interfaces')) {
-            echo ('ipsec有ipsec_interfaces');
+            echo ('ipsec有ipsec_interfaces<br/>');
           }else{
             echo('無');
           };
           
           if (function_exists('loopback_interfaces')) {
-            echo ('loopback有loopback_interfaces');
+            echo ('loopback有loopback_interfaces<br/>');
           }else{
             echo('無');
           };
 
           if (function_exists('openvpn_interfaces')) {
-            echo ('openvpn有openvpn_interfaces');
+            echo ('openvpn有openvpn_interfaces<br/>');
           }else{
             echo('無');
           };
           
           if (function_exists('pf_interfaces')) {
-            echo ('pf有pf_interfaces');
+            echo ('pf有pf_interfaces<br/>');
           }else{
             echo('無');
           };
