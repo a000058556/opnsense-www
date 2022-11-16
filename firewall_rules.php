@@ -1038,29 +1038,30 @@ $( document ).ready(function() {
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
           print_r ($plugins);
 
-          if (function_exists('netflow_interfaces')) {
+          if (function_exists('ipfw_interfaces')) {
             echo ('有');
           }else{
             echo('無');
           };
 
-          if (function_exists('dhcpd_interfaces')) {
+          if (function_exists('ipsec_interfaces')) {
             echo ('有');
           }else{
             echo('無');
           };
           
-          if (function_exists('dnsmasq_interfaces')) {
+          if (function_exists('loopback_interfaces')) {
             echo ('有');
           }else{
             echo('無');
           };
 
-          if (function_exists('dpinger_interfaces')) {
+          if (function_exists('monit_interfaces')) {
             echo ('有');
           }else{
             echo('無');
           };
+
 
           ?>
                     </td>
