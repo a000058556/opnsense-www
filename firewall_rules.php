@@ -1063,6 +1063,11 @@ $( document ).ready(function() {
           }else{
             echo('無');
           };
+
+          echo('<br/>$intf_config = &config_read_array('.'interfaces'.', $intf_ref, 0);資料內容<br/>');
+          $intf_conf = &config_read_array('interfaces', $intf_ref, 0);
+          print_r ($intf_conf);
+          
           
 
           ?>
