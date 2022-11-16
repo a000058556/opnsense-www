@@ -1037,42 +1037,33 @@ $( document ).ready(function() {
           $plugins = glob($path . '*' . $ext);
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
           print_r ($plugins);
-
-          if (function_exists('vxlan_interfaces')) {
-            echo ('有');
-          }else{
-            echo('無');
-          };
-
+          
+          
+          echo('<br/>plugins有function的檔名:<br/>');
           if (function_exists('ipsec_interfaces')) {
-            echo ('有');
+            echo ('ipsec有ipsec_interfaces');
           }else{
             echo('無');
           };
           
           if (function_exists('loopback_interfaces')) {
-            echo ('有');
+            echo ('loopback有loopback_interfaces');
           }else{
             echo('無');
           };
 
           if (function_exists('openvpn_interfaces')) {
-            echo ('有');
+            echo ('openvpn有openvpn_interfaces');
           }else{
             echo('無');
           };
           
           if (function_exists('pf_interfaces')) {
-            echo ('有');
+            echo ('pf有pf_interfaces');
           }else{
             echo('無');
           };
           
-          if (function_exists('webgui_interfaces')) {
-            echo ('有');
-          }else{
-            echo('無');
-          };
 
           ?>
                     </td>
