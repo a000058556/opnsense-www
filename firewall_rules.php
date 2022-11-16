@@ -1029,6 +1029,12 @@ $( document ).ready(function() {
           print_r ($a_nat);
           echo('<br/>$config['.'interfaces'.']資料內容<br/>');
           print_r ($config['interfaces']);
+          
+          echo('<br/>$plugins資料內容<br/>');
+          $plugins = glob($path . '*' . $ext);
+          sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
+          print_r ($plugins);
+      
 ?>
                     </td>
                   </tr>
