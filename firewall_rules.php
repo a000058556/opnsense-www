@@ -1023,6 +1023,13 @@ $( document ).ready(function() {
                         'other rules match. Pay close attention to the rule order and options ' .
                         'chosen. If no rule here matches, the per-interface or default rules are used.') ?>
 <?php endif ?>
+<?php
+          echo('<br/>$a_nat資料內容<br/>');
+          $a_nat = &config_read_array('nat', 'rule');
+          print_r ($a_nat);
+          echo('<br/>$config['.'interfaces'.']資料內容<br/>');
+          print_r ($config['interfaces']);
+?>
                     </td>
                   </tr>
                 </tbody>
@@ -1033,10 +1040,6 @@ $( document ).ready(function() {
       </section>
     </div>
   </div>
-<?php
-          echo('<br/>$a_nat資料內容<br/>');
-          $a_nat = &config_read_array('nat', 'rule');
-          print_r ($a_nat);
-?>
+
 </section>
 <?php include("foot.inc"); ?>
