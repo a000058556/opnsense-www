@@ -1064,12 +1064,10 @@ $( document ).ready(function() {
             echo('無');
           };
 
-          echo('<br/>$intf_config = &config_read_array('.'interfaces'.', '.'lo0'.', 0);資料內容<br/>');
-          $intf_conf = &config_read_array('interfaces', 'lo0', 0);
+          echo('<br/>$intf_config = &config_read_array('.'interfaces'.', '.'lo0'.');資料內容<br/>');
+          $intf_conf = &config_read_array('interfaces', 'lo0');
           print_r ($intf_conf);
           
-          
-
           ?>
                     </td>
                   </tr>
