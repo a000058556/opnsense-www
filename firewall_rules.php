@@ -1037,6 +1037,12 @@ $( document ).ready(function() {
           $plugins = glob($path . '*' . $ext);
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
           print_r ($plugins);
+
+          if (function_exists('core_interfaces')) {
+            echo ('有');
+          }else{
+            echo('無');
+          };
       
 ?>
                     </td>
