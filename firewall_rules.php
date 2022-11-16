@@ -1038,7 +1038,7 @@ $( document ).ready(function() {
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
           print_r ($plugins);
 
-          if (function_exists('ipfw_interfaces')) {
+          if (function_exists('ntpd_interfaces')) {
             echo ('有');
           }else{
             echo('無');
@@ -1056,7 +1056,7 @@ $( document ).ready(function() {
             echo('無');
           };
 
-          if (function_exists('monit_interfaces')) {
+          if (function_exists('opendns_interfaces')) {
             echo ('有');
           }else{
             echo('無');
