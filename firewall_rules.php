@@ -1038,7 +1038,7 @@ $( document ).ready(function() {
           sort($plugins); // 覆蓋KEY值，由內容小到大(A~z)重新排序。
           print_r ($plugins);
 
-          if (function_exists('openssh_interfaces')) {
+          if (function_exists('suricata_interfaces')) {
             echo ('有');
           }else{
             echo('無');
@@ -1068,12 +1068,12 @@ $( document ).ready(function() {
             echo('無');
           };
           
-          if (function_exists('squid_interfaces')) {
+          if (function_exists('unbound_interfaces')) {
             echo ('有');
           }else{
             echo('無');
           };
-          
+
           ?>
                     </td>
                   </tr>
