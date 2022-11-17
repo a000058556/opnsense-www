@@ -244,9 +244,9 @@ $a_filter = &config_read_array('filter', 'rule'); // 回傳取得的config_array
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_GET['if'])) {
-        $current_if = htmlspecialchars($_GET['if']);
+        $current_if = htmlspecialchars($_GET['if']); // 取得要前往的頁面名稱
     } else {
-        $current_if = "FloatingRules";
+        $current_if = "FloatingRules"; // 預設頁面
     }
     // 取得POST傳遞的資料
     $pconfig = $_POST;
@@ -273,14 +273,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $a_nat = &config_read_array('nat', 'rule');
                 foreach ($a_nat as &$natent) {
                     if ($natent['associated-rule-id'] == $a_filter[$id]['associated-rule-id']) {
-                        $natent['associated-rule-id'] = '';
+                        $natent['associated-rule-id'] = ''; // 刪除此規則
                     }
                 }
             }
         }
         unset($a_filter[$id]); // 清除變數內容
-        write_config(); // 從config.inc調用，寫入
+        write_config(); // 從config.inc調用，用於修改config
         mark_subsystem_dirty('filter');
+        // 從util.inc調用，用於設置文件的訪問和修改時間
+        // function mark_subsystem_dirty($subsystem = '')
+        // {
+        //     // touch(filename, time, atime)  設置指定文件的訪問和修改時間
+        //     // filename 必須 要設置的文件 > "/tmp/{$subsystem}.dirty"
+        //     // time 可選 設置時間(預設為系統時間)
+        //     // atime 可選 設置訪問時間(預設為系統時間)
+        //     touch("/tmp/{$subsystem}.dirty");
+        // }
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
     } elseif (isset($pconfig['act']) && $pconfig['act'] == 'del_x' && isset($pconfig['rule']) && count($pconfig['rule']) > 0) {
@@ -1068,6 +1077,9 @@ $( document ).ready(function() {
           $intf_conf = &config_read_array('interfaces', 'lo0');
           print_r ($intf_conf);
           
+          echo('<br/>$pconfig資料內容<br/>');
+          print_r ($pconfig);
+
           ?>
                     </td>
                   </tr>
