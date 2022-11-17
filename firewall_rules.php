@@ -290,21 +290,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //     // atime 可選 設置訪問時間(預設為系統時間)
         //     touch("/tmp/{$subsystem}.dirty");
         // }
+        
+        //  $current_if = htmlspecialchars($_GET['if']);
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
+      // 當$pconfig['act']存在 and == "del_x" and 有$pconfig['rule'] and $pconfig['rule']內容筆數>0
     } elseif (isset($pconfig['act']) && $pconfig['act'] == 'del_x' && isset($pconfig['rule']) && count($pconfig['rule']) > 0) {
-        // delete selected rules
+        // delete selected rules 用於刪除選取的rules
         foreach ($pconfig['rule'] as $rulei) {
             // unlink nat entry
             if (isset($config['nat']['rule'])) {
                 $a_nat = &config_read_array('nat', 'rule');
                 foreach ($a_nat as &$natent) {
                     if ($natent['associated-rule-id'] == $a_filter[$rulei]['associated-rule-id']) {
-                        $natent['associated-rule-id'] = '';
+                        $natent['associated-rule-id'] = ''; // 解除rule的鏈接
                     }
                 }
             }
-            unset($a_filter[$rulei]);
+            unset($a_filter[$rulei]); // 清除被刪除的rule
         }
         write_config();
         mark_subsystem_dirty('filter');
