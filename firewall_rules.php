@@ -1078,6 +1078,7 @@ $( document ).ready(function() {
           print_r ($intf_conf);
           
           echo('<br/>$pconfig資料內容<br/>');
+          $pconfig = $_POST;
           print_r ($pconfig);
 
           ?>
