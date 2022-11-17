@@ -1080,6 +1080,10 @@ $( document ).ready(function() {
           echo('<br/>$pconfig資料內容<br/>');
           $pconfig = $_POST;
           print_r ($pconfig);
+          
+          echo('<br/>$_GET資料內容<br/>');
+          $_GET_if = $_GET;
+          print_r ($_GET_if);
 
           ?>
                     </td>
