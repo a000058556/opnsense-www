@@ -395,7 +395,7 @@ $( document ).ready(function() {
   $(".act_delete").click(function(event){
     // .preventDefault();停止事件的DOM預設功能，例如<a>標籤的跳頁動作
     event.preventDefault();
-    var id = $(this).attr("id").split('_').pop(-1);
+    var id = $(this).attr("id").split('_').pop(-1); // 使用.attr("id")取得作用按鈕id 並用.split('_')切割 取-1位
     console.log(id);
     if (id != 'x') {
       // delete single
