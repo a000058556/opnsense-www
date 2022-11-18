@@ -323,11 +323,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mark_subsystem_dirty('filter');
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
+        // 當$pconfig['act']存在 並== 'move'時 and 有設置$pconfig['rule']內容筆數大於0
     } elseif ( isset($pconfig['act']) && $pconfig['act'] == 'move' && isset($pconfig['rule']) && count($pconfig['rule']) > 0) {
         // move selected rules
-        if (!isset($id)) {
+        if (!isset($id)) { // 當沒有設置id時
             // if rule not set/found, move to end
-            $id = count($a_filter);
+            $id = count($a_filter); // id = 最大數筆數(排到最後)
         }
         $a_filter = legacy_move_config_list_items($a_filter, $id,  $pconfig['rule']);
         write_config();
@@ -687,8 +688,10 @@ $( document ).ready(function() {
         <section class="col-xs-12">
           <div class="content-box">
             <form action="firewall_rules.php?if=<?=$selected_if;?>" method="post" name="iform" id="iform">
-              <input type="hidden" id="id" name="id" value="" />
-              <input type="hidden" id="action" name="act" value="" />
+              <input id="id" name="id" value="" />
+              <input id="action" name="act" value="" />
+              <!-- <input type="hidden" id="id" name="id" value="" />
+              <input type="hidden" id="action" name="act" value="" /> -->
               <div class="table-responsive">
                 <table class="table table-condensed table-striped opnsense-rules">
                   <tbody>
