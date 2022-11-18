@@ -249,6 +249,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $current_if = "FloatingRules"; // 預設頁面
     }
     // 取得POST傳遞的資料
+    // 透過iform傳送POST資料
+    // <form action="firewall_rules.php?if=<?=$selected_if>;" method="post" name="iform" id="iform">
+    // <input type="hidden" id="id" name="id" value="" />
+    // <input type="hidden" id="action" name="act" value="" />
     $pconfig = $_POST;
     // 當$pconfig['id']存在並$a_filter[$pconfig['id']])也存在時
     if (isset($pconfig['id']) && isset($a_filter[$pconfig['id']])) {
@@ -330,31 +334,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // if rule not set/found, move to end
             $id = count($a_filter); // id = 最大數筆數(排到最後)
         }
+        // 移動rule排序，從legacy_bindings.inc調用legacy_move_config_list_items()
         $a_filter = legacy_move_config_list_items($a_filter, $id,  $pconfig['rule']);
         write_config();
         mark_subsystem_dirty('filter');
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
+      // 當$pconfig['act']存在 並== 'toggle' and $id存在時
+      // 用於切換 Rule 的狀態
     } elseif (isset($pconfig['act']) && $pconfig['act'] == 'toggle' && isset($id)) {
         // toggle item
+        // 當$a_filter[$id]['disabled']存在時
         if(isset($a_filter[$id]['disabled'])) {
-            unset($a_filter[$id]['disabled']);
+            unset($a_filter[$id]['disabled']); // 清除['disabled']
         } else {
-            $a_filter[$id]['disabled'] = true;
+            $a_filter[$id]['disabled'] = true; // 建立['disabled']
         }
         write_config();
         mark_subsystem_dirty('filter');
         $response = array("id" => $id);
+        // 若沒有$a_filter[$id]['disabled']，$response["new_label"] = gettext("Disable Rule")
+        // 若有$a_filter[$id]['disabled']，$response["new_label"] = gettext("Enable Rule")
         $response["new_label"] = !isset($a_filter[$id]['disabled']) ?  gettext("Disable Rule") : gettext("Enable Rule");
+        // $response["new_state"] = true 或 false
         $response["new_state"] = !isset($a_filter[$id]['disabled']) ;
         echo json_encode($response);
         exit;
+        // 用於log的功能切換
     } elseif (isset($pconfig['act']) && $pconfig['act'] == 'log' && isset($id)) {
         // toggle logging
         if(isset($a_filter[$id]['log'])) {
-            unset($a_filter[$id]['log']);
+            unset($a_filter[$id]['log']); // 清除['log']
         } else {
-            $a_filter[$id]['log'] = true;
+            $a_filter[$id]['log'] = true; // 建立['log']
         }
         write_config();
         mark_subsystem_dirty('filter');
@@ -366,15 +378,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$selected_if = 'FloatingRules';
-if (isset($_GET['if'])) {
+$selected_if = 'FloatingRules'; // 預設頁面
+if (isset($_GET['if'])) {  // 取的目前頁面的介面名稱
     $selected_if = htmlspecialchars($_GET['if']);
 }
 
 include("head.inc");
 
-$a_filter_raw = config_read_array('filter', 'rule');
-legacy_html_escape_form_data($a_filter);
+$a_filter_raw = config_read_array('filter', 'rule'); // 取得的config_array資料
+legacy_html_escape_form_data($a_filter); // 
 ?>
 <body>
 <script>
@@ -1095,6 +1107,13 @@ $( document ).ready(function() {
           
           echo('<br/>$a_filter資料內容:<br/>');
           print_r ($a_filter);
+
+          echo('<br/>$a_filter_raw資料內容:<br/>');
+          print_r ($a_filter_raw);
+
+          echo('<br/>$a_filter_org資料內容:<br/>');
+          $a_filter_org = &config_read_array('filter', 'rule');
+          print_r ($a_filter_org);
 
           ?>
                     </td>
