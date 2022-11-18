@@ -386,15 +386,17 @@ if (isset($_GET['if'])) {  // 取的目前頁面的介面名稱
 include("head.inc");
 
 $a_filter_raw = config_read_array('filter', 'rule'); // 取得的config_array資料
-legacy_html_escape_form_data($a_filter); // 
+legacy_html_escape_form_data($a_filter); // 拆解array
 ?>
 <body>
 <script>
 $( document ).ready(function() {
-  // link delete buttons
+  // link delete buttons 綁定刪除按鈕點擊後動作
   $(".act_delete").click(function(event){
+    // .preventDefault();停止事件的DOM預設功能，例如<a>標籤的跳頁動作
     event.preventDefault();
     var id = $(this).attr("id").split('_').pop(-1);
+    console.log(id);
     if (id != 'x') {
       // delete single
       BootstrapDialog.show({
