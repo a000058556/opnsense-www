@@ -514,6 +514,10 @@ $( document ).ready(function() {
           // 傳值成功後動作
           success: function(response) {
               console.log(response);
+              // 點擊後的response
+              //{id: '2', new_label: 'Enable Rule', new_state: false}
+              //{id: '2', new_label: 'Disable Rule', new_state: true}
+              // .prop('title', response['new_label']) 修改滑過時按鈕提示文字
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
               target.removeClass('fa-spinner fa-pulse'); // 移除icon class
               if (response['new_state']) {
