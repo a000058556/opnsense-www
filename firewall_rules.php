@@ -313,8 +313,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mark_subsystem_dirty('filter');
         header(url_safe('Location: /firewall_rules.php?if=%s', array($current_if)));
         exit;
+        // 當$pconfig['act']有設置 and $pconfig['act']中有'toggle_enable', 'toggle_disable' and $pconfig['rule'])有設置 and $pconfig['rule']內容筆數大於0
     } elseif (isset($pconfig['act']) && in_array($pconfig['act'], array('toggle_enable', 'toggle_disable')) && isset($pconfig['rule']) && count($pconfig['rule']) > 0) {
-        foreach ($pconfig['rule'] as $rulei) {
+        foreach ($pconfig['rule'] as $rulei) { // 取出$pconfig['rule']
+            // 將$a_filter[$rulei]['disabled']設為toggle_disable
             $a_filter[$rulei]['disabled'] = $pconfig['act'] == 'toggle_disable';
         }
         write_config();
@@ -1076,17 +1078,20 @@ $( document ).ready(function() {
             echo('無');
           };
 
-          echo('<br/>$intf_config = &config_read_array('.'interfaces'.', '.'lo0'.');資料內容<br/>');
+          echo('<br/>$intf_config = &config_read_array('.'interfaces'.', '.'lo0'.');資料內容:<br/>');
           $intf_conf = &config_read_array('interfaces', 'lo0');
           print_r ($intf_conf);
           
-          echo('<br/>$pconfig資料內容<br/>');
+          echo('<br/>$pconfig資料內容:<br/>');
           $pconfig = $_POST;
           print_r ($pconfig);
           
-          echo('<br/>$_GET資料內容<br/>');
+          echo('<br/>$_GET資料內容:<br/>');
           $_GET_if = $_GET;
           print_r ($_GET_if);
+          
+          echo('<br/>$a_filter資料內容:<br/>');
+          print_r ($a_filter);
 
           ?>
                     </td>
