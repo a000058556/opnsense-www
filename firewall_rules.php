@@ -395,29 +395,32 @@ $( document ).ready(function() {
   $(".act_delete").click(function(event){
     // .preventDefault();停止事件的DOM預設功能，例如<a>標籤的跳頁動作
     event.preventDefault();
-    var id = $(this).attr("id").split('_').pop(-1); // 使用.attr("id")取得作用按鈕id 並用.split('_')切割 取-1位
+    var id = $(this).attr("id").split('_').pop(-1); // 使用.attr("id")取得作用按鈕id 並用.split('_')切割 取最後一位
     console.log(id);
+    // 若id != 'x' 則為單獨刪除動作(例如id = del_4)
     if (id != 'x') {
       // delete single
-      BootstrapDialog.show({
-        type:BootstrapDialog.TYPE_DANGER,
-        title: "<?= gettext("Rules");?>",
-        message: "<?=gettext("Do you really want to delete this rule?");?>",
+      BootstrapDialog.show({ // 確認用彈出視窗
+        type:BootstrapDialog.TYPE_DANGER, // 顏色:警訊
+        title: "<?= gettext("Rules");?>", // 標題
+        message: "<?=gettext("Do you really want to delete this rule?");?>", // 訊息
+        // 按鈕及動作
         buttons: [{
                   label: "<?= gettext("No");?>",
+                  // dialogRef = 這個彈出視窗
                   action: function(dialogRef) {
-                      dialogRef.close();
+                      dialogRef.close(); // 關閉視窗
                   }}, {
                   label: "<?= gettext("Yes");?>",
                   action: function(dialogRef) {
-                    $("#id").val(id);
-                    $("#action").val("del");
-                    $("#iform").submit()
+                    $("#id").val(id); // 要刪除的id = $pconfig['id']
+                    $("#action").val("del"); // 動作 = $pconfig['act']
+                    $("#iform").submit() // 要提交的表格 = post提交動作
                 }
               }]
     });
     } else {
-      // delete selected
+      // delete selected 刪除選擇內容
       BootstrapDialog.show({
         type:BootstrapDialog.TYPE_DANGER,
         title: "<?= gettext("Rules");?>",
@@ -429,16 +432,16 @@ $( document ).ready(function() {
                   }}, {
                   label: "<?= gettext("Yes");?>",
                   action: function(dialogRef) {
-                    $("#id").val("");
-                    $("#action").val("del_x");
-                    $("#iform").submit()
+                    $("#id").val(""); // 要刪除的id
+                    $("#action").val("del_x"); // 動作
+                    $("#iform").submit() // 要提交的表格
                 }
               }]
       });
     }
   });
 
-  // enable/disable selected
+  // enable/disable selected 激活被選的Rule 按鈕
   $(".act_toggle_enable").click(function(event){
     event.preventDefault();
     BootstrapDialog.show({
@@ -453,12 +456,13 @@ $( document ).ready(function() {
                 label: "<?= gettext("Yes");?>",
                 action: function(dialogRef) {
                   $("#id").val("");
-                  $("#action").val("toggle_enable");
+                  $("#action").val("toggle_enable"); // 動作 = $pconfig['act']
                   $("#iform").submit()
               }
             }]
     });
   });
+  // 關閉被選的Rule 按鈕
   $(".act_toggle_disable").click(function(event){
     event.preventDefault();
     BootstrapDialog.show({
@@ -473,43 +477,45 @@ $( document ).ready(function() {
                 label: "<?= gettext("Yes");?>",
                 action: function(dialogRef) {
                   $("#id").val("");
-                  $("#action").val("toggle_disable");
+                  $("#action").val("toggle_disable"); // 動作 = $pconfig['act']
                   $("#iform").submit()
               }
             }]
     });
   });
 
-  // link move buttons
+  // link move buttons 綁定移動按鈕點擊後動作
   $(".act_move").click(function(event){
     event.preventDefault();
-    var id = $(this).attr("id").split('_').pop(-1);
+    var id = $(this).attr("id").split('_').pop(-1); // 按鈕id範例 : 移到最底(move_6) 移至選取id之後(move_4)
     $("#id").val(id);
-    $("#action").val("move");
+    $("#action").val("move"); // 動作 = $pconfig['act']
     $("#iform").submit();
   });
 
-  // link move buttons
+  // link apply buttons 綁定套用按鈕點擊後動作
   $("#btn_apply").click(function(event){
     event.preventDefault();
-    $("#action").val("apply");
+    $("#action").val("apply"); // 動作 = $pconfig['act']
     $("#iform").submit();
   });
 
-  // link toggle buttons
+  // link toggle buttons 綁定各別激活/關閉按鈕
   $(".act_toggle").click(function(event){
       event.preventDefault();
       let target = $(this);
-      target.addClass('fa-spinner fa-pulse');
-      let id = target.attr("id").split('_').pop(-1);
-      $.ajax("firewall_rules.php",{
+      target.addClass('fa-spinner fa-pulse'); // 增加class到點擊的icon
+      let id = target.attr("id").split('_').pop(-1); // id範例: toggle_5
+      $.ajax("firewall_rules.php",{ // 使用ajax的post傳值
           type: 'post',
           cache: false,
           dataType: "json",
-          data: {'act': 'toggle', 'id': id},
+          data: {'act': 'toggle', 'id': id}, // 'act': 'toggle' = $pconfig['act']
+          // 傳值成功後動作
           success: function(response) {
+              console.log(response);
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
-              target.removeClass('fa-spinner fa-pulse');
+              target.removeClass('fa-spinner fa-pulse'); // 移除icon class
               if (response['new_state']) {
                   target.removeClass('text-muted').addClass(target.hasClass('fa-play') ? 'text-success' : 'text-danger');
               } else {
