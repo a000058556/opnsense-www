@@ -504,7 +504,7 @@ $( document ).ready(function() {
   $(".act_toggle").click(function(event){
       event.preventDefault();
       let target = $(this);
-      target.addClass('fa-spinner fa-pulse'); // 增加class到點擊的icon
+      target.addClass('fa-spinner fa-pulse'); // 增加loding效果 icon class到點擊的icon
       let id = target.attr("id").split('_').pop(-1); // id範例: toggle_5
       $.ajax("firewall_rules.php",{ // 使用ajax的post傳值
           type: 'post',
@@ -519,18 +519,18 @@ $( document ).ready(function() {
               //{id: '2', new_label: 'Disable Rule', new_state: true}
               // .prop('title', response['new_label']) 修改滑過時按鈕提示文字
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
-              target.removeClass('fa-spinner fa-pulse'); // 移除icon class
+              target.removeClass('fa-spinner fa-pulse'); // 移除loding效果 icon
               // 若response['new_state'] = true
               if (response['new_state']) {
-                  // 移除Class text-muted，若已有fa-play Class，增加text-success，若沒有增加text-danger
+                  // 移除Class text-muted(關閉時icon顏色)，若已有fa-play Class，增加text-success(激活時icon顏色)，若沒有增加text-danger
                   target.removeClass('text-muted').addClass(target.hasClass('fa-play') ? 'text-success' : 'text-danger');
               } else { // 若response['new_state'] = false
                   // 移除Class text-success text-danger ，增加text-muted
                   target.removeClass('text-success text-danger').addClass('text-muted');
               }
-              $("#fw-alert-box").removeClass("hidden");
-              $(".fw-alert-messages").addClass("hidden");
-              $("#fw-alert-changes").removeClass("hidden");
+              $("#fw-alert-box").removeClass("hidden"); // 移除提示視窗(apply)的hidden class
+              $(".fw-alert-messages").addClass("hidden"); // 隱藏所有提示視窗的文字
+              $("#fw-alert-changes").removeClass("hidden"); // 移除提示視窗(apply)文字的hidden class
           },
           error: function () {
               // 傳值失敗移除Class fa-spinner fa-pulse
@@ -554,18 +554,27 @@ $( document ).ready(function() {
           data: {'act': 'log', 'id': id}, // {'act': 'log'} = ($pconfig['act'] == 'log')
           success: function(response) {
               console.log(response);
+              // 點擊後的response
+              // {id: '2', new_label: 'Enable Log', new_state: false}
+              // {id: '2', new_label: 'Disable Log', new_state: true}
+              // .prop('title', response['new_label']) 修改滑過時按鈕提示文字
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
+              // 移除loding效果 icon ， 增加log icon 
               target.removeClass('fa-spinner fa-pulse').addClass('fa-info-circle');
+              // 若response['new_state'] = true
               if (response['new_state']) {
+                  // 移除text-muted(關閉時icon顏色)，增加text-info(激活時icon顏色)
                   target.removeClass('text-muted').addClass('text-info');
-              } else {
+              } else { // 若response['new_state'] = false
+                  // 移除text-info，增加text-muted
                   target.removeClass('text-info').addClass('text-muted');
               }
-              $("#fw-alert-box").removeClass("hidden");
-              $(".fw-alert-messages").addClass("hidden");
-              $("#fw-alert-changes").removeClass("hidden");
+              $("#fw-alert-box").removeClass("hidden"); // 移除提示視窗(apply)的hidden class
+              $(".fw-alert-messages").addClass("hidden"); // 隱藏所有提示視窗的文字
+              $("#fw-alert-changes").removeClass("hidden"); // 移除提示視窗(apply)文字的hidden class
           },
           error: function () {
+              // 傳值失敗移除Class fa-spinner fa-pulse 增加log icon 
               target.removeClass('fa-spinner fa-pulse').addClass('fa-info-circle');
           }
       });
@@ -577,8 +586,10 @@ $( document ).ready(function() {
   watchScrollPosition();
   console.log(window.location.href.replace(/\/|\:|\.|\?|\#/gi, ''));
 
-  // select All
+  // select All 綁定選取全部按鈕
   $("#selectAll").click(function(){
+      // 抓取尚未被選取的項目:not(:disabled)
+      // 修改"checked"的內容為這個按鈕的"checked"內容(這按鈕是選取，那就都會是選取)
       $(".rule_select:not(:disabled)").prop("checked", $(this).prop("checked"));
   });
 
