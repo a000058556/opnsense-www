@@ -532,7 +532,7 @@ $( document ).ready(function() {
           error: function () {
               target.removeClass('fa-spinner fa-pulse');
           
-          }]
+          }
       });
   });
 
