@@ -566,6 +566,7 @@ $( document ).ready(function() {
   });
 
   // watch scroll position and set to last known on page load
+  // 從/opnsense/www/js/opnsense.js 中調用
   watchScrollPosition();
   console.log(window.location.href.replace(/\/|\:|\.|\?|\#/gi, ''));
 
