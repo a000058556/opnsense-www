@@ -510,7 +510,7 @@ $( document ).ready(function() {
           type: 'post',
           cache: false,
           dataType: "json",
-          data: {'act': 'toggle', 'id': id}, // 'act': 'toggle' = $pconfig['act']
+          data: {'act': 'toggle', 'id': id}, // {'act': 'toggle'} = ($pconfig['act'] == 'toggle')
           // 傳值成功後動作
           success: function(response) {
               console.log(response);
@@ -520,9 +520,12 @@ $( document ).ready(function() {
               // .prop('title', response['new_label']) 修改滑過時按鈕提示文字
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
               target.removeClass('fa-spinner fa-pulse'); // 移除icon class
+              // 若response['new_state'] = true
               if (response['new_state']) {
+                  // 移除Class text-muted，若已有fa-play Class，增加text-success，若沒有增加text-danger
                   target.removeClass('text-muted').addClass(target.hasClass('fa-play') ? 'text-success' : 'text-danger');
-              } else {
+              } else { // 若response['new_state'] = false
+                  // 移除Class text-success text-danger ，增加text-muted
                   target.removeClass('text-success text-danger').addClass('text-muted');
               }
               $("#fw-alert-box").removeClass("hidden");
@@ -530,24 +533,27 @@ $( document ).ready(function() {
               $("#fw-alert-changes").removeClass("hidden");
           },
           error: function () {
+              // 傳值失敗移除Class fa-spinner fa-pulse
               target.removeClass('fa-spinner fa-pulse');
           
           }
       });
   });
 
-   // link log buttons
+   // link log buttons 綁定log激活/關閉按鈕
   $(".act_log").click(function(event){
       event.preventDefault();
       let target = $(this);
+      // 移除激活時icon ， 增加loding效果 icon
       target.removeClass('fa-info-circle').addClass('fa-spinner fa-pulse');
-      let id = target.attr("id").split('_').pop(-1);
-      $.ajax("firewall_rules.php",{
+      let id = target.attr("id").split('_').pop(-1);// id範例: toggle_2
+      $.ajax("firewall_rules.php",{ // 使用ajax的post傳值
           type: 'post',
           cache: false,
           dataType: "json",
-          data: {'act': 'log', 'id': id},
+          data: {'act': 'log', 'id': id}, // {'act': 'log'} = ($pconfig['act'] == 'log')
           success: function(response) {
+              console.log('act : log 的response :'.response);
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
               target.removeClass('fa-spinner fa-pulse').addClass('fa-info-circle');
               if (response['new_state']) {
@@ -567,6 +573,7 @@ $( document ).ready(function() {
 
   // watch scroll position and set to last known on page load
   // 從/opnsense/www/js/opnsense.js 中調用
+  // 紀錄頁面最後位置，頁面重整時移動到頁面加載時的最後已知位置
   watchScrollPosition();
   console.log(window.location.href.replace(/\/|\:|\.|\?|\#/gi, ''));
 
