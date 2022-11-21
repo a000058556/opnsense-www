@@ -531,7 +531,8 @@ $( document ).ready(function() {
           },
           error: function () {
               target.removeClass('fa-spinner fa-pulse');
-          }
+          
+          }]
       });
   });
 
@@ -566,6 +567,7 @@ $( document ).ready(function() {
 
   // watch scroll position and set to last known on page load
   watchScrollPosition();
+  console.log(window.location.href.replace(/\/|\:|\.|\?|\#/gi, ''));
 
   // select All
   $("#selectAll").click(function(){
