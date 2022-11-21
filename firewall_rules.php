@@ -553,7 +553,7 @@ $( document ).ready(function() {
           dataType: "json",
           data: {'act': 'log', 'id': id}, // {'act': 'log'} = ($pconfig['act'] == 'log')
           success: function(response) {
-              console.log('act : log 的response :'.response);
+              console.log('act : log 的response :'+response);
               target.prop('title', response['new_label']).tooltip('fixTitle').tooltip('hide');
               target.removeClass('fa-spinner fa-pulse').addClass('fa-info-circle');
               if (response['new_state']) {
