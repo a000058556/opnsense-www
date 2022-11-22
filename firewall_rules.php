@@ -604,22 +604,32 @@ $( document ).ready(function() {
 
   // 綁定檢查(inspect)按鈕
   $("#btn_inspect").click(function(){
-      // HTML5 新增了 data-key = '30' 自定義屬性 (data attributes)
+      // .data()說明  https://www.fooish.com/jquery/data.html
+      // HTML5 新增的 data-key = '30' 自定義屬性 (data attributes)
       // 透過.data(key) = '30' 來取得元素上的資料
+      // 如果 data attribute 的值是 { 或 [ 開頭，jQuery 會自動當 JSON 來解析成 JavaScript Object/Array
+      // <<HTML>>
+      // <div data-options='{"name":"John"}'></div>
+      // <<jQuery>>
+      // $('div').data('options').name === 'John';
       let mode = $(this).data('mode');
       console.log(mode);
+      // 如果data-mode = 'stats'
       if (mode === 'stats') {
             $(".view-stats").hide();
             $(".view-info").show();
-            $(this).removeClass('active');
-            $(this).data('mode', 'info');
-      } else {
+            $(this).removeClass('active'); // 移除active
+            // .data('mode', 'info') 也可用於綁定任意資料到特定元素上面。
+            $(this).data('mode', 'info'); // data-mode = 'info'
+      } else { // 第一次按按鈕時還沒有data-mode 參數，所以mode =undefined
+               // 在這邊data-mode第一次被附值為data-mode = 'stats'
             $(".view-stats").show();
             $(".view-info").hide();
-            $(this).addClass('active');
-            $(this).data('mode', 'stats');
+            $(this).addClass('active'); // 增加active
+            $(this).data('mode', 'stats'); // data-mode = 'stats'
             $.ajax('api/firewall/filter_util/rule_stats', {
                 success: function(response) {
+                console.log(response);
                     if (response.status == 'ok') {
                         let fileSizeTypes = ["", "K", "M", "G", "T", "P", "E", "Z", "Y"];
                         $.each(response.stats, function(index, value) {
