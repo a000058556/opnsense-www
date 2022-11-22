@@ -1194,6 +1194,10 @@ $( document ).ready(function() {
           $return = str_replace($endOfStream, '', $resp);
           print_r ($return);
 
+          echo('<br/>json_decode($return, true);資料內容:<br/>');
+          $result = json_decode($return, true);
+          print_r ($result);
+
           ?>
                     </td>
                   </tr>
