@@ -594,7 +594,10 @@ $( document ).ready(function() {
   });
 
   // move category block
+  // .detach()和.remove()一樣都是移除元素內所有內容，包含該元素，但不同的是，.detach()的元素事件仍然存在。
+  // $('<p>要加入的原素</p>').appendTo('.目的地);
   $("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline"));
+  console.log($("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline")));
   $("#category_block").addClass("pull-right");
 
   $("#btn_inspect").click(function(){
