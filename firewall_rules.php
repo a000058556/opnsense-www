@@ -1175,7 +1175,10 @@ $( document ).ready(function() {
           $poll_timeout = 2;
           $stream = @stream_socket_client('unix://' . $configdSocket, $errorNumber, $errorMessage, $poll_timeout);
           print_r ($stream);
-          echo($stream);
+
+          echo('<br/>fwrite($stream, \'&filter rule stats\');資料內容:<br/>');
+          $stream_fwrite = fwrite($stream, '&filter rule stats');
+          print_r ($stream_fwrite);
 
           ?>
                     </td>
