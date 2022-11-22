@@ -1176,15 +1176,15 @@ $( document ).ready(function() {
           $stream = @stream_socket_client('unix://' . $configdSocket, $errorNumber, $errorMessage, $poll_timeout);
           print_r ($stream);
 
-          echo('<br/>fwrite($stream, \'&filter rule stats\');資料內容:<br/>');
-          $stream_fwrite = fwrite($stream, 'filter rule stats');
-          print_r ($stream_fwrite);
+          echo('<br/>fwrite($stream, \'filter rule stats\');資料內容:<br/>');
+          $stream = fwrite($stream, 'filter rule stats');
+          print_r ($stream);
 
           echo('<br/>str_replace($endOfStream, \'\', $resp);資料內容:<br/>');
           $errorOfStream = 'Execute error';
           $resp = '';
           while (true) {
-              $resp = $resp . stream_get_contents($stream_fwrite);
+              $resp = $resp . stream_get_contents($stream);
 
               if (strpos($resp, $endOfStream) !== false) {
                   // end of stream detected, exit
