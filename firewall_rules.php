@@ -1169,11 +1169,11 @@ $( document ).ready(function() {
           $a_filter_org = &config_read_array('filter', 'rule');
           print_r ($a_filter_org);
           
-          echo('<br/>stream資料內容:<br/>');
+          echo('<br/>$stream資料內容:<br/>');
           $configdSocket = '/var/run/configd.socket';
           $errorMessage = "";
           $poll_timeout = 2;
-          $stream = @stream_socket_client('unix://' . $this->configdSocket, $errorNumber, $errorMessage, $poll_timeout);
+          $stream = @stream_socket_client('unix://' . $configdSocket, $errorNumber, $errorMessage, $poll_timeout);
           print_r ($stream);
           echo($stream);
 
