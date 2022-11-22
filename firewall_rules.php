@@ -594,14 +594,20 @@ $( document ).ready(function() {
   });
 
   // move category block
+  // 暫時移除select category下拉選單
   // .detach()和.remove()一樣都是移除元素內所有內容，包含該元素，但不同的是，.detach()的元素事件仍然存在。
   // $('<p>要加入的原素</p>').appendTo('.目的地);
   $("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline"));
   console.log($("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline")));
-  $("#category_block").addClass("pull-right");
+  // 清除後須加回pull-right按鈕才會置右
+  $("#category_block").addClass("pull-right"); 
 
+  // 綁定檢查(inspect)按鈕
   $("#btn_inspect").click(function(){
+      // HTML5 新增了 data-key = '30' 自定義屬性 (data attributes)
+      // 透過.data(key) = '30' 來取得元素上的資料
       let mode = $(this).data('mode');
+      console.log(mode);
       if (mode === 'stats') {
             $(".view-stats").hide();
             $(".view-info").show();
