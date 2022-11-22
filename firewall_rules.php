@@ -1177,7 +1177,7 @@ $( document ).ready(function() {
           print_r ($stream);
 
           echo('<br/>fwrite($stream, \'&filter rule stats\');資料內容:<br/>');
-          $stream_fwrite = fwrite($stream, '&filter rule stats');
+          $stream_fwrite = fwrite($stream, 'filter rule stats');
           print_r ($stream_fwrite);
 
           echo('<br/>str_replace($endOfStream, \'\', $resp);資料內容:<br/>');
@@ -1193,7 +1193,7 @@ $( document ).ready(function() {
           }
           $return = str_replace($endOfStream, '', $resp);
           print_r ($return);
-          
+
           ?>
                     </td>
                   </tr>
