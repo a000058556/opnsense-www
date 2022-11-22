@@ -1173,7 +1173,7 @@ $( document ).ready(function() {
           $configdSocket = '/var/run/configd.socket';
           $errorMessage = "";
           $poll_timeout = 2;
-          $stream = @stream_socket_client('unix://' . $configdSocket, $errorNumber, $errorMessage, $poll_timeout);
+          $stream = @stream_socket_client('unix:///var/run/configd.socket', $errorNumber, $errorMessage, $poll_timeout);
           print_r ($stream);
 
           echo('<br/>fwrite($stream, \'filter rule stats\');資料內容:<br/>');
