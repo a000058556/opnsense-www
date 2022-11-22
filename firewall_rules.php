@@ -627,9 +627,11 @@ $( document ).ready(function() {
             $(".view-info").hide();
             $(this).addClass('active'); // 增加active
             $(this).data('mode', 'stats'); // data-mode = 'stats'
+            // 使用ajax取得 view-stats 的資料
+            // api位置\opnsense\mvc\app\controllers\OPNsense\Firewall\Api\FilterUtilController.php > class FilterUtilController > function ruleStatsAction()
             $.ajax('api/firewall/filter_util/rule_stats', {
                 success: function(response) {
-                console.log(response);
+                console.log(response); // {status: 'ok', stats: $result}
                     if (response.status == 'ok') {
                         let fileSizeTypes = ["", "K", "M", "G", "T", "P", "E", "Z", "Y"];
                         $.each(response.stats, function(index, value) {
@@ -1166,6 +1168,14 @@ $( document ).ready(function() {
           echo('<br/>$a_filter_org資料內容:<br/>');
           $a_filter_org = &config_read_array('filter', 'rule');
           print_r ($a_filter_org);
+          
+          echo('<br/>stream資料內容:<br/>');
+          $configdSocket = '/var/run/configd.socket';
+          $errorMessage = "";
+          $poll_timeout = 2;
+          $stream = @stream_socket_client('unix://' . $this->configdSocket, $errorNumber, $errorMessage, $poll_timeout);
+          print_r ($stream);
+          echo($stream);
 
           ?>
                     </td>
