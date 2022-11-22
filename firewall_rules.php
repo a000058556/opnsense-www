@@ -1180,6 +1180,20 @@ $( document ).ready(function() {
           $stream_fwrite = fwrite($stream, '&filter rule stats');
           print_r ($stream_fwrite);
 
+          echo('<br/>str_replace($endOfStream, \'\', $resp);資料內容:<br/>');
+          $errorOfStream = 'Execute error';
+          $resp = '';
+          while (true) {
+              $resp = $resp . stream_get_contents($stream_fwrite);
+
+              if (strpos($resp, $endOfStream) !== false) {
+                  // end of stream detected, exit
+                  break;
+              }
+          }
+          $return = str_replace($endOfStream, '', $resp);
+          print_r ($return);
+          
           ?>
                     </td>
                   </tr>
