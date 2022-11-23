@@ -1176,9 +1176,9 @@ $( document ).ready(function() {
           $stream = @stream_socket_client('unix:///var/run/configd.socket', $errorNumber, $errorMessage, $poll_timeout);
           print_r ($stream);
 
-          echo('<br/>fwrite($stream, \'filter rule stats\');資料內容:<br/>');
-          $stream = fwrite($stream, 'filter rule stats');
-          print_r ($stream);
+          echo('<br/>fwrite($stream, \'filter rule stats\');返回寫入字符:<br/>');
+          $stream_fwrite = fwrite($stream, 'filter rule stats');
+          print_r ($stream_fwrite);
 
           echo('<br/>str_replace($endOfStream, \'\', $resp);資料內容:<br/>');
           $errorOfStream = 'Execute error';
