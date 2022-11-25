@@ -664,7 +664,7 @@ $( document ).ready(function() {
                 }
             });
       }
-      $(this).blur();
+      $(this).blur(); // blur 事件型別表示在元素失去焦點時響應
   });
 
   // hook category functionality
