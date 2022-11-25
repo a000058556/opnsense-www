@@ -645,7 +645,7 @@ $( document ).ready(function() {
                             $("#" + index + "_states").text(value.states); // 取states: 0
                             $("#" + index + "_packets").text(value.packets); // 取packets: 51
                             if (value.bytes > 0) { // 若bytes: 5214 > 0
-                                // Math.floor(值):回傳比值大中，最接近的整數
+                                // Math.floor(值):回傳比值大，最接近的整數
                                 // Math.log()會回傳參數的自然對數
                                 // Math.log(value.bytes) / Math.log(1000)，以value.bytes為底，1000的對數
                                 let ndx = Math.floor(Math.log(value.bytes) / Math.log(1000));

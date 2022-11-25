@@ -191,7 +191,12 @@ function window_highlight_table_option()
  */
 function hook_firewall_categories() {
     let cat_select = $("#fw_category");
+    // 使用ajax取得資料
+    // api位置\opnsense\mvc\app\controllers\OPNsense\Firewall\Api\CategoryController.php > class CategoryController > function searchNoCategoryItemAction()
     ajaxCall('/api/firewall/category/searchNoCategoryItem', {}, function(data){
+        console.log("ajaxCall('/api/firewall/category/searchNoCategoryItem')");
+        console.log(data);
+        // 若data.rows非undefined並且筆數>0
         if (data.rows !== undefined && data.rows.length > 0) {
             let color_map = {};
             for (let i=0; i < data.rows.length ; ++i) {
