@@ -664,13 +664,15 @@ $( document ).ready(function() {
                 }
             });
       }
-      $(this).blur(); // blur 事件型別表示在元素失去焦點時響應
+      $(this).blur(); // blur 事件型別在元素失去焦點時響應
   });
 
   // hook category functionality
+  // 抓取防火牆類別，並綁定至Select category功能
   hook_firewall_categories();
 
   // expand internal auto generated rules
+  // 展開內部自動生成規則
   if ($("tr.internal-rule").length > 0) {
       $("#expand-internal-rules").show();
       $("#internal-rule-count").text($("tr.internal-rule").length);
