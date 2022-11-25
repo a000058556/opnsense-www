@@ -635,15 +635,28 @@ $( document ).ready(function() {
                     if (response.status == 'ok') {
                         let fileSizeTypes = ["", "K", "M", "G", "T", "P", "E", "Z", "Y"];
                         $.each(response.stats, function(index, value) {
-                            $("#" + index + "_evaluations").text(value.evaluations);
-                            $("#" + index + "_states").text(value.states);
-                            $("#" + index + "_packets").text(value.packets);
-                            if (value.bytes > 0) {
+                            console.log(index);
+                            console.log(value);
+                            // 將stats中的資料依照index, value格式取出，重組為html標籤的 id 以及 內容
+                            // 資料範例:
+                            // index= 02f4bab031b57d1e30553ce08e0ec131
+                            // value= {pf_rules: 2, evaluations: 36224, packets: 51, bytes: 5214, states: 0}
+                            $("#" + index + "_evaluations").text(value.evaluations); // 取evaluations: 36224
+                            $("#" + index + "_states").text(value.states); // 取states: 0
+                            $("#" + index + "_packets").text(value.packets); // 取packets: 51
+                            if (value.bytes > 0) { // 若bytes: 5214 > 0
+                                // Math.floor(值):回傳比值大中，最接近的整數
+                                // Math.log()會回傳參數的自然對數
+                                // Math.log(value.bytes) / Math.log(1000)，以value.bytes為底，1000的對數
                                 let ndx = Math.floor(Math.log(value.bytes) / Math.log(1000));
+                                console.log("ndx自然對數");
+                                console.log(ndx);
                                 $("#" + index + "_bytes").text(
+                                    // Math.pow(base, exponent) 方法用來做指數運算，base的exponent次方
+                                    // .toFixed()將一個數字轉成固定小數位數的字串(四捨五入)，(2)為取小數點後兩位
                                     (value.bytes / Math.pow(1000, ndx)).toFixed(2) + ' ' + fileSizeTypes[ndx]
                                 );
-                            } else {
+                            } else { // 若bytes <= 0
                                 $("#" + index + "_bytes").text("0");
                             }
                         });
