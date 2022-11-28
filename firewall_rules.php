@@ -684,7 +684,7 @@ $( document ).ready(function() {
   if ($("tr.internal-rule").length > 0) {
       // 顯示id expand-internal-rules物件
       $("#expand-internal-rules").show();
-      // 修改id internal-rule-count物件的文字內容為("tr.internal-rule").length)
+      // 修改id internal-rule-count物件的文字內容為"規則筆數" = ("tr.internal-rule").length)
       $("#internal-rule-count").text($("tr.internal-rule").length);
   }
 
@@ -700,12 +700,14 @@ $( document ).ready(function() {
       // 查看所有.opnsense-rules > tbody > tr的子元素
       // .css() 返回屬性值
       let tr_color = $(this).children(0).css("background-color");
-      console.log("--------tr_color資料內容: tr的子元素屬性值---------");
+      console.log("--------tr_color資料內容: tr的子元素屬性background-color的值---------");
       console.log(tr_color);
       console.log("-------------------------------------------");
       // 當屬性不是transparent 或 rgb(0, 0, 0')時
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
-          // 設置下搭選單條斑馬顏色
+          // 設置下拉選單斑馬顏色
+          console.log("--------$("#fw_category").data('stripe_color', tr_color);---------");
+          console.log($("#fw_category").data('stripe_color', tr_color));
           $("#fw_category").data('stripe_color', tr_color);
       }
   });
