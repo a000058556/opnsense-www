@@ -685,7 +685,9 @@ $( document ).ready(function() {
   // 生成斑馬紋表格效果
   $(".opnsense-rules > tbody > tr").each(function(){
       // save zebra color
+      console.log("--------$(this).children(0)資料內容---------");
       console.log($(this).children(0));
+      console.log("-------------------------------------------");
       let tr_color = $(this).children(0).css("background-color");
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
           $("#fw_category").data('stripe_color', tr_color);
