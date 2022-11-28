@@ -708,14 +708,14 @@ $( document ).ready(function() {
           // 設置下拉選單斑馬顏色
           console.log("--------$(#fw_category).data('stripe_color', tr_color);---------");
           console.log($("#fw_category").data('stripe_color', tr_color));
-          $("#fw_category").data('stripe_color', tr_color);
+          $("#fw_category").data('stripe_color', tr_color); // data-stripe_color = tr_color
       }
   });
   // 當class 為 opnsense-rules 時，拿掉"table-striped" class
   $(".opnsense-rules").removeClass("table-striped");
 
   $(".opnsense-rules").change(function(){
-      // 取得.opnsense-rules > tbody > tr:visible 的"background-color", "inherit"
+      // 取得.opnsense-rules > tbody > tr:visible(顯示的tr) 的"background-color", "inherit"
       //  
       $(".opnsense-rules > tbody > tr:visible").each(function (index) {
           $(this).css("background-color", "inherit");
@@ -727,11 +727,11 @@ $( document ).ready(function() {
           }
       });
   });
-  //
+  // 預設規則展開用按鈕
   $("#expand-internal").click(function(event){
       event.preventDefault();
-      $(".internal-rule").toggle();
-      $(".opnsense-rules").change();
+      $(".internal-rule").toggle(); // 隐藏/显示切換
+      $(".opnsense-rules").change(); // 變更
   });
 });
 </script>
