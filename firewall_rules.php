@@ -685,19 +685,32 @@ $( document ).ready(function() {
   // 生成斑馬紋表格效果
   $(".opnsense-rules > tbody > tr").each(function(){
       // save zebra color
+      console.log("--------$(this)資料內容---------");
+      console.log($(this));
       console.log("--------$(this).children(0)資料內容---------");
       console.log($(this).children(0));
       console.log("-------------------------------------------");
+      // 查看所有.opnsense-rules > tbody > tr的子元素
+      // .css() 返回屬性值
       let tr_color = $(this).children(0).css("background-color");
+      // 當屬性不是transparent 或 rgb(0, 0, 0')時
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
+          // 設置下搭選單條斑馬顏色
           $("#fw_category").data('stripe_color', tr_color);
       }
   });
+  // 當class 為 opnsense-rules 時，拿掉"table-striped" class
   $(".opnsense-rules").removeClass("table-striped");
+
   $(".opnsense-rules").change(function(){
+      // 取得.opnsense-rules > tbody > tr:visible 的"background-color", "inherit"
+      //  
       $(".opnsense-rules > tbody > tr:visible").each(function (index) {
           $(this).css("background-color", "inherit");
+          // ( i % 2 == 0)用於確定索引i是否為偶數索引
+          // 當index除以2後 = 0時
           if ( index % 2 == 0) {
+              // 若是偶數時，將background-color設置為"#fw_category"的顏色???
               $(this).css("background-color", $("#fw_category").data('stripe_color'));
           }
       });
