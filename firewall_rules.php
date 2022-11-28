@@ -706,7 +706,7 @@ $( document ).ready(function() {
       // 當屬性不是transparent 或 rgb(0, 0, 0')時
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
           // 設置下拉選單斑馬顏色
-          console.log("--------$("#fw_category").data('stripe_color', tr_color);---------");
+          console.log("--------$(#fw_category).data('stripe_color', tr_color);---------");
           console.log($("#fw_category").data('stripe_color', tr_color));
           $("#fw_category").data('stripe_color', tr_color);
       }
