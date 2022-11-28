@@ -673,14 +673,19 @@ $( document ).ready(function() {
 
   // expand internal auto generated rules
   // 展開內部自動生成規則
+  // 當<tr>內的class internal-rule筆數>0時
   if ($("tr.internal-rule").length > 0) {
+      // 顯示id expand-internal-rules物件
       $("#expand-internal-rules").show();
+      // 修改id internal-rule-count物件的文字內容為("tr.internal-rule").length)
       $("#internal-rule-count").text($("tr.internal-rule").length);
   }
 
   // our usual zebra striping doesn't respect hidden rows, hook repaint on .opnsense-rules change() and fire initially
+  // 生成斑馬紋表格效果
   $(".opnsense-rules > tbody > tr").each(function(){
       // save zebra color
+      console.log($(this).children(0));
       let tr_color = $(this).children(0).css("background-color");
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
           $("#fw_category").data('stripe_color', tr_color);
