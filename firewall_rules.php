@@ -553,6 +553,7 @@ $( document ).ready(function() {
           dataType: "json",
           data: {'act': 'log', 'id': id}, // {'act': 'log'} = ($pconfig['act'] == 'log')
           success: function(response) {
+              console.log("---------------點擊後的response---------------");
               console.log(response);
               // 點擊後的response
               // {id: '2', new_label: 'Enable Log', new_state: false}
@@ -584,6 +585,7 @@ $( document ).ready(function() {
   // 從/opnsense/www/js/opnsense.js 中調用
   // 紀錄頁面最後位置，頁面重整時移動到頁面加載時的最後已知位置
   watchScrollPosition();
+  console.log("---------紀錄頁面最後位置---------");
   console.log(window.location.href.replace(/\/|\:|\.|\?|\#/gi, ''));
 
   // select All 綁定選取全部按鈕
@@ -598,6 +600,7 @@ $( document ).ready(function() {
   // .detach()和.remove()一樣都是移除元素內所有內容，包含該元素，但不同的是，.detach()的元素事件仍然存在。
   // $('<p>要加入的原素</p>').appendTo('.目的地);
   $("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline"));
+  console.log("-----.detach().appendTo-----");
   console.log($("#category_block").detach().appendTo($(".page-content-head > .container-fluid > .list-inline")));
   // 清除後須加回pull-right按鈕才會置右
   $("#category_block").addClass("pull-right"); 
@@ -613,6 +616,7 @@ $( document ).ready(function() {
       // <<jQuery>>
       // $('div').data('options').name === 'John';
       let mode = $(this).data('mode');
+      console.log("-------------------mode-------------------");
       console.log(mode);
       // 如果data-mode = 'stats'
       if (mode === 'stats') {
@@ -631,11 +635,14 @@ $( document ).ready(function() {
             // api位置\opnsense\mvc\app\controllers\OPNsense\Firewall\Api\FilterUtilController.php > class FilterUtilController > function ruleStatsAction()
             $.ajax('api/firewall/filter_util/rule_stats', {
                 success: function(response) {
+                console.log("-------------------response-------------------");
                 console.log(response); // {status: 'ok', stats: $result}
                     if (response.status == 'ok') {
                         let fileSizeTypes = ["", "K", "M", "G", "T", "P", "E", "Z", "Y"];
                         $.each(response.stats, function(index, value) {
+                            console.log("----------------response.stats的index----------------");
                             console.log(index);
+                            console.log("----------------response.stats的value----------------");
                             console.log(value);
                             // 將stats中的資料依照index, value格式取出，重組為html標籤的 id 以及 內容
                             // 資料範例:
