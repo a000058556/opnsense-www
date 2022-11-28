@@ -700,6 +700,9 @@ $( document ).ready(function() {
       // 查看所有.opnsense-rules > tbody > tr的子元素
       // .css() 返回屬性值
       let tr_color = $(this).children(0).css("background-color");
+      console.log("--------tr_color資料內容: tr的子元素屬性值---------");
+      console.log(tr_color);
+      console.log("-------------------------------------------");
       // 當屬性不是transparent 或 rgb(0, 0, 0')時
       if (tr_color != 'transparent' && !tr_color.includes('(0, 0, 0')) {
           // 設置下搭選單條斑馬顏色
