@@ -447,6 +447,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig['slaacusev4iface'] = $pconfig['dhcp6usev4iface'];
 
     // ipv4 type (from ipaddr)
+    // 取得ipv4 type 從config讀入的$a_interfaces > ipaddr
+
+    // 調用util.inc > is_ipaddrv4()
+    // 當$pconfig['ipaddr'] = IPv4 address 時回傳true
     if (is_ipaddrv4($pconfig['ipaddr'])) {
         $pconfig['type'] = "staticv4";
     } else {
@@ -455,10 +459,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             $pconfig['type'] = $pconfig['ipaddr'];
         }
+        // 清空$pconfig['ipaddr']
         $pconfig['ipaddr'] = null;
     }
 
     // ipv6 type (from ipaddrv6)
+    // 取得ipv6 type 從config讀入的$a_interfaces > ipaddr
+
+    // 調用util.inc > is_ipaddrv6()
+    // 當$pconfig['ipaddr'] = IPv6 address 時回傳true
     if (is_ipaddrv6($pconfig['ipaddrv6'])) {
         $pconfig['type6'] = "staticv6";
     } else {
@@ -467,6 +476,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             $pconfig['type6'] = $pconfig['ipaddrv6'];
         }
+        // 清空$pconfig['ipaddr']
         $pconfig['ipaddrv6'] = null;
     }
 
@@ -479,6 +489,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
+    // 帶入ppp設定
     $std_ppp_copy_fieldnames = array("ptpid", "ports", "username", "phone", "apn", "provider", "idletimeout", "localip", 'hostuniq');
     foreach ($std_ppp_copy_fieldnames as $fieldname) {
         $pconfig[$fieldname] = isset($a_ppps[$pppid][$fieldname]) ? $a_ppps[$pppid][$fieldname] : null;
@@ -3770,6 +3781,9 @@ include("head.inc");
     $a_ppps = &config_read_array('ppps', 'ppp');
     print_r ($a_ppps);
     
+    echo('<br/>$pppid資料內容<br/>');
+    print_r ( $pppid);
+
     echo('<br/>$pconfig資料內容<br/>');
     print_r ($pconfig);
 
