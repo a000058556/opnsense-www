@@ -327,6 +327,7 @@ function get_wireless_channel_info($interface) {
 $ifdescrs = legacy_config_get_interfaces(['virtual' => false]);
 
 // 讀取interfaces array
+// &config_read_array說明:https://hackmd.io/@a000058556/HynSp8frs
 $a_interfaces = &config_read_array('interfaces');
 $a_ppps = &config_read_array('ppps', 'ppp');
 
@@ -418,7 +419,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'track6-prefix-id',
     ];
     // 注入資料
+    // $if = gat取得網址帶入參數/interfaces.php?if=wan
     foreach ($std_copy_fieldnames as $fieldname) {
+        // 確認$a_interfaces[$if]內是否有[key]清單內參數，有的話就將參數內容帶入，否則帶入null
         $pconfig[$fieldname] = isset($a_interfaces[$if][$fieldname]) ? $a_interfaces[$if][$fieldname] : null;
     }
     $pconfig['enable'] = isset($a_interfaces[$if]['enable']);
@@ -3765,9 +3768,10 @@ include("head.inc");
     $a_ppps = &config_read_array('ppps', 'ppp');
     print_r ($a_ppps);
 
+    echo('<br/>isset($a_interfaces[$if]['."enable".'])回傳值<br/>');
+    echo(isset($a_interfaces[$if]['enable']));
 
 
-    
 ?>
   </section>
 
