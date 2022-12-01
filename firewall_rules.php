@@ -750,6 +750,7 @@ $( document ).ready(function() {
 
 <?php include("fbegin.inc"); ?>
   <div class="hidden">
+    <!-- Inspect btn -->
     <div id="category_block" style="z-index:-100;">
         <select class="selectpicker hidden-xs hidden-sm hidden-md" data-live-search="true" data-size="5"  multiple title="<?=gettext("Select category");?>" id="fw_category">
         </select>
@@ -762,7 +763,18 @@ $( document ).ready(function() {
   <section class="page-content-main">
     <div class="container-fluid">
       <div class="row">
+        <!-- print_service_banner('firewall'); -->
+        <!-- print_alert_box(sprintf(
+              gettext(
+                'The firewall has globally been disabled and configured rules are ' .
+                'currently not enforced. It can be enabled in the %sFirewall/NAT%s ' .
+                'settings.'
+              ),
+              '<a href="/system_advanced_firewall.php">',
+              '</a>'
+            )); -->
         <?php print_service_banner('firewall'); ?>
+        <!-- Apply btn -->
         <div id="fw-alert-box" class="col-xs-12 <?=!is_subsystem_dirty('filter') && !isset($savemsg) ? "hidden":"";?>">
           <div class="alert alert-info" role="alert">
             <div id="fw-alert-changes" class="fw-alert-messages <?=!is_subsystem_dirty('filter') ? "hidden":"";?>">
