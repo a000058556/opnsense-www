@@ -334,6 +334,7 @@ $a_ppps = &config_read_array('ppps', 'ppp');
 $a_cert = isset($config['cert']) ? $config['cert'] : array();
 $a_ca = isset($config['ca']) ? $config['ca'] : array();
 
+// 當$_SERVER['REQUEST_METHOD'] === 'GET' / 網址有帶參數時
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!empty($_GET['if']) && !empty($a_interfaces[$_GET['if']])) {
         $if = $_GET['if'];
@@ -576,16 +577,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
+    // $_POST = 表格傳入參數與內容
     $pconfig = $_POST;
 
     $input_errors = array();
+    // 取得interface name
     if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
         $if = $_POST['if'];
         // read physical interface name from config.xml
         $pconfig['if'] = $a_interfaces[$if]['if'];
     }
     $ifgroup = !empty($_GET['group']) ? $_GET['group'] : '';
-
+    // apply動作(未摸索)
     if (!empty($pconfig['apply'])) {
         if (!is_subsystem_dirty('interfaces')) {
             $intput_errors[] = gettext("You have already applied your settings!");
@@ -668,7 +672,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 break;
             }
         }
-
+                                                                                  // preg_match(要搜索的字串, 被搜索的內容)
         if (isset($config['dhcpd']) && isset($config['dhcpd'][$if]['enable']) && !preg_match('/^staticv4/', $pconfig['type'])) {
             $input_errors[] = gettext("The DHCP Server is active on this interface and it can be used only with a static IP configuration. Please disable the DHCP Server service on this interface first, then change the interface configuration.");
         }
@@ -686,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 }
             }
         }
-
+        // 當送出的設定$pconfig['type']
         switch ($pconfig['type']) {
             case "staticv4":
                 $reqdfields = explode(" ", "ipaddr subnet gateway");
@@ -734,7 +738,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
                 break;
         }
-
+        // 當送出的設定$pconfig['type6']
         switch ($pconfig['type6']) {
             case "staticv6":
                 $reqdfields = explode(" ", "ipaddrv6 subnetv6 gatewayv6");
@@ -799,6 +803,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         /* normalize MAC addresses - lowercase and convert Windows-ized hyphenated MACs to colon delimited */
+        // staticV4 的address輸入過濾設定
         $staticroutes = get_staticroutes(true);
         if (!empty($pconfig['ipaddr'])) {
             if (!is_ipaddrv4($pconfig['ipaddr'])) {
@@ -826,6 +831,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 }
             }
         }
+        // staticV6 的address輸入過濾設定
         if (!empty($pconfig['ipaddrv6'])) {
             if (!is_ipaddrv6($pconfig['ipaddrv6'])) {
                 $input_errors[] = gettext("A valid IPv6 address must be specified.");
@@ -1014,6 +1020,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         // save form data
+        // 當沒有輸入錯誤時，開始準備將設定寫入
         if (count($input_errors) == 0) {
             $old_config = $a_interfaces[$if];
             // retrieve our interface names before anything changes
@@ -1417,6 +1424,7 @@ if (isset($a_interfaces[$if]['wireless'])) {
 // Find all possible media options for the interface
 $mediaopts_list = legacy_interface_details($pconfig['if'])['supported_media'] ?? [];
 
+// 頁面header生成開始
 include("head.inc");
 ?>
 
@@ -1424,7 +1432,9 @@ include("head.inc");
 <script>
   $( document ).ready(function() {
       function toggle_allcfg() {
+          // 當Basic configuration的Enable被選取時
           if ($("#enable").prop('checked')) {
+              // 顯示下方表格選單
               $("#allcfg").show();
           } else {
               $("#allcfg").hide();
@@ -1498,7 +1508,7 @@ include("head.inc");
       $("#ieee8021x").click(toggle_wirelesscfg);
       toggle_allcfg();
 
-      //
+      // type切換內容時，切換下方表格內容
       $("#type").change(function(){
           $('#staticv4, #dhcp, #pppoe, #pptp, #ppp').hide();
           if ($(this).val() == "l2tp") {
@@ -1808,7 +1818,7 @@ include("head.inc");
       window_highlight_table_option();
   });
 </script>
-<!-- 頁面生成開始 -->
+<!-- 頁面內容生成開始 -->
 
 <?php include("fbegin.inc"); ?>
   <section class="page-content-main">
@@ -1829,6 +1839,12 @@ include("head.inc");
         print_info_box($savemsg);
       }
 ?>
+        <!-- 上方DHCP Server(v4/v6)選單 -->
+        <ul class="nav nav-tabs" data-tabs="tabs" id="maintabs">
+            <li class="active"><a data-toggle="tab" id="interfaces_tab" url="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
+            <li><a data-toggle="tab" id="dhcpv4_tab" url="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+            <li><a data-toggle="tab" id="dhcpv6_tab" url="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
+        </ul>
         <section class="col-xs-12">
           <form method="post" name="iform" id="iform">
               <div class="tab-content content-box col-xs-12 __mb">
