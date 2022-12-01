@@ -424,6 +424,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // 確認$a_interfaces[$if]內是否有[key]清單內參數，有的話就將參數內容帶入，否則帶入null
         $pconfig[$fieldname] = isset($a_interfaces[$if][$fieldname]) ? $a_interfaces[$if][$fieldname] : null;
     }
+    // 確認設定參數
+    // 並將結果帶入$pconfig中
     $pconfig['enable'] = isset($a_interfaces[$if]['enable']);
     $pconfig['lock'] = isset($a_interfaces[$if]['lock']);
     $pconfig['blockpriv'] = isset($a_interfaces[$if]['blockpriv']);
@@ -3767,6 +3769,9 @@ include("head.inc");
     echo('<br/>$a_ppps資料內容<br/>');
     $a_ppps = &config_read_array('ppps', 'ppp');
     print_r ($a_ppps);
+    
+    echo('<br/>$pconfig資料內容<br/>');
+    print_r ($pconfig);
 
     echo('<br/>isset($a_interfaces[$if]['."enable".'])回傳值<br/>');
     echo(isset($a_interfaces[$if]['enable']));
