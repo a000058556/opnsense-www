@@ -326,6 +326,7 @@ function get_wireless_channel_info($interface) {
 
 $ifdescrs = legacy_config_get_interfaces(['virtual' => false]);
 
+// 讀取interfaces array
 $a_interfaces = &config_read_array('interfaces');
 $a_ppps = &config_read_array('ppps', 'ppp');
 
@@ -340,8 +341,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         header(url_safe('Location: /interfaces_assign.php'));
         exit;
     }
-
+    // 建立$pconfig
     $pconfig = [];
+    // 建立$pconfig[key]清單
     $std_copy_fieldnames = [
         'adv_dhcp6_authentication_statement_algorithm',
         'adv_dhcp6_authentication_statement_authname',
@@ -415,6 +417,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'track6-interface',
         'track6-prefix-id',
     ];
+    // 注入資料
     foreach ($std_copy_fieldnames as $fieldname) {
         $pconfig[$fieldname] = isset($a_interfaces[$if][$fieldname]) ? $a_interfaces[$if][$fieldname] : null;
     }
@@ -1789,18 +1792,23 @@ include("head.inc");
       window_highlight_table_option();
   });
 </script>
+<!-- 頁面生成開始 -->
 
 <?php include("fbegin.inc"); ?>
   <section class="page-content-main">
     <div class="container-fluid">
       <div class="row">
+<!-- 訊息彈出視窗生成 -->
 <?php
+      // error區塊生成
       if (isset($input_errors) && count($input_errors) > 0) {
           print_input_errors($input_errors);
       }
+      // apply區塊生成
       if (is_subsystem_dirty('interfaces')) {
           print_info_box_apply(sprintf(gettext("The %s configuration has been changed."),$pconfig['descr'])."<br/>".gettext("You must apply the changes in order for them to take effect.")."<br/>".gettext("Don't forget to adjust the DHCP Server range if needed after applying."));
       }
+      // 儲存成功後訊息
       if (isset($savemsg)) {
         print_info_box($savemsg);
       }
@@ -1809,6 +1817,7 @@ include("head.inc");
           <form method="post" name="iform" id="iform">
               <div class="tab-content content-box col-xs-12 __mb">
                 <div class="table-responsive">
+                  <!-- Basic configuration -->
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
                       <tr>
@@ -1821,6 +1830,7 @@ include("head.inc");
                       </tr>
                     </thead>
                     <tbody>
+                      <!-- Enable -->
                       <tr>
                         <td><i class="fa fa-info-circle text-muted"></i> <?= gettext('Enable') ?></td>
                         <td>
@@ -1828,6 +1838,7 @@ include("head.inc");
                           <strong><?= gettext('Enable Interface') ?></strong>
                         </td>
                       </tr>
+                      <!-- Lock -->
                       <tr>
                         <td><i class="fa fa-info-circle text-muted"></i> <?= gettext('Lock') ?></td>
                         <td>
@@ -1835,6 +1846,7 @@ include("head.inc");
                           <strong><?= gettext('Prevent interface removal') ?></strong>
                         </td>
                       </tr>
+                      <!-- Device -->
                       <tr>
                         <td style="width:22%"><a id="help_for_ifname" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Device"); ?></td>
                         <td style="width:78%">
@@ -1844,6 +1856,7 @@ include("head.inc");
                           </div>
                         </td>
                       </tr>
+                      <!-- Description -->
                       <tr>
                         <td><a id="help_for_descr" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Description"); ?></td>
                         <td>
@@ -1868,6 +1881,7 @@ include("head.inc");
                         </tr>
                       </thead>
                       <tbody>
+                        <!-- Block private networks -->
                         <tr>
                           <td style="width:22%"><a id="help_for_blockpriv" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Block private networks"); ?></td>
                           <td style="width:78%">
@@ -1880,6 +1894,7 @@ include("head.inc");
                             </div>
                           </td>
                         </tr>
+                        <!-- Block bogon networks -->
                         <tr>
                           <td><a id="help_for_blockbogons" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Block bogon networks"); ?></td>
                           <td>
@@ -1892,19 +1907,24 @@ include("head.inc");
                             </div>
                           </td>
                         </tr>
+                        <!-- IPv4 Configuration Type -->
                         <tr>
                           <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("IPv4 Configuration Type"); ?></td>
                           <td>
                           <select name="type" class="selectpicker" data-style="btn-default" id="type">
 <?php
+                            // 建立下拉選項表單
                             $types4 = array("none" => gettext("None"), "staticv4" => gettext("Static IPv4"), "dhcp" => gettext("DHCP"), "ppp" => gettext("PPP"), "pppoe" => gettext("PPPoE"), "pptp" => gettext("PPTP"), "l2tp" => gettext("L2TP"));
+                            // 將表單array以foreach拆為 $key => $opt 後放入<option></option>
                             foreach ($types4 as $key => $opt):?>
+                            <!-- 當$key == $pconfig['type']時，selected="selected" -->
                             <option value="<?=$key;?>" <?=$key == $pconfig['type'] ? "selected=\"selected\"" : "";?> ><?=$opt;?></option>
 <?php
                             endforeach;?>
                             </select>
                           </td>
                         </tr>
+                        <!-- IPv6 Configuration Type -->
                         <tr>
                           <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("IPv6 Configuration Type"); ?></td>
                           <td>
@@ -1918,6 +1938,7 @@ include("head.inc");
                             </select>
                           </td>
                         </tr>
+                        <!-- MAC address -->
                         <tr>
                           <td><a id="help_for_spoofmac" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("MAC address"); ?></td>
                           <td>
@@ -3735,6 +3756,19 @@ include("head.inc");
         </section>
       </div>
     </div>
+<?php
+    echo('<br/>$a_interfaces資料內容<br/>');
+    $a_interfaces = &config_read_array('interfaces');
+    print_r ($a_interfaces);
+
+    echo('<br/>$a_ppps資料內容<br/>');
+    $a_ppps = &config_read_array('ppps', 'ppp');
+    print_r ($a_ppps);
+
+
+
+    
+?>
   </section>
 
 <?php include("foot.inc");
