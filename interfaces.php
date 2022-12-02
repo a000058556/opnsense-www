@@ -3796,6 +3796,7 @@ include("head.inc");
           <!-- interface end -->
 
           <!-- relay start -->
+          <div class="tab-content">
           <div id="relay" class="tab-pane fade in">
               <div class="container-fluid">
                 <div class="row">
@@ -3880,7 +3881,9 @@ include("head.inc");
                 </div>
               </div>
           </div>
+          </div>
           <!-- relay  end -->
+          
           <!-- relayv6 start -->
           <div id="relayv6" class="tab-pane fade in">
 
