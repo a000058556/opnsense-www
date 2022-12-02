@@ -1844,7 +1844,7 @@ include("head.inc");
           <!-- 上方DHCP Server(v4/v6)選單 -->
           <ul class="nav nav-tabs" id="maintabs">
               <li class="active"><a  id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
-              <li <?=$pconfig['type'] == 'staticv4' ? "" : "class=\"off\"" ; ?>><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+              <li><a <?=$pconfig['type'] == 'staticv4' ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
               <li <?=$pconfig['type'] == 'staticv6' ? "" : "class=\"off\"" ; ?>><a id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
           </ul>
           <form method="post" name="iform" id="iform">
