@@ -1846,6 +1846,8 @@ include("head.inc");
               <li class="active"><a style="cursor:pointer; pointer-events:none;" id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
               <li><a <?=$pconfig['type'] == 'staticv4' ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
               <li><a <?=$pconfig['type'] == 'staticv6' ? "" : "class=\"off\"" ; ?> id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
+              <li><a <?=$pconfig['type'] == 'staticv4' ? "class=\"off\"" : "" ; ?> id="relay_tab" href="/services_dhcp_relay.php"><?=gettext("Relay(v4)"); ?></a></li>
+              <li><a <?=$pconfig['type'] == 'staticv6' ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="/services_dhcpv6_relay.php"><?=gettext("Relay(v6)"); ?></a></li>
           </ul>
           <form method="post" name="iform" id="iform">
               <div class="tab-content content-box col-xs-12 __mb">

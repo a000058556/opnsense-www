@@ -33,6 +33,10 @@ require_once("config.inc");
 require_once("interfaces.inc");
 require_once("plugins.inc.d/dhcpd.inc");
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $if = $_GET['if'];
+}
+
 function adjust_utc($dt)
 {
     foreach (config_read_array('dhcpd') as $dhcpd) {
