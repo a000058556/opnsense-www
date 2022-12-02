@@ -298,6 +298,13 @@ legacy_html_escape_form_data($leases);
 
 <section class="page-content-main">
   <div class="container-fluid">
+    <!-- 上方DHCP Server(v4)選單 -->
+    <ul class="nav nav-tabs" id="maintabs">
+        <li><a id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
+        <li><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+        <li><a id="relayv4_tab" href="/services_dhcp_relay.php"><?=gettext("Relay(v4)"); ?></a></li>
+        <li class="active"><a id="leasesv4_tab" href="/status_dhcp_leases.php"><?=gettext("Leases(v4)"); ?></a></li>
+    </ul>
     <div class="row">
 <?php
       /* only print pool status when we have one */
