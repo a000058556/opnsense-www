@@ -3794,7 +3794,29 @@ include("head.inc");
           </div>
           <!-- interface end -->
 
-          <!-- relay start -->
+ <?php        
+/***************************************************************************************************************
+ * relay start
+ ***************************************************************************************************************/
+
+ $iflist = get_configured_interface_with_descr();
+
+/*   set the enabled flag which will tell us if DHCP server is enabled
+ *   on any interface.   We will use this to disable dhcp-relay since
+ *   the two are not compatible with each other.
+ */
+$dhcpd_enabled = false;
+if (is_array($config['dhcpd'])) {
+    foreach($config['dhcpd'] as $intf => $dhcp) {
+        if (isset($dhcp['enable']) && !empty($config['interfaces'][$intf]['enable'])) {
+            $dhcpd_enabled = true;
+        }
+    }
+}
+$service_hook = 'dhcrelay';
+
+?>                       
+
           <div id="relay" class="tab-pane fade in">
               <div class="container-fluid">
                 <div class="row">
