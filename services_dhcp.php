@@ -599,13 +599,14 @@ include("head.inc");
 
 <?php include("fbegin.inc"); ?>
   <section class="page-content-main">
-    <!-- 上方DHCP Server(v4/v6)選單 -->
-    <ul class="nav nav-tabs" id="maintabs">
-        <li><a  id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
-        <li class="active"><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
-        <li><a id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
-    </ul>
     <div class="container-fluid">
+      <!-- 上方DHCP Server(v4)選單 -->
+      <ul class="nav nav-tabs" id="maintabs">
+          <li><a  id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
+          <li class="active"><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+          <li><a id="relayv4_tab" href="/services_dhcp_relay.php"><?=gettext("Relay(v4)"); ?></a></li>
+          <li><a id="leasesv4_tab" href="/status_dhcp_leases.php"><?=gettext("Leases(v4)"); ?></a></li>
+      </ul>
       <div class="row">
         <?php if (isset($config['dhcrelay']['enable'])): ?>
           <?php print_info_box(gettext("DHCP Relay is currently enabled. Cannot enable the DHCP Server service while the DHCP Relay is enabled on any interface.")); ?>
