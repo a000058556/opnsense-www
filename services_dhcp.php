@@ -604,7 +604,6 @@ include("head.inc");
       <ul class="nav nav-tabs" id="maintabs">
           <li><a id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
           <li class="active"><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
-          <li><a id="LogFile_tab" href="/ui/diagnostics/log/core/dhcpd" style="display:none" target="view_window"><?=gettext("Log File(v4)"); ?></a></li>
       </ul>
       <div class="row">
         <?php if (isset($config['dhcrelay']['enable'])): ?>
