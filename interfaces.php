@@ -1850,6 +1850,7 @@ include("head.inc");
               <li><a data-toggle="tab" <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="#relayv6"><?=gettext("Relay(v6)"); ?></a></li>
           </ul>
           <!-- interface start -->
+          <div class="tab-content" >
           <div id="interfaces" class="tab-pane fade in active">
             <form method="post" name="iform" id="iform">
                 <div class="tab-content content-box col-xs-12 __mb">
@@ -3790,6 +3791,7 @@ include("head.inc");
                     </div>
                   </div>
                 </form>
+          </div>
           </div>
           <!-- interface end -->
 
