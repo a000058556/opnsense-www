@@ -1846,8 +1846,8 @@ include("head.inc");
               <li class="active"><a id="interfaces_tab" href="#interfaces"><?=gettext("Interfaces(".$if.")"); ?></a></li>
               <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
               <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "" : "class=\"off\"" ; ?> id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
-              <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "class=\"off\"" : "" ; ?> id="relay_tab" href="#relayv4" target="view_window"><?=gettext("Relay(v4)"); ?></a></li>
-              <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="#relayv6" target="view_window"><?=gettext("Relay(v6)"); ?></a></li>
+              <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "class=\"off\"" : "" ; ?> id="relay_tab" href="#relayv4"><?=gettext("Relay(v4)"); ?></a></li>
+              <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="#relayv6"><?=gettext("Relay(v6)"); ?></a></li>
           </ul>
           <!-- interface start -->
           <div id="interface" class="tab-pane fade in active">
