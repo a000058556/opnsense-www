@@ -3791,13 +3791,99 @@ include("head.inc");
                   </div>
                 </form>
           </div>
-          <div id="relay" class="tab-pane fade in">
+          <!-- interface end -->
 
+          <!-- relay start -->
+          <div id="relay" class="tab-pane fade in">
+              <div class="container-fluid">
+                <div class="row">
+          <?php
+                if ($dhcpd_enabled) {
+                  print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
+                } else {
+          ?>
+                  <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
+                  <?php if (isset($savemsg)) print_info_box($savemsg); ?>
+                  <section class="col-xs-12">
+                    <div class="content-box">
+                      <form method="post" name="iform" id="iform">
+                        <div>
+                          <div class="table-responsive">
+                            <table class="table table-striped opnsense_standard_table_form">
+                              <tr>
+                                <td style="width:22%"><strong><?=gettext("DHCP Relay configuration"); ?></strong></td>
+                                <td style="width:78%; text-align:right">
+                                  <small><?=gettext("full help"); ?> </small>
+                                  <i class="fa fa-toggle-off text-danger"  style="cursor: pointer;" id="show_all_help_page"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
+                                <td>
+                                  <input name="enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td><a id="help_for_interface" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Interface(s)') ?></td>
+                                <td>
+                                  <select id="interface" name="interface[]" multiple="multiple" class="selectpicker">
+          <?php
+                                  foreach ($iflist as $ifent => $ifdesc):
+                                  if (!is_ipaddr(get_interface_ip($ifent))) {
+                                      continue;
+                                  }?>
+                                    <option value="<?=$ifent;?>" <?=isset($pconfig['interface']) && in_array($ifent, $pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                                      <?=$ifdesc;?>
+                                    </option>
+          <?php
+                                  endforeach;?>
+                                  </select>
+                                  <div class="hidden" data-for="help_for_interface">
+                                    <?= gettext('Interfaces without an IP address will not be shown.') ?>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
+                                <td>
+                                    <input name="agentoption" type="checkbox" value="yes" <?=!empty($pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                                    <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
+                                    <div class="hidden" data-for="help_for_agentoption">
+                                      <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
+                                <td>
+                                  <input name="server" type="text" value="<?=!empty($pconfig['server']) ? htmlspecialchars($pconfig['server']):"";?>" />
+                                  <div class="hidden" data-for="help_for_server">
+                                    <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                  <input name="Submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" onclick="enable_change(true)" />
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </section>
+                  <?php } ?>
+                </div>
+              </div>
           </div>
+          <!-- relay  end -->
+          <!-- relayv6 start -->
           <div id="relayv6" class="tab-pane fade in">
 
           </div>
-          <!-- interface end -->
+          <!-- relayv6 end -->
         </section>
       </div>
     </div>
