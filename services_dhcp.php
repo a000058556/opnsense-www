@@ -599,6 +599,12 @@ include("head.inc");
 
 <?php include("fbegin.inc"); ?>
   <section class="page-content-main">
+    <!-- 上方DHCP Server(v4/v6)選單 -->
+    <ul class="nav nav-tabs" id="maintabs">
+        <li><a  id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
+        <li class="active"><a id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+        <li><a id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
+    </ul>
     <div class="container-fluid">
       <div class="row">
         <?php if (isset($config['dhcrelay']['enable'])): ?>
