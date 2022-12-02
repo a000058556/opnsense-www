@@ -1843,7 +1843,7 @@ include("head.inc");
         <section class="col-xs-12">
           <!-- 上方DHCP Server(v4/v6)選單 -->
           <ul class="nav nav-tabs" id="maintabs">
-              <li class="active"><a id="interfaces_tab" href="#interfaces"><?=gettext("Interfaces(".$if.")"); ?></a></li>
+              <li class="active"><a data-toggle="tab" id="interfaces_tab" href="#interfaces"><?=gettext("Interfaces(".$if.")"); ?></a></li>
               <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
               <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "" : "class=\"off\"" ; ?> id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
               <li><a data-toggle="tab" <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "class=\"off\"" : "" ; ?> id="relay_tab" href="#relay"><?=gettext("Relay(v4)");  ?> </a></li>
