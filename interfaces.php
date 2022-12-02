@@ -1844,10 +1844,10 @@ include("head.inc");
           <!-- 上方DHCP Server(v4/v6)選單 -->
           <ul class="nav nav-tabs" id="maintabs">
               <li class="active"><a style="cursor:pointer; pointer-events:none;" id="interfaces_tab" href="/interfaces.php?if=<?=$if; ?>"><?=gettext("Interfaces(".$if.")"); ?></a></li>
-              <li><a <?=$pconfig['type'] == 'staticv4' ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
-              <li><a <?=$pconfig['type'] == 'staticv6' ? "" : "class=\"off\"" ; ?> id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
-              <li><a <?=$pconfig['type'] == 'staticv4' ? "class=\"off\"" : "" ; ?> id="relay_tab" href="/services_dhcp_relay.php" target="view_window"><?=gettext("Relay(v4)"); ?></a></li>
-              <li><a <?=$pconfig['type'] == 'staticv6' ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="/services_dhcpv6_relay.php" target="view_window"><?=gettext("Relay(v6)"); ?></a></li>
+              <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "" : "class=\"off\"" ; ?> id="dhcpv4_tab" href="/services_dhcp.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v4)"); ?></a></li>
+              <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "" : "class=\"off\"" ; ?> id="dhcpv6_tab" href="/services_dhcpv6.php?if=<?=$if; ?>"><?=gettext("DHCP Server(v6)"); ?></a></li>
+              <li><a <?=is_ipaddrv4($a_interfaces[$if]['ipaddr']) ? "class=\"off\"" : "" ; ?> id="relay_tab" href="/services_dhcp_relay.php" target="view_window"><?=gettext("Relay(v4)"); ?></a></li>
+              <li><a <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="/services_dhcpv6_relay.php" target="view_window"><?=gettext("Relay(v6)"); ?></a></li>
           </ul>
           <form method="post" name="iform" id="iform">
               <div class="tab-content content-box col-xs-12 __mb">
