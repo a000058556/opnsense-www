@@ -3874,7 +3874,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
       $config['dhcrelay']['server'] = $rely_pconfig['server'];
       write_config();
       plugins_configure('dhcrelay', false, array('inet'));
-      header(url_safe('Location: /interfaces.php?if='.$if));
+      // header(url_safe('Location: /interfaces.php?if='.$if));
       exit;
   }
 }
