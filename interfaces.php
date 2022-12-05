@@ -579,8 +579,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
     // $_POST = 表格傳入參數與內容
-    $pconfig = $_POST["iform"];
-    $ppconfig = $_POST["iform"];
+    $pconfig = $_POST;
 
     $input_errors = array();
     // 取得interface name
@@ -3806,61 +3805,6 @@ include("head.inc");
  ***************************************************************************************************************/
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-  $rely_pconfig['enable'] = isset($config['dhcrelay']['enable']);
-  // 若沒有$config['dhcrelay']['interface']) ， $rely_pconfig['enable'] = array();
-  if (empty($config['dhcrelay']['interface'])) {
-      $rely_pconfig['interface'] = array();
-  } else {
-      $rely_pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
-  }
-  // 若沒有$config['dhcrelay']['server']) ， $rely_pconfig['server'] = "";
-  if (empty($config['dhcrelay']['server'])) {
-      $rely_pconfig['server'] = "";
-  } else {
-      $rely_pconfig['server'] = $config['dhcrelay']['server'];
-  }
-  $rely_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $rely_input_errors = array();
-  $rely_pconfig = $_POST["relay_iform"];
-  $prely_pconfig = $_POST["relay_iform"];
-
-  /* input validation */
-  $rely_reqdfields = explode(" ", "server interface");
-  $rely_reqdfieldsn = array(gettext("Destination Server"), gettext("Interface"));
-
-  do_input_validation($rely_pconfig, $rely_reqdfields, $rely_reqdfieldsn, $rely_input_errors);
-
-  if (!empty($rely_pconfig['server'])) {
-      $checksrv = explode(",", $rely_pconfig['server']);
-      foreach ($checksrv as $srv) {
-          if (!is_ipaddr($srv)) {
-              $rely_input_errors[] = gettext("A valid Destination Server IP address must be specified.");
-          }
-      }
-  }
-
-  // 當沒有輸入錯誤時，將post收到的資料寫入config中
-  if (count($rely_input_errors) == 0) {
-      if (empty($config['dhcrelay'])) {
-          $config['dhcrelay'] =  array();
-      }
-      $config['dhcrelay']['enable'] = !empty($rely_pconfig['enable']);
-      $config['dhcrelay']['interface'] = implode(",", $rely_pconfig['interface']);
-      $config['dhcrelay']['agentoption'] = !empty($rely_pconfig['agentoption']);
-      $config['dhcrelay']['server'] = $rely_pconfig['server'];
-      write_config();
-      plugins_configure('dhcrelay', false, array('inet'));
-      if (!empty($ifgroup)) {
-        header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-    } else {
-        header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-    }
-    exit;
-  }
-}
 
 // 取interface
  $iflist = get_configured_interface_with_descr();
@@ -3883,88 +3827,88 @@ $service_hook = 'dhcrelay';
 ?>                       
 
           <div id="relay" class="tab-pane fade in">
-              <div class="container-fluid">
-                <div class="row">
-          <?php
-                if ($dhcpd_enabled) {
-                  print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
-                } else {
-          ?>
-                  <?php if (isset($rely_input_errors) && count($rely_input_errors) > 0) print_input_errors($rely_input_errors); ?>
-                  <?php if (isset($rely_savemsg)) print_info_box($rely_savemsg); ?>
-                  <section class="col-xs-12">
-                    <div class="content-box">
-                      <form method="post" name="relay_iform" id="relay_iform">
-                        <div>
-                          <div class="table-responsive">
-                            <table class="table table-striped opnsense_standard_table_form">
-                              <tr>
-                                <td style="width:22%"><strong><?=gettext("DHCP Relay configuration"); ?></strong></td>
-                                <td style="width:78%; text-align:right">
-                                  <small><?=gettext("full help"); ?> </small>
-                                  <i class="fa fa-toggle-off text-danger"  style="cursor: pointer;" id="show_all_help_page"></i>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
-                                <td>
-                                  <input name="rely_enable" type="checkbox" value="yes" <?=!empty($rely_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><a id="help_for_interface" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Interface(s)') ?></td>
-                                <td>
-                                  <select id="interface" name="interface[]" multiple="multiple" class="selectpicker">
-          <?php
-                                  foreach ($iflist as $ifent => $ifdesc):
-                                  if (!is_ipaddr(get_interface_ip($ifent))) {
-                                      continue;
-                                  }?>
-                                    <option value="<?=$ifent;?>" <?=isset($rely_pconfig['interface']) && in_array($ifent, $rely_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
-                                      <?=$ifdesc;?>
-                                    </option>
-          <?php
-                                  endforeach;?>
-                                  </select>
-                                  <div class="hidden" data-for="help_for_interface">
-                                    <?= gettext('Interfaces without an IP address will not be shown.') ?>
+            <div class="container-fluid">
+              <div class="row">
+<?php
+              if ($dhcpd_enabled) {
+                print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
+              } else {
+?>
+                <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
+                <?php if (isset($savemsg)) print_info_box($savemsg); ?>
+                <section class="col-xs-12">
+                  <div class="content-box">
+                    <form method="post" name="relay_iform" id="relay_iform">
+                      <div>
+                        <div class="table-responsive">
+                          <table class="table table-striped opnsense_standard_table_form">
+                            <tr>
+                              <td style="width:22%"><strong><?=gettext("DHCP Relay configuration"); ?></strong></td>
+                              <td style="width:78%; text-align:right">
+                                <small><?=gettext("full help"); ?> </small>
+                                <i class="fa fa-toggle-off text-danger"  style="cursor: pointer;" id="show_all_help_page"></i>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
+                              <td>
+                                <input name="enable" type="checkbox" value="yes" <?=!empty($relay_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><a id="help_for_interface" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Interface(s)') ?></td>
+                              <td>
+                                <select id="interface" name="interface[]" multiple="multiple" class="selectpicker">
+<?php
+                                foreach ($iflist as $ifent => $ifdesc):
+                                if (!is_ipaddr(get_interface_ip($ifent))) {
+                                    continue;
+                                }?>
+                                  <option value="<?=$ifent;?>" <?=isset($relay_pconfig['interface']) && in_array($ifent, $relay_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                                    <?=$ifdesc;?>
+                                  </option>
+<?php
+                                endforeach;?>
+                                </select>
+                                <div class="hidden" data-for="help_for_interface">
+                                  <?= gettext('Interfaces without an IP address will not be shown.') ?>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
+                              <td>
+                                  <input name="agentoption" type="checkbox" value="yes" <?=!empty($relay_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                                  <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
+                                  <div class="hidden" data-for="help_for_agentoption">
+                                    <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
                                   </div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
-                                <td>
-                                    <input name="agentoption" type="checkbox" value="yes" <?=!empty($rely_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
-                                    <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
-                                    <div class="hidden" data-for="help_for_agentoption">
-                                      <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
-                                    </div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
-                                <td>
-                                  <input name="server" type="text" value="<?=!empty($rely_pconfig['server']) ? htmlspecialchars($rely_pconfig['server']):"";?>" />
-                                  <div class="hidden" data-for="help_for_server">
-                                    <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
-                                  </div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>&nbsp;</td>
-                                <td>
-                                  <input name="Submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" onclick="enable_change(true)" />
-                                </td>
-                              </tr>
-                            </table>
-                          </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
+                              <td>
+                                <input name="server" type="text" value="<?=!empty($relay_pconfig['server']) ? htmlspecialchars($relay_pconfig['server']):"";?>" />
+                                <div class="hidden" data-for="help_for_server">
+                                  <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>&nbsp;</td>
+                              <td>
+                                <input name="Submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" onclick="enable_change(true)" />
+                              </td>
+                            </tr>
+                          </table>
                         </div>
-                      </form>
-                    </div>
-                  </section>
-                  <?php } ?>
-                </div>
+                      </div>
+                    </form>
+                  </div>
+                </section>
+                <?php } ?>
               </div>
+            </div>
           </div>
           <!-- relay  end -->
 
@@ -4007,11 +3951,6 @@ $service_hook = 'dhcrelay';
     }
     print_r ($iface);
     
-    echo ('<br/>原始$rely_pconfig回傳值<br/>');
-    print_r ($prely_pconfig);
-
-    echo('<br/>原始$pconfig資料內容<br/>');
-    print_r ($ppconfig);
 
 ?>
   </section>
