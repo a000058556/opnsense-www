@@ -1819,34 +1819,9 @@ include("head.inc");
           }
       }).change();
 
-      // window_highlight_table_option();
+      window_highlight_table_option();
   });
 
-  // // tab功能控制
-  // $( document ).ready(function() {
-  //   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-  //             console.log("-------------e-------------");
-  //             console.log(e);
-  //             // let group_by = e.target.href.split('#')[1];
-  //             // load_chart(group_by);
-  //             // $("#heading_label").text(e.target.text);
-  //         });
-
-  //         let selected_tab = window.location.hash != "" ? window.location.hash : "#action";
-  //         console.log("-------------selected_tab-------------");
-  //         console.log(selected_tab);
-  //         $('a[href="' +selected_tab + '"]').tab('show');
-  //         $('.nav-tabs a').on('shown.bs.tab', function (e) {
-  //             history.pushState(null, null, e.target.hash);
-  //             console.log("---------e.target.hash-----------");
-  //             console.log(e.target.hash);
-  //         });
-  //         $(window).on('hashchange', function(e) {
-  //             console.log("---------window.location.hash-----------");
-  //             console.log(window.location.hash);
-  //             $('a[href="' + window.location.hash + '"]').click()
-  //         });
-  // });
 </script>
 
 <!-- 頁面內容生成開始 -->
@@ -1880,6 +1855,7 @@ include("head.inc");
               <li><a data-toggle="tab" <?=is_ipaddrv6($a_interfaces[$if]['ipaddrv6']) ? "class=\"off\"" : "" ; ?> id="relayv6_tab" href="#relayv6"><?=gettext("Relay(v6)"); ?></a></li>
           </ul>
           <!-- interface start -->
+          <!-- tab-content start -->
           <div class="tab-content" >
           <div id="interfaces" class="tab-pane fade in active">
             <form method="post" name="iform" id="iform">
@@ -3996,8 +3972,9 @@ $service_hook = 'dhcrelay';
           <div id="relayv6" class="tab-pane fade in">
 
           </div>
-          </div>
           <!-- relayv6 end -->
+          </div>
+          <!-- tab-content end -->
         </section>
       </div>
     </div>
