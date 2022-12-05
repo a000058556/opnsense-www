@@ -3911,7 +3911,7 @@ $service_hook = 'dhcrelay';
                   <?php if (isset($rely_savemsg)) print_info_box($rely_savemsg); ?>
                   <section class="col-xs-12">
                     <div class="content-box">
-                      <form method="post" name="iform" id="iform">
+                      <form method="post" name="relay_iform" id="relay_iform">
                         <div>
                           <div class="table-responsive">
                             <table class="table table-striped opnsense_standard_table_form">
@@ -4023,6 +4023,8 @@ $service_hook = 'dhcrelay';
     }
     print_r ($iface);
     
+    echo ("PHOS");
+    print_r ($PHOS);
 
 
 ?>
