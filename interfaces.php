@@ -580,6 +580,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
     // $_POST = 表格傳入參數與內容
     $pconfig = $_POST;
+    $ppconfig = $_POST;
 
     $input_errors = array();
     // 取得interface name
@@ -3847,6 +3848,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $rely_input_errors = array();
   $rely_pconfig = $_POST;
+  $prely_pconfig = $_POST;
 
   /* input validation */
   $rely_reqdfields = explode(" ", "server interface");
@@ -4023,9 +4025,11 @@ $service_hook = 'dhcrelay';
     }
     print_r ($iface);
     
-    echo ("PHOS");
-    print_r ($_POST);
+    echo ('<br/>原始$rely_pconfig回傳值<br/>');
+    print_r ($prely_pconfig);
 
+    echo('<br/>原始$pconfig資料內容<br/>');
+    print_r ($ppconfig);
 
 ?>
   </section>
