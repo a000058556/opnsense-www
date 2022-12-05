@@ -579,8 +579,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
     // $_POST = 表格傳入參數與內容
-    $pconfig = $_POST;
-    $ppconfig = $_POST;
+    $pconfig = $_POST["iform"];
+    $ppconfig = $_POST["iform"];
 
     $input_errors = array();
     // 取得interface name
@@ -3828,8 +3828,6 @@ include("head.inc");
 /***************************************************************************************************************
  * relay start
  ***************************************************************************************************************/
-require_once("guiconfig.inc");
-require_once("interfaces.inc");
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -3850,8 +3848,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   $rely_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $rely_input_errors = array();
-  $rely_pconfig = $_POST;
-  $prely_pconfig = $_POST;
+  $rely_pconfig = $_POST["relay_iform"];
+  $prely_pconfig = $_POST["relay_iform"];
 
   /* input validation */
   $rely_reqdfields = explode(" ", "server interface");
