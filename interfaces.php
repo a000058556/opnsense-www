@@ -3956,7 +3956,7 @@ $service_hook = 'dhcrelay';
                               <tr>
                                 <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
                                 <td>
-                                    <input name="agentoption" type="checkbox" value="yes" <?=!empty($pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                                    <input name="agentoption" type="checkbox" value="yes" <?=!empty($rely_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
                                     <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
                                     <div class="hidden" data-for="help_for_agentoption">
                                       <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
@@ -3966,7 +3966,7 @@ $service_hook = 'dhcrelay';
                               <tr>
                                 <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
                                 <td>
-                                  <input name="server" type="text" value="<?=!empty($pconfig['server']) ? htmlspecialchars($pconfig['server']):"";?>" />
+                                  <input name="server" type="text" value="<?=!empty($rely_pconfig['server']) ? htmlspecialchars($rely_pconfig['server']):"";?>" />
                                   <div class="hidden" data-for="help_for_server">
                                     <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
                                   </div>
