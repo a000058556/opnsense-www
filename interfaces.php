@@ -3936,7 +3936,7 @@ $service_hook = 'dhcrelay';
     foreach (config_read_array('interfaces') as $ifname => $iface) {
       // undo stupid listags() turning our item into a new array, preventing certain names to be used as interface.
       // see src/etc/inc/xmlparse.inc
-      echo ($iface);
+      print_r ($iface);
       if (isset($iface[0])) {
           $iface = $iface[0];
       }
