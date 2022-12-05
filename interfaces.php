@@ -3828,6 +3828,9 @@ include("head.inc");
 /***************************************************************************************************************
  * relay start
  ***************************************************************************************************************/
+require_once("guiconfig.inc");
+require_once("interfaces.inc");
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
@@ -3927,7 +3930,7 @@ $service_hook = 'dhcrelay';
                               <tr>
                                 <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
                                 <td>
-                                  <input name="rely_enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                                  <input name="rely_enable" type="checkbox" value="yes" <?=!empty($rely_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
                                 </td>
                               </tr>
                               <tr>
