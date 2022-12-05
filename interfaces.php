@@ -966,6 +966,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         }
                     }
                 }
+
                 if ($clone_count > 1) {
                       $wlanif = get_real_interface($if);
                       $old_wireless_mode = $a_interfaces[$if]['wireless']['mode'];
@@ -1060,6 +1061,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 }
             }
 
+            // 切換v4 config type
             // switch ipv4 config by type
             switch ($pconfig['type']) {
                 case "staticv4":
@@ -3929,6 +3931,17 @@ $service_hook = 'dhcrelay';
 
     echo('<br/>isset($a_interfaces[$if]['."enable".'])回傳值<br/>');
     echo(isset($a_interfaces[$if]['enable']));
+
+    echo('<br/>$iface回傳值<br/>');
+    foreach (config_read_array('interfaces') as $ifname => $iface) {
+      // undo stupid listags() turning our item into a new array, preventing certain names to be used as interface.
+      // see src/etc/inc/xmlparse.inc
+      if (isset($iface[0])) {
+          $iface = $iface[0];
+      }
+    }
+    print_r ($iface);
+    
 
 
 ?>
