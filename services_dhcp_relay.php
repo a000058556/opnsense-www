@@ -32,12 +32,15 @@ require_once("guiconfig.inc");
 require_once("interfaces.inc");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
     $rely_pconfig['enable'] = isset($config['dhcrelay']['enable']);
+    // 若沒有$config['dhcrelay']['interface']) ， $rely_pconfig['enable'] = array();
     if (empty($config['dhcrelay']['interface'])) {
         $rely_pconfig['interface'] = array();
     } else {
         $rely_pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
     }
+    // 若沒有$config['dhcrelay']['server']) ， $rely_pconfig['server'] = "";
     if (empty($config['dhcrelay']['server'])) {
         $rely_pconfig['server'] = "";
     } else {
@@ -63,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
+    // 當沒有輸入錯誤時，將post收到的資料寫入config中
     if (count($input_errors) == 0) {
         if (empty($config['dhcrelay'])) {
             $config['dhcrelay'] =  array();

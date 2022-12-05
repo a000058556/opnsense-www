@@ -3801,6 +3801,58 @@ include("head.inc");
  * relay start
  ***************************************************************************************************************/
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+  $rely_pconfig['enable'] = isset($config['dhcrelay']['enable']);
+  // 若沒有$config['dhcrelay']['interface']) ， $rely_pconfig['enable'] = array();
+  if (empty($config['dhcrelay']['interface'])) {
+      $rely_pconfig['interface'] = array();
+  } else {
+      $rely_pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
+  }
+  // 若沒有$config['dhcrelay']['server']) ， $rely_pconfig['server'] = "";
+  if (empty($config['dhcrelay']['server'])) {
+      $rely_pconfig['server'] = "";
+  } else {
+      $rely_pconfig['server'] = $config['dhcrelay']['server'];
+  }
+  $rely_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $input_errors = array();
+  $rely_pconfig = $_POST;
+
+  /* input validation */
+  $rely_reqdfields = explode(" ", "server interface");
+  $rely_reqdfieldsn = array(gettext("Destination Server"), gettext("Interface"));
+
+  do_input_validation($rely_pconfig, $rely_reqdfields, $rely_reqdfieldsn, $input_errors);
+
+  if (!empty($rely_pconfig['server'])) {
+      $checksrv = explode(",", $rely_pconfig['server']);
+      foreach ($checksrv as $srv) {
+          if (!is_ipaddr($srv)) {
+              $input_errors[] = gettext("A valid Destination Server IP address must be specified.");
+          }
+      }
+  }
+
+  // 當沒有輸入錯誤時，將post收到的資料寫入config中
+  if (count($input_errors) == 0) {
+      if (empty($config['dhcrelay'])) {
+          $config['dhcrelay'] =  array();
+      }
+      $config['dhcrelay']['enable'] = !empty($rely_pconfig['enable']);
+      $config['dhcrelay']['interface'] = implode(",", $rely_pconfig['interface']);
+      $config['dhcrelay']['agentoption'] = !empty($rely_pconfig['agentoption']);
+      $config['dhcrelay']['server'] = $rely_pconfig['server'];
+      write_config();
+      plugins_configure('dhcrelay', false, array('inet'));
+      header(url_safe('Location: /services_dhcp_relay.php'));
+      exit;
+  }
+}
+
+// 取interface
  $iflist = get_configured_interface_with_descr();
 
 /*   set the enabled flag which will tell us if DHCP server is enabled
@@ -3816,6 +3868,7 @@ if (is_array($config['dhcpd'])) {
     }
 }
 $service_hook = 'dhcrelay';
+
 
 ?>                       
 
