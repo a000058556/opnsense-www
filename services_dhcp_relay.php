@@ -33,32 +33,32 @@ require_once("interfaces.inc");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    $rely_pconfig['enable'] = isset($config['dhcrelay']['enable']);
-    // 若沒有$config['dhcrelay']['interface']) ， $rely_pconfig['enable'] = array();
+    $pconfig['enable'] = isset($config['dhcrelay']['enable']);
+    // 若沒有$config['dhcrelay']['interface']) ， $pconfig['enable'] = array();
     if (empty($config['dhcrelay']['interface'])) {
-        $rely_pconfig['interface'] = array();
+        $pconfig['interface'] = array();
     } else {
-        $rely_pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
+        $pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
     }
-    // 若沒有$config['dhcrelay']['server']) ， $rely_pconfig['server'] = "";
+    // 若沒有$config['dhcrelay']['server']) ， $pconfig['server'] = "";
     if (empty($config['dhcrelay']['server'])) {
-        $rely_pconfig['server'] = "";
+        $pconfig['server'] = "";
     } else {
-        $rely_pconfig['server'] = $config['dhcrelay']['server'];
+        $pconfig['server'] = $config['dhcrelay']['server'];
     }
-    $rely_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
+    $pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input_errors = array();
-    $rely_pconfig = $_POST;
+    $pconfig = $_POST;
 
     /* input validation */
     $reqdfields = explode(" ", "server interface");
     $reqdfieldsn = array(gettext("Destination Server"), gettext("Interface"));
 
-    do_input_validation($rely_pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+    do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
 
-    if (!empty($rely_pconfig['server'])) {
-        $checksrv = explode(",", $rely_pconfig['server']);
+    if (!empty($pconfig['server'])) {
+        $checksrv = explode(",", $pconfig['server']);
         foreach ($checksrv as $srv) {
             if (!is_ipaddr($srv)) {
                 $input_errors[] = gettext("A valid Destination Server IP address must be specified.");
@@ -71,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (empty($config['dhcrelay'])) {
             $config['dhcrelay'] =  array();
         }
-        $config['dhcrelay']['enable'] = !empty($rely_pconfig['enable']);
-        $config['dhcrelay']['interface'] = implode(",", $rely_pconfig['interface']);
-        $config['dhcrelay']['agentoption'] = !empty($rely_pconfig['agentoption']);
-        $config['dhcrelay']['server'] = $rely_pconfig['server'];
+        $config['dhcrelay']['enable'] = !empty($pconfig['enable']);
+        $config['dhcrelay']['interface'] = implode(",", $pconfig['interface']);
+        $config['dhcrelay']['agentoption'] = !empty($pconfig['agentoption']);
+        $config['dhcrelay']['server'] = $pconfig['server'];
         write_config();
         plugins_configure('dhcrelay', false, array('inet'));
         header(url_safe('Location: /services_dhcp_relay.php'));
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-
+// 取interface
 $iflist = get_configured_interface_with_descr();
 
 /*   set the enabled flag which will tell us if DHCP server is enabled
@@ -134,7 +134,7 @@ include("head.inc");
                     <tr>
                       <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
                       <td>
-                        <input name="enable" type="checkbox" value="yes" <?=!empty($rely_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                        <input name="enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
                       </td>
                     </tr>
                     <tr>
@@ -146,7 +146,7 @@ include("head.inc");
                         if (!is_ipaddr(get_interface_ip($ifent))) {
                             continue;
                         }?>
-                          <option value="<?=$ifent;?>" <?=isset($rely_pconfig['interface']) && in_array($ifent, $rely_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                          <option value="<?=$ifent;?>" <?=isset($pconfig['interface']) && in_array($ifent, $pconfig['interface']) ? "selected=\"selected\"" : "";?>>
                             <?=$ifdesc;?>
                           </option>
 <?php
@@ -160,7 +160,7 @@ include("head.inc");
                     <tr>
                       <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
                       <td>
-                          <input name="agentoption" type="checkbox" value="yes" <?=!empty($rely_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                          <input name="agentoption" type="checkbox" value="yes" <?=!empty($pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
                           <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
                           <div class="hidden" data-for="help_for_agentoption">
                             <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
@@ -170,7 +170,7 @@ include("head.inc");
                     <tr>
                       <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
                       <td>
-                        <input name="server" type="text" value="<?=!empty($rely_pconfig['server']) ? htmlspecialchars($rely_pconfig['server']):"";?>" />
+                        <input name="server" type="text" value="<?=!empty($pconfig['server']) ? htmlspecialchars($pconfig['server']):"";?>" />
                         <div class="hidden" data-for="help_for_server">
                           <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
                         </div>
