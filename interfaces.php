@@ -3848,7 +3848,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
       $config['dhcrelay']['server'] = $rely_pconfig['server'];
       write_config();
       plugins_configure('dhcrelay', false, array('inet'));
-      header(url_safe('Location: /services_dhcp_relay.php'));
+      header(url_safe('Location: /interfaces.php?if='.$if));
       exit;
   }
 }
@@ -3882,7 +3882,7 @@ $service_hook = 'dhcrelay';
                 } else {
           ?>
                   <?php if (isset($rely_input_errors) && count($rely_input_errors) > 0) print_input_errors($rely_input_errors); ?>
-                  <?php if (isset($savemsg)) print_info_box($savemsg); ?>
+                  <?php if (isset($rely_savemsg)) print_info_box($rely_savemsg); ?>
                   <section class="col-xs-12">
                     <div class="content-box">
                       <form method="post" name="iform" id="iform">
