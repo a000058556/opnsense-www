@@ -4024,7 +4024,7 @@ $service_hook = 'dhcrelay';
     print_r ($iface);
     
     echo ("PHOS");
-    print_r ($PHOS);
+    print_r ($_POST);
 
 
 ?>
