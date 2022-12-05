@@ -635,6 +635,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         write_config("Interface {$pconfig['descr']}({$if}) is now disabled.");
         mark_subsystem_dirty('interfaces');
+        // 若存在要apply的暫存檔時
         if (file_exists('/tmp/.interfaces.apply')) {
             $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
         } else {
@@ -3818,26 +3819,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   }
   $rely_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $input_errors = array();
+  $rely_input_errors = array();
   $rely_pconfig = $_POST;
 
   /* input validation */
   $rely_reqdfields = explode(" ", "server interface");
   $rely_reqdfieldsn = array(gettext("Destination Server"), gettext("Interface"));
 
-  do_input_validation($rely_pconfig, $rely_reqdfields, $rely_reqdfieldsn, $input_errors);
+  do_input_validation($rely_pconfig, $rely_reqdfields, $rely_reqdfieldsn, $rely_input_errors);
 
   if (!empty($rely_pconfig['server'])) {
       $checksrv = explode(",", $rely_pconfig['server']);
       foreach ($checksrv as $srv) {
           if (!is_ipaddr($srv)) {
-              $input_errors[] = gettext("A valid Destination Server IP address must be specified.");
+              $rely_input_errors[] = gettext("A valid Destination Server IP address must be specified.");
           }
       }
   }
 
   // 當沒有輸入錯誤時，將post收到的資料寫入config中
-  if (count($input_errors) == 0) {
+  if (count($rely_input_errors) == 0) {
       if (empty($config['dhcrelay'])) {
           $config['dhcrelay'] =  array();
       }
@@ -3880,7 +3881,7 @@ $service_hook = 'dhcrelay';
                   print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
                 } else {
           ?>
-                  <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
+                  <?php if (isset($rely_input_errors) && count($rely_input_errors) > 0) print_input_errors($rely_input_errors); ?>
                   <?php if (isset($savemsg)) print_info_box($savemsg); ?>
                   <section class="col-xs-12">
                     <div class="content-box">
@@ -3898,7 +3899,7 @@ $service_hook = 'dhcrelay';
                               <tr>
                                 <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
                                 <td>
-                                  <input name="enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                                  <input name="enable" type="checkbox" value="yes" <?=!empty($rely_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
                                 </td>
                               </tr>
                               <tr>
@@ -3910,7 +3911,7 @@ $service_hook = 'dhcrelay';
                                   if (!is_ipaddr(get_interface_ip($ifent))) {
                                       continue;
                                   }?>
-                                    <option value="<?=$ifent;?>" <?=isset($pconfig['interface']) && in_array($ifent, $pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                                    <option value="<?=$ifent;?>" <?=isset($rely_pconfig['interface']) && in_array($ifent, $rely_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
                                       <?=$ifdesc;?>
                                     </option>
           <?php
