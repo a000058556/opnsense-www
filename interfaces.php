@@ -646,8 +646,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           
               echo('<br/>原始$pconfig資料內容<br/>');
               print_r ($ppconfig);
-              $if_r = $if."\#relay";
-              header(url_safe("Location: /interfaces.php?if=%s", array($if_r)));
+              // $if_r = $if."\#relay";
+              header(url_safe("Location: /interfaces.php?if=%s", array($if)));
           }
           exit;
       }
@@ -3914,7 +3914,19 @@ if (is_array($config['dhcpd'])) {
 }
 $service_hook = 'dhcrelay';
 
-?>                       
+?> 
+
+<script>
+      // update history on tab state and implement navigation
+      let selected_tab = window.location.hash != "" ? window.location.hash : "#{{default_tab}}";
+      $('a[href="' +selected_tab + '"]').click();
+      $('.nav-tabs a').on('shown.bs.tab', function (e) {
+          history.pushState(null, null, e.target.hash);
+      });
+      $(window).on('hashchange', function(e) {
+          $('a[href="' + window.location.hash + '"]').click()
+      });
+</script>
 
           <div id="relay" class="tab-pane fade in">
           <div class="container-fluid">
