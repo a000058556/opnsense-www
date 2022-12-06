@@ -605,8 +605,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($pconfig["relay_Submit"] == "Save") {
       $input_errors = array();
       $prelay_pconfig = $_POST;
-      // $ifgroup跳轉頁面用
+      // $if $ifgroup跳轉頁面用
       $ifgroup = !empty($_GET['group']) ? $_GET['group'] : '';
+      $if = $_GET['if'];
   
       /* input validation */
       $reqdfields = explode(" ", "server interface");
