@@ -704,15 +704,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           if (!empty($ifgroup)) {
               header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
           } else {
-              echo('<br/>$pconfig資料內容<br/>');
-              print_r ($pconfig);
-              
-              echo ('<br/>原始$relayv6_pconfig回傳值<br/>');
-              print_r ($prelayv6_pconfig);
-          
-              echo('<br/>原始$pconfig資料內容<br/>');
-              print_r ($ppconfig);
-              // header(url_safe("Location: /interfaces.php?if=%s", array($if)));
+              header(url_safe("Location: /interfaces.php?if=%s", array($if)));
           }
           exit;
       }
