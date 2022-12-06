@@ -340,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $if = $_GET['if'];
     } else {
         // no interface provided, redirect to interface assignments
-        header(url_safe('Location: /interfaces_assign.php'));
+        // header(url_safe('Location: /interfaces_assign.php'));
         exit;
     }
     // 建立$pconfig
@@ -582,7 +582,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig = $_POST;
 
     $input_errors = array();
-    // 取得interface name
+    // 當$_POST['if']不為空值，取得interface name
     if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
         $if = $_POST['if'];
         // read physical interface name from config.xml
@@ -613,11 +613,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         @unlink('/tmp/.interfaces.apply');
-        if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
+        // if (!empty($ifgroup)) {
+        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        // } else {
+        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        // }
         exit;
     } elseif (empty($pconfig['enable'])) {
         if (isset($a_interfaces[$if]['enable'])) {
@@ -650,10 +650,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
         }
         if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
+        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        // } else {
+        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        // }
         exit;
     } else {
         // locate sequence in ppp list
@@ -1398,10 +1398,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             mark_subsystem_dirty('interfaces');
 
             if (!empty($ifgroup)) {
-                header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-            } else {
-                header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-            }
+            //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+            // } else {
+            //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+            // }
             exit;
         }
     }
