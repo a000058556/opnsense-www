@@ -582,853 +582,859 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // $_POST = 表格傳入參數與內容
     $pconfig = $_POST;
 
-    $input_errors = array();
-    // 取得interface name
-    if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
-        $if = $_POST['if'];
-        // read physical interface name from config.xml
-        $pconfig['if'] = $a_interfaces[$if]['if'];
-    }
-    $ifgroup = !empty($_GET['group']) ? $_GET['group'] : '';
-    // apply動作(未摸索)
-    if (!empty($pconfig['apply'])) {
-        if (!is_subsystem_dirty('interfaces')) {
-            $intput_errors[] = gettext("You have already applied your settings!");
-        } else {
-            clear_subsystem_dirty('interfaces');
-
-            if (file_exists('/tmp/.interfaces.apply')) {
-                $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
-                foreach ($toapplylist as $ifapply => $ifcfgo) {
-                    interface_bring_down($ifapply, $ifcfgo);
-                    interface_configure(false, $ifapply, true);
-                }
-
-                system_routing_configure();
-                plugins_configure('monitor');
-                filter_configure();
-                foreach ($toapplylist as $ifapply => $ifcfgo) {
-                    plugins_configure('newwanip', false, array($ifapply));
-                }
-                rrd_configure();
-            }
-        }
-        @unlink('/tmp/.interfaces.apply');
-        if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            echo('<br/>$pconfig資料內容<br/>');
-            print_r ($pconfig);
-            
-            echo ('<br/>原始$rely_pconfig回傳值<br/>');
-            print_r ($prely_pconfig);
-        
-            echo('<br/>原始$pconfig資料內容<br/>');
-            print_r ($ppconfig);
-            // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
-        exit;
-    } elseif (empty($pconfig['enable'])) {
-        if (isset($a_interfaces[$if]['enable'])) {
-            unset($a_interfaces[$if]['enable']);
-        }
-        if (!empty($pconfig['lock'])) {
-            $a_interfaces[$if]['lock'] = true;
-        } elseif (isset($a_interfaces[$if]['lock'])) {
-            unset($a_interfaces[$if]['lock']);
-        }
-        if (isset($a_interfaces[$if]['wireless'])) {
-            interface_sync_wireless_clones($a_interfaces[$if], false);
-        }
-        $a_interfaces[$if]['descr'] = preg_replace('/[^a-z_0-9]/i', '', $pconfig['descr']);
-
-        write_config("Interface {$pconfig['descr']}({$if}) is now disabled.");
-        mark_subsystem_dirty('interfaces');
-        // 若存在要apply的暫存檔時
-        if (file_exists('/tmp/.interfaces.apply')) {
-            $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
-        } else {
-            $toapplylist = array();
-        }
-        if (empty($toapplylist[$if])) {
-            // only flush if the running config is not in our list yet
-            $toapplylist[$if]['ifcfg'] = $a_interfaces[$if];
-            $toapplylist[$if]['ifcfg']['realif'] = get_real_interface($if);
-            $toapplylist[$if]['ifcfg']['realifv6'] = get_real_interface($if, "inet6");
-            $toapplylist[$if]['ppps'] = $a_ppps;
-            file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
-        }
-        if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            echo('<br/>$pconfig資料內容<br/>');
-            print_r ($pconfig);
-            
-            echo ('<br/>原始$rely_pconfig回傳值<br/>');
-            print_r ($prely_pconfig);
-        
-            echo('<br/>原始$pconfig資料內容<br/>');
-            print_r ($ppconfig);
-            // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
-        exit;
-    } else {
-        // locate sequence in ppp list
-        $pppid = count($a_ppps);
-        foreach ($a_ppps as $key => $ppp) {
-            if ($a_interfaces[$if]['if'] == $ppp['if']) {
-                $pppid = $key;
-                break;
-            }
-        }
-
-        $old_ppps = $a_ppps;
-
-        foreach ($ifdescrs as $ifent => $ifcfg) {
-            if ($if != $ifent && $ifcfg['descr'] == $pconfig['descr']) {
-                $input_errors[] = gettext("An interface with the specified description already exists.");
-                break;
-            }
-        }
-                                                                                  // preg_match(要搜索的字串, 被搜索的內容)
-        if (isset($config['dhcpd']) && isset($config['dhcpd'][$if]['enable']) && !preg_match('/^staticv4/', $pconfig['type'])) {
-            $input_errors[] = gettext("The DHCP Server is active on this interface and it can be used only with a static IP configuration. Please disable the DHCP Server service on this interface first, then change the interface configuration.");
-        }
-        if (isset($config['dhcpdv6']) && isset($config['dhcpdv6'][$if]['enable']) && !preg_match('/^staticv6/', $pconfig['type6']) && !isset($pconfig['dhcpd6track6allowoverride'])) {
-            $input_errors[] = gettext("The DHCPv6 Server is active on this interface and it can be used only with a static IPv6 configuration. Please disable the DHCPv6 Server service on this interface first, then change the interface configuration.");
-        }
-
-        if ($pconfig['type'] != 'none' || $pconfig['type6'] != 'none') {
-            foreach (plugins_devices() as $device) {
-                if (!isset($device['configurable']) || $device['configurable'] == true) {
-                    continue;
-                }
-                if (preg_match('/' . $device['pattern'] . '/', $pconfig['if'])) {
-                    $input_errors[] = gettext('Cannot assign an IP configuration type to a tunnel interface.');
-                }
-            }
-        }
-        // 當送出的設定$pconfig['type']
-        switch ($pconfig['type']) {
-            case "staticv4":
-                $reqdfields = explode(" ", "ipaddr subnet gateway");
-                $reqdfieldsn = array(gettext("IPv4 address"),gettext("Subnet bit count"),gettext("Gateway"));
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-            case "dhcp":
-                if (!empty($pconfig['adv_dhcp_config_file_override'] && !file_exists($pconfig['adv_dhcp_config_file_override_path']))) {
-                    $input_errors[] = sprintf(gettext('The DHCP override file "%s" does not exist.'), $pconfig['adv_dhcp_config_file_override_path']);
-                }
-                break;
-            case "ppp":
-                $reqdfields = explode(" ", "ports phone");
-                $reqdfieldsn = array(gettext("Modem Port"),gettext("Phone Number"));
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-            case "pppoe":
-                if (!empty($pconfig['pppoe_dialondemand'])) {
-                    $reqdfields = explode(" ", "pppoe_username pppoe_password pppoe_dialondemand pppoe_idletimeout");
-                    $reqdfieldsn = array(gettext("PPPoE username"),gettext("PPPoE password"),gettext("Dial on demand"),gettext("Idle timeout value"));
-                } else {
-                    $reqdfields = explode(" ", "pppoe_username pppoe_password");
-                    $reqdfieldsn = array(gettext("PPPoE username"),gettext("PPPoE password"));
-                }
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-            case "pptp":
-                if (!empty($pconfig['pptp_dialondemand'])) {
-                    $reqdfields = explode(" ", "pptp_username pptp_password localip pptp_subnet pptp_remote pptp_dialondemand pptp_idletimeout");
-                    $reqdfieldsn = array(gettext("PPTP username"),gettext("PPTP password"),gettext("PPTP local IP address"),gettext("PPTP subnet"),gettext("PPTP remote IP address"),gettext("Dial on demand"),gettext("Idle timeout value"));
-                } else {
-                    $reqdfields = explode(" ", "pptp_username pptp_password localip pptp_subnet pptp_remote");
-                    $reqdfieldsn = array(gettext("PPTP username"),gettext("PPTP password"),gettext("PPTP local IP address"),gettext("PPTP subnet"),gettext("PPTP remote IP address"));
-                }
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-            case "l2tp":
-                if (!empty($pconfig['pptp_dialondemand'])) {
-                    $reqdfields = explode(" ", "pptp_username pptp_password pptp_remote pptp_dialondemand pptp_idletimeout");
-                    $reqdfieldsn = array(gettext("L2TP username"),gettext("L2TP password"),gettext("L2TP remote IP address"),gettext("Dial on demand"),gettext("Idle timeout value"));
-                } else {
-                    $reqdfields = explode(" ", "pptp_username pptp_password pptp_remote");
-                    $reqdfieldsn = array(gettext("L2TP username"),gettext("L2TP password"),gettext("L2TP remote IP address"));
-                }
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-        }
-        // 當送出的設定$pconfig['type6']
-        switch ($pconfig['type6']) {
-            case "staticv6":
-                $reqdfields = explode(" ", "ipaddrv6 subnetv6 gatewayv6");
-                $reqdfieldsn = array(gettext("IPv6 address"),gettext("Subnet bit count"),gettext("Gateway"));
-                do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-                break;
-            case 'dhcp6':
-                if (!empty($pconfig['adv_dhcp6_config_file_override'] && !file_exists($pconfig['adv_dhcp6_config_file_override_path']))) {
-                    $input_errors[] = sprintf(gettext('The DHCPv6 override file "%s" does not exist.'), $pconfig['adv_dhcp6_config_file_override_path']);
-                }
-                break;
-            case '6rd':
-                if (empty($pconfig['gateway-6rd']) || !is_ipaddrv4($pconfig['gateway-6rd'])) {
-                    $input_errors[] = gettext('6RD border relay gateway must be a valid IPv4 address.');
-                }
-                if (empty($pconfig['prefix-6rd']) || !is_subnetv6($pconfig['prefix-6rd'])) {
-                    $input_errors[] = gettext('6RD prefix must be a valid IPv6 subnet.');
-                }
-                if (!empty($pconfig['prefix-6rd-v4addr']) && !is_ipaddrv4($pconfig['prefix-6rd-v4addr'])) {
-                    $input_errors[] = gettext('6RD IPv4 prefix address must be a valid IPv4 address.');
-                }
-                if (!is_numeric($pconfig['prefix-6rd-v4plen'])) {
-                    $input_errors[] = gettext('6RD IPv4 prefix length must be a number.');
-                }
-                foreach (array_keys($ifdescrs) as $ifent) {
-                    if ($if != $ifent && ($config['interfaces'][$ifent]['ipaddrv6'] == $pconfig['type6'])) {
-                        if ($config['interfaces'][$ifent]['prefix-6rd'] == $pconfig['prefix-6rd']) {
-                            $input_errors[] = gettext("You can only have one interface configured in 6rd with same prefix.");
-                            break;
-                        }
-                    }
-                }
-                break;
-            case "6to4":
-                foreach (array_keys($ifdescrs) as $ifent) {
-                    if ($if != $ifent && ($config['interfaces'][$ifent]['ipaddrv6'] == $pconfig['type6'])) {
-                        $input_errors[] = sprintf(gettext("You can only have one interface configured as 6to4."), $pconfig['type6']);
-                        break;
-                    }
-                }
-                break;
-            case 'track6':
-                if (!empty($pconfig['track6-prefix-id--hex']) && !ctype_xdigit($pconfig['track6-prefix-id--hex'])) {
-                    $input_errors[] = gettext("You must enter a valid hexadecimal number for the IPv6 prefix ID.");
-                } elseif (!empty($pconfig['track6-interface'])) {
-                    $ipv6_delegation_length = calculate_ipv6_delegation_length($pconfig['track6-interface']);
-                    if ($ipv6_delegation_length >= 0) {
-                        $ipv6_num_prefix_ids = pow(2, $ipv6_delegation_length);
-                        $track6_prefix_id = intval($pconfig['track6-prefix-id--hex'], 16);
-                        if ($track6_prefix_id < 0 || $track6_prefix_id >= $ipv6_num_prefix_ids) {
-                            $input_errors[] = gettext("You specified an IPv6 prefix ID that is out of range.");
-                        }
-                        foreach (link_interface_to_track6($pconfig['track6-interface']) as $trackif => $trackcfg) {
-                            if ($trackif != $if && $trackcfg['track6-prefix-id'] == $track6_prefix_id) {
-                                $input_errors[] = gettext('You specified an IPv6 prefix ID that is already in use.');
-                                break;
-                            }
-                        }
-                    }
-                }
-                break;
-        }
-
-        /* normalize MAC addresses - lowercase and convert Windows-ized hyphenated MACs to colon delimited */
-        // staticV4 的address輸入過濾設定
-        $staticroutes = get_staticroutes(true);
-        if (!empty($pconfig['ipaddr'])) {
-            if (!is_ipaddrv4($pconfig['ipaddr'])) {
-                $input_errors[] = gettext("A valid IPv4 address must be specified.");
-            } else {
-                if (is_ipaddr_configured($pconfig['ipaddr'], $if)) {
-                    $input_errors[] = gettext("This IPv4 address is being used by another interface or VIP.");
-                }
-                /* Do not accept network or broadcast address, except if subnet is 31 or 32 */
-                if ($pconfig['subnet'] < 31) {
-                    if ($pconfig['ipaddr'] == gen_subnet($pconfig['ipaddr'], $pconfig['subnet'])) {
-                        $input_errors[] = gettext("This IPv4 address is the network address and cannot be used");
-                    } elseif ($pconfig['ipaddr'] == gen_subnet_max($pconfig['ipaddr'], $pconfig['subnet'])) {
-                        $input_errors[] = gettext("This IPv4 address is the broadcast address and cannot be used");
-                    }
-                }
-
-                foreach ($staticroutes as $route_subnet) {
-                    list($network, $subnet) = explode("/", $route_subnet);
-                    if ($pconfig['subnet'] == $subnet && $network == gen_subnet($pconfig['ipaddr'], $pconfig['subnet'])) {
-                        $input_errors[] = gettext("This IPv4 address conflicts with a Static Route.");
-                        break;
-                    }
-                    unset($network, $subnet);
-                }
-            }
-        }
-        // staticV6 的address輸入過濾設定
-        if (!empty($pconfig['ipaddrv6'])) {
-            if (!is_ipaddrv6($pconfig['ipaddrv6'])) {
-                $input_errors[] = gettext("A valid IPv6 address must be specified.");
-            } else {
-                if (is_ipaddr_configured($pconfig['ipaddrv6'], $if)) {
-                    $input_errors[] = gettext("This IPv6 address is being used by another interface or VIP.");
-                }
-
-                foreach ($staticroutes as $route_subnet) {
-                    list($network, $subnet) = explode("/", $route_subnet);
-                    if ($pconfig['subnetv6'] == $subnet && $network == gen_subnetv6($pconfig['ipaddrv6'], $pconfig['subnetv6'])) {
-                        $input_errors[] = gettext("This IPv6 address conflicts with a Static Route.");
-                        break;
-                    }
-                    unset($network, $subnet);
-                }
-            }
-        }
-        if (!empty($pconfig['subnet']) && !is_numeric($pconfig['subnet'])) {
-            $input_errors[] = gettext("A valid subnet bit count must be specified.");
-        }
-        if (!empty($pconfig['subnetv6']) && !is_numeric($pconfig['subnetv6'])) {
-            $input_errors[] = gettext("A valid subnet bit count must be specified.");
-        }
-        if (!empty($pconfig['alias-address']) && !is_ipaddrv4($pconfig['alias-address'])) {
-            $input_errors[] = gettext("A valid alias IP address must be specified.");
-        }
-        if (!empty($pconfig['alias-subnet']) && !is_numeric($pconfig['alias-subnet'])) {
-            $input_errors[] = gettext("A valid alias subnet bit count must be specified.");
-        }
-        if (!empty($pconfig['dhcprejectfrom']) && !is_ipaddrv4($pconfig['dhcprejectfrom'])) {
-            $input_errors[] = gettext("A valid alias IP address must be specified to reject DHCP Leases from.");
-        }
-
-        if ($pconfig['gateway'] != "none" || $pconfig['gatewayv6'] != "none") {
-            $match = false;
-            if (!empty($config['gateways']['gateway_item'])) {
-                foreach($config['gateways']['gateway_item'] as $gateway) {
-                    if (in_array($pconfig['gateway'], $gateway)) {
-                        $match = true;
-                    }
-                }
-                foreach($config['gateways']['gateway_item'] as $gateway) {
-                    if (in_array($pconfig['gatewayv6'], $gateway)) {
-                        $match = true;
-                    }
-                }
-            }
-            if (!$match) {
-                $input_errors[] = gettext("A valid gateway must be specified.");
-            }
-        }
-        if (!empty($pconfig['provider']) && !is_domain($pconfig['provider'])){
-            $input_errors[] = gettext("The service name contains invalid characters.");
-        }
-        if (!empty($pconfig['pppoe_idletimeout']) && !is_numericint($pconfig['pppoe_idletimeout'])) {
-            $input_errors[] = gettext("The idle timeout value must be an integer.");
-        }
-
-        if (!empty($pconfig['localip']) && !is_ipaddrv4($pconfig['localip'])) {
-            $input_errors[] = gettext("A valid PPTP local IP address must be specified.");
-        }
-        if (!empty($pconfig['pptp_subnet']) && !is_numeric($pconfig['pptp_subnet'])) {
-            $input_errors[] = gettext("A valid PPTP subnet bit count must be specified.");
-        }
-        if (!empty($pconfig['pptp_remote']) && !is_ipaddrv4($pconfig['pptp_remote']) && !is_hostname($pconfig['gateway'][$iface])) {
-            $input_errors[] = gettext("A valid PPTP remote IP address must be specified.");
-        }
-        if (!empty($pconfig['pptp_idletimeout']) && !is_numericint($pconfig['pptp_idletimeout'])) {
-            $input_errors[] = gettext("The idle timeout value must be an integer.");
-        }
-        if (!empty($pconfig['spoofmac']) && !is_macaddr($pconfig['spoofmac'])) {
-            $input_errors[] = gettext("A valid MAC address must be specified.");
-        }
-        if (!empty($pconfig['mtu'])) {
-            $mtu_low = 576;
-            $mtu_high = 65535;
-            if ($pconfig['mtu'] < $mtu_low || $pconfig['mtu'] > $mtu_high) {
-                $input_errors[] = sprintf(gettext('The MTU must be greater than %s bytes and less than %s.'), $mtu_low, $mtu_high);
-            }
-
-            if (strstr($a_interfaces[$if]['if'], 'vlan') || strstr($a_interfaces[$if]['if'], 'qinq')) {
-                list ($parentif) = interface_parent_devices($if);
-                $intf_details = legacy_interface_details($parentif);
-                if ($intf_details['mtu'] < $pconfig['mtu']) {
-                    $input_errors[] = gettext("MTU of a VLAN should not be bigger than parent interface.");
-                }
-            } else {
-                foreach ($config['interfaces'] as $idx => $ifdata) {
-                    if ($idx == $if || !strstr($ifdata['if'], 'vlan') || !strstr($ifdata['if'], 'qinq')) {
-                        continue;
-                    }
-
-                    list ($parentif) = interface_parent_devices($idx);
-                    if ($parentif != $a_interfaces[$if]['if']) {
-                        continue;
-                    }
-
-                    if (isset($ifdata['mtu']) && $ifdata['mtu'] > $pconfig['mtu']) {
-                        $input_errors[] = sprintf(gettext("Interface %s (VLAN) has MTU set to a bigger value"), $ifdata['descr']);
-                    }
-                }
-            }
-        }
-        if (!empty($pconfig['mss']) && $pconfig['mss'] < 576) {
-            $input_errors[] = gettext("The MSS must be greater than 576 bytes.");
-        }
-        /*
-          Wireless interface
-        */
-        if (isset($a_interfaces[$if]['wireless'])) {
-            $reqdfields = array("mode");
-            $reqdfieldsn = array(gettext("Mode"));
-            if ($pconfig['mode'] == 'hostap') {
-                $reqdfields[] = "ssid";
-                $reqdfieldsn[] = gettext("SSID");
-            }
-            do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
-
-            // check_wireless_mode (more wireless weirdness)
-            // validations shouldn't perform actual actions, needs serious fixing at some point
-            if ($a_interfaces[$if]['wireless']['mode'] != $pconfig['mode']) {
-                if (does_interface_exist(interface_get_wireless_clone($wlanbaseif))) {
-                    $clone_count = 1;
-                } else {
-                    $clone_count = 0;
-                }
-                if (!empty($config['wireless']['clone'])) {
-                    foreach ($config['wireless']['clone'] as $clone) {
-                        if ($clone['if'] == $wlanbaseif) {
-                            $clone_count++;
-                        }
-                    }
-                }
-
-                if ($clone_count > 1) {
-                      $wlanif = get_real_interface($if);
-                      $old_wireless_mode = $a_interfaces[$if]['wireless']['mode'];
-                      $a_interfaces[$if]['wireless']['mode'] = $pconfig['mode'];
-                      if (!interface_wireless_clone("{$wlanif}_", $a_interfaces[$if])) {
-                          $input_errors[] = sprintf(gettext("Unable to change mode to %s. You may already have the maximum number of wireless clones supported in this mode."), $wlan_modes[$a_interfaces[$if]['wireless']['mode']]);
-                      } else {
-                          mwexec("/sbin/ifconfig " . escapeshellarg($wlanif) . "_ destroy");
+    // 當收到relay的表格傳值時取消動作
+    if ($pconfig["relay_Submit"] == "Save") {
+      echo ("exit");
+      exit;
+    }else{
+      $input_errors = array();
+      // 取得interface name
+      if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
+          $if = $_POST['if'];
+          // read physical interface name from config.xml
+          $pconfig['if'] = $a_interfaces[$if]['if'];
+      }
+      $ifgroup = !empty($_GET['group']) ? $_GET['group'] : '';
+      // apply動作(未摸索)
+      if (!empty($pconfig['apply'])) {
+          if (!is_subsystem_dirty('interfaces')) {
+              $intput_errors[] = gettext("You have already applied your settings!");
+          } else {
+              clear_subsystem_dirty('interfaces');
+  
+              if (file_exists('/tmp/.interfaces.apply')) {
+                  $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
+                  foreach ($toapplylist as $ifapply => $ifcfgo) {
+                      interface_bring_down($ifapply, $ifcfgo);
+                      interface_configure(false, $ifapply, true);
+                  }
+  
+                  system_routing_configure();
+                  plugins_configure('monitor');
+                  filter_configure();
+                  foreach ($toapplylist as $ifapply => $ifcfgo) {
+                      plugins_configure('newwanip', false, array($ifapply));
+                  }
+                  rrd_configure();
+              }
+          }
+          @unlink('/tmp/.interfaces.apply');
+          if (!empty($ifgroup)) {
+              header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+          } else {
+              echo('<br/>$pconfig資料內容<br/>');
+              print_r ($pconfig);
+              
+              echo ('<br/>原始$rely_pconfig回傳值<br/>');
+              print_r ($prely_pconfig);
+          
+              echo('<br/>原始$pconfig資料內容<br/>');
+              print_r ($ppconfig);
+              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+          }
+          exit;
+      } elseif (empty($pconfig['enable'])) {
+          if (isset($a_interfaces[$if]['enable'])) {
+              unset($a_interfaces[$if]['enable']);
+          }
+          if (!empty($pconfig['lock'])) {
+              $a_interfaces[$if]['lock'] = true;
+          } elseif (isset($a_interfaces[$if]['lock'])) {
+              unset($a_interfaces[$if]['lock']);
+          }
+          if (isset($a_interfaces[$if]['wireless'])) {
+              interface_sync_wireless_clones($a_interfaces[$if], false);
+          }
+          $a_interfaces[$if]['descr'] = preg_replace('/[^a-z_0-9]/i', '', $pconfig['descr']);
+  
+          write_config("Interface {$pconfig['descr']}({$if}) is now disabled.");
+          mark_subsystem_dirty('interfaces');
+          // 若存在要apply的暫存檔時
+          if (file_exists('/tmp/.interfaces.apply')) {
+              $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
+          } else {
+              $toapplylist = array();
+          }
+          if (empty($toapplylist[$if])) {
+              // only flush if the running config is not in our list yet
+              $toapplylist[$if]['ifcfg'] = $a_interfaces[$if];
+              $toapplylist[$if]['ifcfg']['realif'] = get_real_interface($if);
+              $toapplylist[$if]['ifcfg']['realifv6'] = get_real_interface($if, "inet6");
+              $toapplylist[$if]['ppps'] = $a_ppps;
+              file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
+          }
+          if (!empty($ifgroup)) {
+              header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+          } else {
+              echo('<br/>$pconfig資料內容<br/>');
+              print_r ($pconfig);
+              
+              echo ('<br/>原始$rely_pconfig回傳值<br/>');
+              print_r ($prely_pconfig);
+          
+              echo('<br/>原始$pconfig資料內容<br/>');
+              print_r ($ppconfig);
+              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+          }
+          exit;
+      } else {
+          // locate sequence in ppp list
+          $pppid = count($a_ppps);
+          foreach ($a_ppps as $key => $ppp) {
+              if ($a_interfaces[$if]['if'] == $ppp['if']) {
+                  $pppid = $key;
+                  break;
+              }
+          }
+  
+          $old_ppps = $a_ppps;
+  
+          foreach ($ifdescrs as $ifent => $ifcfg) {
+              if ($if != $ifent && $ifcfg['descr'] == $pconfig['descr']) {
+                  $input_errors[] = gettext("An interface with the specified description already exists.");
+                  break;
+              }
+          }
+                                                                                    // preg_match(要搜索的字串, 被搜索的內容)
+          if (isset($config['dhcpd']) && isset($config['dhcpd'][$if]['enable']) && !preg_match('/^staticv4/', $pconfig['type'])) {
+              $input_errors[] = gettext("The DHCP Server is active on this interface and it can be used only with a static IP configuration. Please disable the DHCP Server service on this interface first, then change the interface configuration.");
+          }
+          if (isset($config['dhcpdv6']) && isset($config['dhcpdv6'][$if]['enable']) && !preg_match('/^staticv6/', $pconfig['type6']) && !isset($pconfig['dhcpd6track6allowoverride'])) {
+              $input_errors[] = gettext("The DHCPv6 Server is active on this interface and it can be used only with a static IPv6 configuration. Please disable the DHCPv6 Server service on this interface first, then change the interface configuration.");
+          }
+  
+          if ($pconfig['type'] != 'none' || $pconfig['type6'] != 'none') {
+              foreach (plugins_devices() as $device) {
+                  if (!isset($device['configurable']) || $device['configurable'] == true) {
+                      continue;
+                  }
+                  if (preg_match('/' . $device['pattern'] . '/', $pconfig['if'])) {
+                      $input_errors[] = gettext('Cannot assign an IP configuration type to a tunnel interface.');
+                  }
+              }
+          }
+          // 當送出的設定$pconfig['type']
+          switch ($pconfig['type']) {
+              case "staticv4":
+                  $reqdfields = explode(" ", "ipaddr subnet gateway");
+                  $reqdfieldsn = array(gettext("IPv4 address"),gettext("Subnet bit count"),gettext("Gateway"));
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+              case "dhcp":
+                  if (!empty($pconfig['adv_dhcp_config_file_override'] && !file_exists($pconfig['adv_dhcp_config_file_override_path']))) {
+                      $input_errors[] = sprintf(gettext('The DHCP override file "%s" does not exist.'), $pconfig['adv_dhcp_config_file_override_path']);
+                  }
+                  break;
+              case "ppp":
+                  $reqdfields = explode(" ", "ports phone");
+                  $reqdfieldsn = array(gettext("Modem Port"),gettext("Phone Number"));
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+              case "pppoe":
+                  if (!empty($pconfig['pppoe_dialondemand'])) {
+                      $reqdfields = explode(" ", "pppoe_username pppoe_password pppoe_dialondemand pppoe_idletimeout");
+                      $reqdfieldsn = array(gettext("PPPoE username"),gettext("PPPoE password"),gettext("Dial on demand"),gettext("Idle timeout value"));
+                  } else {
+                      $reqdfields = explode(" ", "pppoe_username pppoe_password");
+                      $reqdfieldsn = array(gettext("PPPoE username"),gettext("PPPoE password"));
+                  }
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+              case "pptp":
+                  if (!empty($pconfig['pptp_dialondemand'])) {
+                      $reqdfields = explode(" ", "pptp_username pptp_password localip pptp_subnet pptp_remote pptp_dialondemand pptp_idletimeout");
+                      $reqdfieldsn = array(gettext("PPTP username"),gettext("PPTP password"),gettext("PPTP local IP address"),gettext("PPTP subnet"),gettext("PPTP remote IP address"),gettext("Dial on demand"),gettext("Idle timeout value"));
+                  } else {
+                      $reqdfields = explode(" ", "pptp_username pptp_password localip pptp_subnet pptp_remote");
+                      $reqdfieldsn = array(gettext("PPTP username"),gettext("PPTP password"),gettext("PPTP local IP address"),gettext("PPTP subnet"),gettext("PPTP remote IP address"));
+                  }
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+              case "l2tp":
+                  if (!empty($pconfig['pptp_dialondemand'])) {
+                      $reqdfields = explode(" ", "pptp_username pptp_password pptp_remote pptp_dialondemand pptp_idletimeout");
+                      $reqdfieldsn = array(gettext("L2TP username"),gettext("L2TP password"),gettext("L2TP remote IP address"),gettext("Dial on demand"),gettext("Idle timeout value"));
+                  } else {
+                      $reqdfields = explode(" ", "pptp_username pptp_password pptp_remote");
+                      $reqdfieldsn = array(gettext("L2TP username"),gettext("L2TP password"),gettext("L2TP remote IP address"));
+                  }
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+          }
+          // 當送出的設定$pconfig['type6']
+          switch ($pconfig['type6']) {
+              case "staticv6":
+                  $reqdfields = explode(" ", "ipaddrv6 subnetv6 gatewayv6");
+                  $reqdfieldsn = array(gettext("IPv6 address"),gettext("Subnet bit count"),gettext("Gateway"));
+                  do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+                  break;
+              case 'dhcp6':
+                  if (!empty($pconfig['adv_dhcp6_config_file_override'] && !file_exists($pconfig['adv_dhcp6_config_file_override_path']))) {
+                      $input_errors[] = sprintf(gettext('The DHCPv6 override file "%s" does not exist.'), $pconfig['adv_dhcp6_config_file_override_path']);
+                  }
+                  break;
+              case '6rd':
+                  if (empty($pconfig['gateway-6rd']) || !is_ipaddrv4($pconfig['gateway-6rd'])) {
+                      $input_errors[] = gettext('6RD border relay gateway must be a valid IPv4 address.');
+                  }
+                  if (empty($pconfig['prefix-6rd']) || !is_subnetv6($pconfig['prefix-6rd'])) {
+                      $input_errors[] = gettext('6RD prefix must be a valid IPv6 subnet.');
+                  }
+                  if (!empty($pconfig['prefix-6rd-v4addr']) && !is_ipaddrv4($pconfig['prefix-6rd-v4addr'])) {
+                      $input_errors[] = gettext('6RD IPv4 prefix address must be a valid IPv4 address.');
+                  }
+                  if (!is_numeric($pconfig['prefix-6rd-v4plen'])) {
+                      $input_errors[] = gettext('6RD IPv4 prefix length must be a number.');
+                  }
+                  foreach (array_keys($ifdescrs) as $ifent) {
+                      if ($if != $ifent && ($config['interfaces'][$ifent]['ipaddrv6'] == $pconfig['type6'])) {
+                          if ($config['interfaces'][$ifent]['prefix-6rd'] == $pconfig['prefix-6rd']) {
+                              $input_errors[] = gettext("You can only have one interface configured in 6rd with same prefix.");
+                              break;
+                          }
                       }
                   }
-            }
-
-            /* loop through keys and enforce size */
-            for ($i = 1; $i <= 4; $i++) {
-                if ($pconfig['key' . $i]) {
-                    if (strlen($pconfig['key' . $i]) == 5) {
-                        /* 64 bit */
-                        continue;
-                    } elseif (strlen($pconfig['key' . $i]) == 10) {
-                        /* hex key */
-                        if (stristr($pconfig['key' . $i], "0x") == false) {
-                            $pconfig['key' . $i] = "0x" . $pconfig['key' . $i];
-                        }
-                        continue;
-                    } elseif (strlen($pconfig['key' . $i]) == 12) {
-                        /* hex key */
-                        if (stristr($pconfig['key' . $i], "0x") == false) {
-                            $pconfig['key' . $i] = "0x" . $pconfig['key' . $i];
-                        }
-                        continue;
-                    } elseif (strlen($pconfig['key' . $i]) == 13) {
-                        /* 128 bit */
-                        continue;
-                    } elseif (strlen($pconfig['key' . $i]) == 26) {
-                        /* hex key */
-                        if (stristr($pconfig['key' . $i], "0x") == false)
-                          $_POST['key' . $i] = "0x" . $pconfig['key' . $i];
-                        continue;
-                    } elseif (strlen($pconfig['key' . $i]) == 28) {
-                        continue;
-                    } else {
-                        $input_errors[] = gettext("Invalid WEP key size. Sizes should be 40 (64) bit keys or 104 (128) bit.");
-                    }
-                }
-            }
-
-            if (!empty($pconfig['passphrase'])) {
-                $passlen = strlen($pconfig['passphrase']);
-                if ($passlen < 8 || $passlen > 63) {
-                    $input_errors[] = gettext("The length of the passphrase should be between 8 and 63 characters.");
-                }
-            }
-        }
-        // save form data
-        // 當沒有輸入錯誤時，開始準備將設定寫入
-        if (count($input_errors) == 0) {
-            $old_config = $a_interfaces[$if];
-            // retrieve our interface names before anything changes
-            $old_config['realif'] = get_real_interface($if);
-            $old_config['realifv6'] = get_real_interface($if, "inet6");
-            $new_config = array();
-            $new_ppp_config = array();
-
-            // copy physical interface data (wireless is a strange case, partly managed via interface_sync_wireless_clones)
-            $new_config['if'] = $old_config['if'];
-            if (isset($old_config['wireless'])) {
-                $new_config['wireless'] = $old_config['wireless'];
-            }
-            //
-            $new_config['descr'] = preg_replace('/[^a-z_0-9]/i', '', $pconfig['descr']);
-            $new_config['enable'] = !empty($pconfig['enable']);
-            $new_config['lock'] = !empty($pconfig['lock']);
-            $new_config['spoofmac'] = $pconfig['spoofmac'];
-
-            $new_config['blockpriv'] = !empty($pconfig['blockpriv']);
-            $new_config['blockbogons'] = !empty($pconfig['blockbogons']);
-            $new_config['gateway_interface'] = !empty($pconfig['gateway_interface']);
-            $new_config['promisc'] = !empty($pconfig['promisc']);
-            if (!empty($pconfig['mtu'])) {
-                $new_config['mtu'] = $pconfig['mtu'];
-            }
-            if (!empty($pconfig['mss'])) {
-                $new_config['mss'] = $pconfig['mss'];
-            }
-            if (!empty($pconfig['mediaopt'])) {
-                $mediaopts = explode(' ', $pconfig['mediaopt']);
-                if (isset($mediaopts[0])) {
-                    $new_config['media'] = $mediaopts[0];
-                }
-                if (isset($mediaopts[0])) {
-                    $new_config ['mediaopt'] = $mediaopts[1];
-                }
-            }
-
-            // 切換v4 config type
-            // switch ipv4 config by type
-            switch ($pconfig['type']) {
-                case "staticv4":
-                    $new_config['ipaddr'] = $pconfig['ipaddr'];
-                    $new_config['subnet'] = $pconfig['subnet'];
-                    if ($pconfig['gateway'] != "none") {
-                        $new_config['gateway'] = $pconfig['gateway'];
-                    }
-                    break;
-                case "dhcp":
-                    $new_config['ipaddr'] = "dhcp";
-                    $new_config['dhcphostname'] = $pconfig['dhcphostname'];
-                    $new_config['alias-address'] = $pconfig['alias-address'];
-                    $new_config['alias-subnet'] = $pconfig['alias-subnet'];
-                    $new_config['dhcprejectfrom'] = $pconfig['dhcprejectfrom'];
-                    $new_config['adv_dhcp_pt_timeout'] = $pconfig['adv_dhcp_pt_timeout'];
-                    $new_config['adv_dhcp_pt_retry'] = $pconfig['adv_dhcp_pt_retry'];
-                    $new_config['adv_dhcp_pt_select_timeout'] = $pconfig['adv_dhcp_pt_select_timeout'];
-                    $new_config['adv_dhcp_pt_reboot'] = $pconfig['adv_dhcp_pt_reboot'];
-                    $new_config['adv_dhcp_pt_backoff_cutoff'] = $pconfig['adv_dhcp_pt_backoff_cutoff'];
-                    $new_config['adv_dhcp_pt_initial_interval'] = $pconfig['adv_dhcp_pt_initial_interval'];
-                    $new_config['adv_dhcp_pt_values'] = $pconfig['adv_dhcp_pt_values'];
-                    $new_config['adv_dhcp_send_options'] = $pconfig['adv_dhcp_send_options'];
-                    $new_config['adv_dhcp_request_options'] = $pconfig['adv_dhcp_request_options'];
-                    $new_config['adv_dhcp_required_options'] = $pconfig['adv_dhcp_required_options'];
-                    $new_config['adv_dhcp_option_modifiers'] = $pconfig['adv_dhcp_option_modifiers'];
-                    $new_config['adv_dhcp_config_advanced'] = $pconfig['adv_dhcp_config_advanced'];
-                    $new_config['adv_dhcp_config_file_override'] = $pconfig['adv_dhcp_config_file_override'];
-                    $new_config['adv_dhcp_config_file_override_path'] = $pconfig['adv_dhcp_config_file_override_path'];
-                    /* flipped in GUI on purpose */
-                    if (empty($pconfig['dhcpoverridemtu'])) {
-                        $new_config['dhcphonourmtu'] = true;
-                    }
-                    break;
-                case "ppp":
-                    $new_config['if'] = $pconfig['type'] . $pconfig['ptpid'];
-                    $new_config['ipaddr'] = $pconfig['type'];
-                    $new_ppp_config['ptpid'] = $pconfig['ptpid'];
-                    $new_ppp_config['type'] = $pconfig['type'];
-                    $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
-                    $new_ppp_config['ports'] = $pconfig['ports'];
-                    $new_ppp_config['username'] = $pconfig['username'];
-                    $new_ppp_config['password'] = base64_encode($pconfig['password']);
-                    $new_ppp_config['phone'] = $pconfig['phone'];
-                    $new_ppp_config['apn'] = $pconfig['apn'];
-                    break;
-                case "pppoe":
-                    $new_config['if'] = $pconfig['type'].$pconfig['ptpid'];
-                    $new_config['ipaddr'] = $pconfig['type'];
-                    $new_ppp_config['ptpid'] = $pconfig['ptpid'];
-                    $new_ppp_config['type'] = $pconfig['type'];
-                    $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
-                    if (!empty($pconfig['ppp_port'])) {
-                        $new_ppp_config['ports'] = $pconfig['ppp_port'];
-                    } else {
-                        $new_ppp_config['ports'] = $old_config['if'];
-                    }
-                    $new_ppp_config['username'] = $pconfig['pppoe_username'];
-                    $new_ppp_config['password'] = base64_encode($pconfig['pppoe_password']);
-                    if (!empty($pconfig['provider'])) {
-                        $new_ppp_config['provider'] = $pconfig['provider'];
-                    }
-                    if (!empty($pconfig['pppoe_hostuniq'])) {
-                        $new_ppp_config['hostuniq'] = $pconfig['pppoe_hostuniq'];
-                    }
-                    $new_ppp_config['ondemand'] = !empty($pconfig['pppoe_dialondemand']);
-                    if (!empty($pconfig['pppoe_idletimeout'])) {
-                        $new_ppp_config['idletimeout'] = $pconfig['pppoe_idletimeout'];
-                    }
-                    break;
-                case "pptp":
-                case "l2tp":
-                    $new_config['if'] = $pconfig['type'].$pconfig['ptpid'];
-                    $new_config['ipaddr'] = $pconfig['type'];
-                    $new_ppp_config['ptpid'] = $pconfig['ptpid'];
-                    $new_ppp_config['type'] = $pconfig['type'];
-                    $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
-                    if (!empty($pconfig['ppp_port'])) {
-                        $new_ppp_config['ports'] = $pconfig['ppp_port'];
-                    } else {
-                        $new_ppp_config['ports'] = $old_config['if'];
-                    }
-                    $new_ppp_config['username'] = $pconfig['pptp_username'];
-                    $new_ppp_config['password'] = base64_encode($pconfig['pptp_password']);
-                    $new_ppp_config['localip'] = $pconfig['localip'];
-                    $new_ppp_config['subnet'] = $pconfig['pptp_subnet'];
-                    $new_ppp_config['gateway'] = $pconfig['pptp_remote'];
-                    $new_ppp_config['ondemand'] = !empty($pconfig['pptp_dialondemand']);
-                    if (!empty($pconfig['pptp_idletimeout'])) {
-                        $new_ppp_config['idletimeout'] = $pconfig['pptp_idletimeout'];
-                    }
-                    break;
-            }
-
-            // switch ipv6 config by type
-            switch ($pconfig['type6']) {
-                case 'staticv6':
-                    if (!empty($pconfig['staticv6usev4iface'])) {
-                        $new_config['dhcp6usev4iface'] = true;
-                    }
-                    $new_config['ipaddrv6'] = $pconfig['ipaddrv6'];
-                    $new_config['subnetv6'] = $pconfig['subnetv6'];
-                    if ($pconfig['gatewayv6'] != 'none') {
-                        $new_config['gatewayv6'] = $pconfig['gatewayv6'];
-                    }
-                    break;
-                case 'slaac':
-                    if (!empty($pconfig['slaacusev4iface'])) {
-                        $new_config['dhcp6usev4iface'] = true;
-                    }
-                    $new_config['ipaddrv6'] = 'slaac';
-                    break;
-                case 'dhcp6':
-                    $new_config['ipaddrv6'] = 'dhcp6';
-                    $new_config['dhcp6-ia-pd-len'] = $pconfig['dhcp6-ia-pd-len'];
-                    if (!empty($pconfig['dhcp6-ia-pd-send-hint'])) {
-                        $new_config['dhcp6-ia-pd-send-hint'] = true;
-                    }
-                    if (!empty($pconfig['dhcp6prefixonly'])) {
-                        $new_config['dhcp6prefixonly'] = true;
-                    }
-                    if (!empty($pconfig['dhcp6usev4iface'])) {
-                        $new_config['dhcp6usev4iface'] = true;
-                    }
-                    if (isset($pconfig['dhcp6vlanprio']) && $pconfig['dhcp6vlanprio'] !== '') {
-                        $new_config['dhcp6vlanprio'] = $pconfig['dhcp6vlanprio'];
-                    }
-                    $new_config['adv_dhcp6_interface_statement_send_options'] = $pconfig['adv_dhcp6_interface_statement_send_options'];
-                    $new_config['adv_dhcp6_interface_statement_request_options'] = $pconfig['adv_dhcp6_interface_statement_request_options'];
-                    $new_config['adv_dhcp6_interface_statement_information_only_enable'] = $pconfig['adv_dhcp6_interface_statement_information_only_enable'];
-                    $new_config['adv_dhcp6_interface_statement_script'] = $pconfig['adv_dhcp6_interface_statement_script'];
-                    $new_config['adv_dhcp6_id_assoc_statement_address_enable'] = $pconfig['adv_dhcp6_id_assoc_statement_address_enable'];
-                    $new_config['adv_dhcp6_id_assoc_statement_address'] = $pconfig['adv_dhcp6_id_assoc_statement_address'];
-                    $new_config['adv_dhcp6_id_assoc_statement_address_id'] = $pconfig['adv_dhcp6_id_assoc_statement_address_id'];
-                    $new_config['adv_dhcp6_id_assoc_statement_address_pltime'] = $pconfig['adv_dhcp6_id_assoc_statement_address_pltime'];
-                    $new_config['adv_dhcp6_id_assoc_statement_address_vltime'] = $pconfig['adv_dhcp6_id_assoc_statement_address_vltime'];
-                    $new_config['adv_dhcp6_id_assoc_statement_prefix_enable'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_enable'];
-                    $new_config['adv_dhcp6_id_assoc_statement_prefix'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix'];
-                    $new_config['adv_dhcp6_id_assoc_statement_prefix_id'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_id'];
-                    $new_config['adv_dhcp6_id_assoc_statement_prefix_pltime'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_pltime'];
-                    $new_config['adv_dhcp6_id_assoc_statement_prefix_vltime'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_vltime'];
-                    $new_config['adv_dhcp6_prefix_interface_statement_sla_len'] = $pconfig['adv_dhcp6_prefix_interface_statement_sla_len'];
-                    $new_config['adv_dhcp6_authentication_statement_authname'] = $pconfig['adv_dhcp6_authentication_statement_authname'];
-                    $new_config['adv_dhcp6_authentication_statement_protocol'] = $pconfig['adv_dhcp6_authentication_statement_protocol'];
-                    $new_config['adv_dhcp6_authentication_statement_algorithm'] = $pconfig['adv_dhcp6_authentication_statement_algorithm'];
-                    $new_config['adv_dhcp6_authentication_statement_rdm'] = $pconfig['adv_dhcp6_authentication_statement_rdm'];
-                    $new_config['adv_dhcp6_key_info_statement_keyname'] = $pconfig['adv_dhcp6_key_info_statement_keyname'];
-                    $new_config['adv_dhcp6_key_info_statement_realm'] = $pconfig['adv_dhcp6_key_info_statement_realm'];
-                    $new_config['adv_dhcp6_key_info_statement_keyid'] = $pconfig['adv_dhcp6_key_info_statement_keyid'];
-                    $new_config['adv_dhcp6_key_info_statement_secret'] = $pconfig['adv_dhcp6_key_info_statement_secret'];
-                    $new_config['adv_dhcp6_key_info_statement_expire'] = $pconfig['adv_dhcp6_key_info_statement_expire'];
-                    $new_config['adv_dhcp6_config_advanced'] = $pconfig['adv_dhcp6_config_advanced'];
-                    $new_config['adv_dhcp6_config_file_override'] = $pconfig['adv_dhcp6_config_file_override'];
-                    $new_config['adv_dhcp6_config_file_override_path'] = $pconfig['adv_dhcp6_config_file_override_path'];
-                    break;
-                case '6rd':
-                    $new_config['ipaddrv6'] = '6rd';
-                    $new_config['prefix-6rd'] = $pconfig['prefix-6rd'];
-                    $new_config['prefix-6rd-v4addr'] = $pconfig['prefix-6rd-v4addr'];
-                    $new_config['prefix-6rd-v4plen'] = $pconfig['prefix-6rd-v4plen'];
-                    $new_config['gateway-6rd'] = $pconfig['gateway-6rd'];
-                    break;
-                case '6to4':
-                    $new_config['ipaddrv6'] = '6to4';
-                    break;
-                case 'track6':
-                    $new_config['ipaddrv6'] = 'track6';
-                    $new_config['track6-interface'] = $pconfig['track6-interface'];
-                    $new_config['track6-prefix-id'] = 0;
-                    if (ctype_xdigit($pconfig['track6-prefix-id--hex'])) {
-                        $new_config['track6-prefix-id'] = intval($pconfig['track6-prefix-id--hex'], 16);
-                    }
-                    $new_config['dhcpd6track6allowoverride'] = !empty($pconfig['dhcpd6track6allowoverride']);
-                    break;
-            }
-
-            // wireless
-            if (isset($new_config['wireless'])) {
-                $new_config['wireless']['wpa'] = array();
-                $new_config['wireless']['wme'] = array();
-                $new_config['wireless']['wep'] = array();
-                $new_config['wireless']['hidessid'] = array();
-                $new_config['wireless']['pureg'] = array();
-                $new_config['wireless']['puren'] = array();
-                $new_config['wireless']['ieee8021x'] = array();
-                $new_config['wireless']['standard'] = $pconfig['standard'];
-                $new_config['wireless']['mode'] = $pconfig['mode'];
-                $new_config['wireless']['protmode'] = $pconfig['protmode'];
-                $new_config['wireless']['ssid'] = $pconfig['ssid'];
-                $new_config['wireless']['hidessid']['enable'] = !empty($pconfig['hidessid_enable']);
-                $new_config['wireless']['channel'] = $pconfig['channel'];
-                $new_config['wireless']['authmode'] = $pconfig['authmode'];
-                $new_config['wireless']['txpower'] = $pconfig['txpower'];
-                $new_config['wireless']['regdomain'] = $pconfig['regdomain'];
-                $new_config['wireless']['regcountry'] = $pconfig['regcountry'];
-                $new_config['wireless']['reglocation'] = $pconfig['reglocation'];
-                if (!empty($pconfig['regcountry']) && !empty($pconfig['reglocation'])) {
-                    $wl_regdomain_xml_attr = array();
-                    $wl_regdomain_xml = parse_xml_regdomain($wl_regdomain_xml_attr);
-                    $wl_countries_attr = &$wl_regdomain_xml_attr['country-codes']['country'];
-
-                    foreach($wl_countries_attr as $wl_country) {
-                        if ($pconfig['regcountry'] == $wl_country['ID']) {
-                            $new_config['wireless']['regdomain'] = $wl_country['rd'][0]['REF'];
-                            break;
+                  break;
+              case "6to4":
+                  foreach (array_keys($ifdescrs) as $ifent) {
+                      if ($if != $ifent && ($config['interfaces'][$ifent]['ipaddrv6'] == $pconfig['type6'])) {
+                          $input_errors[] = sprintf(gettext("You can only have one interface configured as 6to4."), $pconfig['type6']);
+                          break;
+                      }
+                  }
+                  break;
+              case 'track6':
+                  if (!empty($pconfig['track6-prefix-id--hex']) && !ctype_xdigit($pconfig['track6-prefix-id--hex'])) {
+                      $input_errors[] = gettext("You must enter a valid hexadecimal number for the IPv6 prefix ID.");
+                  } elseif (!empty($pconfig['track6-interface'])) {
+                      $ipv6_delegation_length = calculate_ipv6_delegation_length($pconfig['track6-interface']);
+                      if ($ipv6_delegation_length >= 0) {
+                          $ipv6_num_prefix_ids = pow(2, $ipv6_delegation_length);
+                          $track6_prefix_id = intval($pconfig['track6-prefix-id--hex'], 16);
+                          if ($track6_prefix_id < 0 || $track6_prefix_id >= $ipv6_num_prefix_ids) {
+                              $input_errors[] = gettext("You specified an IPv6 prefix ID that is out of range.");
+                          }
+                          foreach (link_interface_to_track6($pconfig['track6-interface']) as $trackif => $trackcfg) {
+                              if ($trackif != $if && $trackcfg['track6-prefix-id'] == $track6_prefix_id) {
+                                  $input_errors[] = gettext('You specified an IPv6 prefix ID that is already in use.');
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  break;
+          }
+  
+          /* normalize MAC addresses - lowercase and convert Windows-ized hyphenated MACs to colon delimited */
+          // staticV4 的address輸入過濾設定
+          $staticroutes = get_staticroutes(true);
+          if (!empty($pconfig['ipaddr'])) {
+              if (!is_ipaddrv4($pconfig['ipaddr'])) {
+                  $input_errors[] = gettext("A valid IPv4 address must be specified.");
+              } else {
+                  if (is_ipaddr_configured($pconfig['ipaddr'], $if)) {
+                      $input_errors[] = gettext("This IPv4 address is being used by another interface or VIP.");
+                  }
+                  /* Do not accept network or broadcast address, except if subnet is 31 or 32 */
+                  if ($pconfig['subnet'] < 31) {
+                      if ($pconfig['ipaddr'] == gen_subnet($pconfig['ipaddr'], $pconfig['subnet'])) {
+                          $input_errors[] = gettext("This IPv4 address is the network address and cannot be used");
+                      } elseif ($pconfig['ipaddr'] == gen_subnet_max($pconfig['ipaddr'], $pconfig['subnet'])) {
+                          $input_errors[] = gettext("This IPv4 address is the broadcast address and cannot be used");
+                      }
+                  }
+  
+                  foreach ($staticroutes as $route_subnet) {
+                      list($network, $subnet) = explode("/", $route_subnet);
+                      if ($pconfig['subnet'] == $subnet && $network == gen_subnet($pconfig['ipaddr'], $pconfig['subnet'])) {
+                          $input_errors[] = gettext("This IPv4 address conflicts with a Static Route.");
+                          break;
+                      }
+                      unset($network, $subnet);
+                  }
+              }
+          }
+          // staticV6 的address輸入過濾設定
+          if (!empty($pconfig['ipaddrv6'])) {
+              if (!is_ipaddrv6($pconfig['ipaddrv6'])) {
+                  $input_errors[] = gettext("A valid IPv6 address must be specified.");
+              } else {
+                  if (is_ipaddr_configured($pconfig['ipaddrv6'], $if)) {
+                      $input_errors[] = gettext("This IPv6 address is being used by another interface or VIP.");
+                  }
+  
+                  foreach ($staticroutes as $route_subnet) {
+                      list($network, $subnet) = explode("/", $route_subnet);
+                      if ($pconfig['subnetv6'] == $subnet && $network == gen_subnetv6($pconfig['ipaddrv6'], $pconfig['subnetv6'])) {
+                          $input_errors[] = gettext("This IPv6 address conflicts with a Static Route.");
+                          break;
+                      }
+                      unset($network, $subnet);
+                  }
+              }
+          }
+          if (!empty($pconfig['subnet']) && !is_numeric($pconfig['subnet'])) {
+              $input_errors[] = gettext("A valid subnet bit count must be specified.");
+          }
+          if (!empty($pconfig['subnetv6']) && !is_numeric($pconfig['subnetv6'])) {
+              $input_errors[] = gettext("A valid subnet bit count must be specified.");
+          }
+          if (!empty($pconfig['alias-address']) && !is_ipaddrv4($pconfig['alias-address'])) {
+              $input_errors[] = gettext("A valid alias IP address must be specified.");
+          }
+          if (!empty($pconfig['alias-subnet']) && !is_numeric($pconfig['alias-subnet'])) {
+              $input_errors[] = gettext("A valid alias subnet bit count must be specified.");
+          }
+          if (!empty($pconfig['dhcprejectfrom']) && !is_ipaddrv4($pconfig['dhcprejectfrom'])) {
+              $input_errors[] = gettext("A valid alias IP address must be specified to reject DHCP Leases from.");
+          }
+  
+          if ($pconfig['gateway'] != "none" || $pconfig['gatewayv6'] != "none") {
+              $match = false;
+              if (!empty($config['gateways']['gateway_item'])) {
+                  foreach($config['gateways']['gateway_item'] as $gateway) {
+                      if (in_array($pconfig['gateway'], $gateway)) {
+                          $match = true;
+                      }
+                  }
+                  foreach($config['gateways']['gateway_item'] as $gateway) {
+                      if (in_array($pconfig['gatewayv6'], $gateway)) {
+                          $match = true;
+                      }
+                  }
+              }
+              if (!$match) {
+                  $input_errors[] = gettext("A valid gateway must be specified.");
+              }
+          }
+          if (!empty($pconfig['provider']) && !is_domain($pconfig['provider'])){
+              $input_errors[] = gettext("The service name contains invalid characters.");
+          }
+          if (!empty($pconfig['pppoe_idletimeout']) && !is_numericint($pconfig['pppoe_idletimeout'])) {
+              $input_errors[] = gettext("The idle timeout value must be an integer.");
+          }
+  
+          if (!empty($pconfig['localip']) && !is_ipaddrv4($pconfig['localip'])) {
+              $input_errors[] = gettext("A valid PPTP local IP address must be specified.");
+          }
+          if (!empty($pconfig['pptp_subnet']) && !is_numeric($pconfig['pptp_subnet'])) {
+              $input_errors[] = gettext("A valid PPTP subnet bit count must be specified.");
+          }
+          if (!empty($pconfig['pptp_remote']) && !is_ipaddrv4($pconfig['pptp_remote']) && !is_hostname($pconfig['gateway'][$iface])) {
+              $input_errors[] = gettext("A valid PPTP remote IP address must be specified.");
+          }
+          if (!empty($pconfig['pptp_idletimeout']) && !is_numericint($pconfig['pptp_idletimeout'])) {
+              $input_errors[] = gettext("The idle timeout value must be an integer.");
+          }
+          if (!empty($pconfig['spoofmac']) && !is_macaddr($pconfig['spoofmac'])) {
+              $input_errors[] = gettext("A valid MAC address must be specified.");
+          }
+          if (!empty($pconfig['mtu'])) {
+              $mtu_low = 576;
+              $mtu_high = 65535;
+              if ($pconfig['mtu'] < $mtu_low || $pconfig['mtu'] > $mtu_high) {
+                  $input_errors[] = sprintf(gettext('The MTU must be greater than %s bytes and less than %s.'), $mtu_low, $mtu_high);
+              }
+  
+              if (strstr($a_interfaces[$if]['if'], 'vlan') || strstr($a_interfaces[$if]['if'], 'qinq')) {
+                  list ($parentif) = interface_parent_devices($if);
+                  $intf_details = legacy_interface_details($parentif);
+                  if ($intf_details['mtu'] < $pconfig['mtu']) {
+                      $input_errors[] = gettext("MTU of a VLAN should not be bigger than parent interface.");
+                  }
+              } else {
+                  foreach ($config['interfaces'] as $idx => $ifdata) {
+                      if ($idx == $if || !strstr($ifdata['if'], 'vlan') || !strstr($ifdata['if'], 'qinq')) {
+                          continue;
+                      }
+  
+                      list ($parentif) = interface_parent_devices($idx);
+                      if ($parentif != $a_interfaces[$if]['if']) {
+                          continue;
+                      }
+  
+                      if (isset($ifdata['mtu']) && $ifdata['mtu'] > $pconfig['mtu']) {
+                          $input_errors[] = sprintf(gettext("Interface %s (VLAN) has MTU set to a bigger value"), $ifdata['descr']);
+                      }
+                  }
+              }
+          }
+          if (!empty($pconfig['mss']) && $pconfig['mss'] < 576) {
+              $input_errors[] = gettext("The MSS must be greater than 576 bytes.");
+          }
+          /*
+            Wireless interface
+          */
+          if (isset($a_interfaces[$if]['wireless'])) {
+              $reqdfields = array("mode");
+              $reqdfieldsn = array(gettext("Mode"));
+              if ($pconfig['mode'] == 'hostap') {
+                  $reqdfields[] = "ssid";
+                  $reqdfieldsn[] = gettext("SSID");
+              }
+              do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+  
+              // check_wireless_mode (more wireless weirdness)
+              // validations shouldn't perform actual actions, needs serious fixing at some point
+              if ($a_interfaces[$if]['wireless']['mode'] != $pconfig['mode']) {
+                  if (does_interface_exist(interface_get_wireless_clone($wlanbaseif))) {
+                      $clone_count = 1;
+                  } else {
+                      $clone_count = 0;
+                  }
+                  if (!empty($config['wireless']['clone'])) {
+                      foreach ($config['wireless']['clone'] as $clone) {
+                          if ($clone['if'] == $wlanbaseif) {
+                              $clone_count++;
+                          }
+                      }
+                  }
+  
+                  if ($clone_count > 1) {
+                        $wlanif = get_real_interface($if);
+                        $old_wireless_mode = $a_interfaces[$if]['wireless']['mode'];
+                        $a_interfaces[$if]['wireless']['mode'] = $pconfig['mode'];
+                        if (!interface_wireless_clone("{$wlanif}_", $a_interfaces[$if])) {
+                            $input_errors[] = sprintf(gettext("Unable to change mode to %s. You may already have the maximum number of wireless clones supported in this mode."), $wlan_modes[$a_interfaces[$if]['wireless']['mode']]);
+                        } else {
+                            mwexec("/sbin/ifconfig " . escapeshellarg($wlanif) . "_ destroy");
                         }
                     }
-                }
-                if (isset($pconfig['diversity']) && is_numeric($pconfig['diversity'])) {
-                    $new_config['wireless']['diversity'] = $pconfig['diversity'];
-                } elseif (isset($new_config['wireless']['diversity'])) {
-                    unset($new_config['wireless']['diversity']);
-                }
-                if (isset($pconfig['txantenna']) && is_numeric($pconfig['txantenna'])) {
-                    $new_config['wireless']['txantenna'] = $pconfig['txantenna'];
-                } elseif (isset($new_config['wireless']['txantenna'])) {
-                    unset($new_config['wireless']['txantenna']);
-                }
-                if (isset($pconfig['rxantenna']) && is_numeric($pconfig['rxantenna'])) {
-                    $new_config['wireless']['rxantenna'] = $_POST['rxantenna'];
-                } elseif (isset($new_config['wireless']['rxantenna'])) {
-                    unset($new_config['wireless']['rxantenna']);
-                }
-                $new_config['wireless']['wpa']['macaddr_acl'] = $pconfig['macaddr_acl'];
-                $new_config['wireless']['wpa']['auth_algs'] = $pconfig['auth_algs'];
-                $new_config['wireless']['wpa']['wpa_mode'] = $pconfig['wpa_mode'];
-                $new_config['wireless']['wpa']['wpa_key_mgmt'] = $pconfig['wpa_key_mgmt'];
-                $new_config['wireless']['wpa']['wpa_eap_method'] = $pconfig['wpa_eap_method'];
-                $new_config['wireless']['wpa']['wpa_eap_p2_auth'] = $pconfig['wpa_eap_p2_auth'];
-                $new_config['wireless']['wpa']['wpa_eap_cacertref'] = $pconfig['wpa_eap_cacertref'];
-                $new_config['wireless']['wpa']['wpa_eap_cltcertref'] = $pconfig['wpa_eap_cltcertref'];
-                $new_config['wireless']['wpa']['wpa_pairwise'] = $pconfig['wpa_pairwise'];
-                $new_config['wireless']['wpa']['wpa_group_rekey'] = $pconfig['wpa_group_rekey'];
-                $new_config['wireless']['wpa']['wpa_gmk_rekey'] = $pconfig['wpa_gmk_rekey'];
-                $new_config['wireless']['wpa']['identity'] = $pconfig['identity'];
-                $new_config['wireless']['wpa']['passphrase'] = $pconfig['passphrase'];
-                $new_config['wireless']['wpa']['ext_wpa_sw'] = $pconfig['ext_wpa_sw'];
-                $new_config['wireless']['wpa']['mac_acl_enable'] = !empty($pconfig['mac_acl_enable']);
-                $new_config['wireless']['wpa']['rsn_preauth'] = !empty($pconfig['rsn_preauth']);
-                $new_config['wireless']['wpa']['ieee8021x']['enable'] = !empty($pconfig['ieee8021x']);
-                $new_config['wireless']['wpa']['wpa_strict_rekey'] = !empty($pconfig['wpa_strict_rekey']);
-                $new_config['wireless']['wpa']['debug_mode'] = !empty($pconfig['debug_mode']);
-                $new_config['wireless']['wpa']['enable'] = $_POST['wpa_enable'] = !empty($pconfig['wpa_enable']);
-
-                $new_config['wireless']['auth_server_addr'] = $pconfig['auth_server_addr'];
-                $new_config['wireless']['auth_server_port'] = $pconfig['auth_server_port'];
-                $new_config['wireless']['auth_server_shared_secret'] = $pconfig['auth_server_shared_secret'];
-                $new_config['wireless']['auth_server_addr2'] = $pconfig['auth_server_addr2'];
-                $new_config['wireless']['auth_server_port2'] = $pconfig['auth_server_port2'];
-                $new_config['wireless']['auth_server_shared_secret2'] = $pconfig['auth_server_shared_secret2'];
-
-                $new_config['wireless']['wep']['enable'] = !empty($pconfig['wep_enable']);
-                $new_config['wireless']['wme']['enable'] = !empty($pconfig['wme_enable']);
-
-                $new_config['wireless']['pureg']['enable'] = !empty($pconfig['puremode']) && $pconfig['puremode'] == "11g";
-                $new_config['wireless']['puren']['enable'] = !empty($pconfig['puremode']) && $pconfig['puremode'] == "11n";
-                $new_config['wireless']['apbridge'] = array();
-                $new_config['wireless']['apbridge']['enable'] = !empty($pconfig['apbridge_enable']);
-                $new_config['wireless']['turbo'] = array();
-                $new_config['wireless']['turbo']['enable'] = $pconfig['standard'] == "11g Turbo" || $pconfig['standard'] == "11a Turbo";
-
-                $new_config['wireless']['wep']['key'] = array();
-                for ($i = 1; $i <= 4; $i++) {
-                    if (!empty($pconfig['key' . $i])) {
-                        $newkey = array();
-                        $newkey['value'] = $pconfig['key' . $i];
-                        if ($pconfig['txkey'] == $i) {
-                            $newkey['txkey'] = true;
-                        }
-                        $new_config['wireless']['wep']['key'][] = $newkey;
-                    }
-                }
-
-                // todo: it's probably better to choose one place to store wireless data
-                //       this construction implements a lot of weirdness (more info interface_sync_wireless_clones)
-                $wlanbaseif = interface_get_wireless_base($a_interfaces[$if]['if']);
-                if (!empty($pconfig['persistcommonwireless'])) {
-                    config_read_array('wireless', 'interfaces', $wlanbaseif);
-                } elseif (isset($config['wireless']['interfaces'][$wlanbaseif])) {
-                    unset($config['wireless']['interfaces'][$wlanbaseif]);
-                }
-
-                // quite obscure this... copies parts of the config
-                interface_sync_wireless_clones($new_config, true);
-            }
-            // hardware (offloading) Settings
-            if (!empty($pconfig['hw_settings_overwrite'])) {
-                $new_config['hw_settings_overwrite'] = true;
-                if (!empty($pconfig['disablechecksumoffloading'])) {
-                    $new_config['disablechecksumoffloading'] = true;
-                }
-                if (!empty($pconfig['disablesegmentationoffloading'])) {
-                    $new_config['disablesegmentationoffloading'] = true;
-                }
-                if (!empty($pconfig['disablelargereceiveoffloading'])) {
-                    $new_config['disablelargereceiveoffloading'] = true;
-                }
-                if (!empty($pconfig['disablevlanhwfilter'])) {
-                    $new_config['disablevlanhwfilter'] = $pconfig['disablevlanhwfilter'];
-                }
-            }
-
-            if (count($new_ppp_config) > 0) {
-                // ppp details changed
-                $a_ppps[$pppid] = $new_ppp_config;
-            } elseif (!empty($a_ppps[$pppid])) {
-                // ppp removed
-                $new_config['if'] = $a_ppps[$pppid]['ports'];
-                unset($a_ppps[$pppid]);
-            }
-
-            // save interface details
-            $a_interfaces[$if] = $new_config;
-
-            // save to config
-            write_config();
-
-            // log changes for apply action
-            // (it would be better to diff the physical situation with the new config for changes)
-            if (file_exists('/tmp/.interfaces.apply')) {
-                $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
-            } else {
-                $toapplylist = array();
-            }
-
-            if (empty($toapplylist[$if])) {
-                // only flush if the running config is not in our list yet
-                $toapplylist[$if]['ifcfg'] = $old_config;
-                $toapplylist[$if]['ppps'] = $old_ppps;
-                file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
-            }
-
-            mark_subsystem_dirty('interfaces');
-
-            if (!empty($ifgroup)) {
-                header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-            } else {
-                echo('<br/>$pconfig資料內容<br/>');
-                print_r ($pconfig);
-                
-                echo ('<br/>原始$rely_pconfig回傳值<br/>');
-                print_r ($prely_pconfig);
-            
-                echo('<br/>原始$pconfig資料內容<br/>');
-                print_r ($ppconfig);
-                // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-            }
-            exit;
-        }
+              }
+  
+              /* loop through keys and enforce size */
+              for ($i = 1; $i <= 4; $i++) {
+                  if ($pconfig['key' . $i]) {
+                      if (strlen($pconfig['key' . $i]) == 5) {
+                          /* 64 bit */
+                          continue;
+                      } elseif (strlen($pconfig['key' . $i]) == 10) {
+                          /* hex key */
+                          if (stristr($pconfig['key' . $i], "0x") == false) {
+                              $pconfig['key' . $i] = "0x" . $pconfig['key' . $i];
+                          }
+                          continue;
+                      } elseif (strlen($pconfig['key' . $i]) == 12) {
+                          /* hex key */
+                          if (stristr($pconfig['key' . $i], "0x") == false) {
+                              $pconfig['key' . $i] = "0x" . $pconfig['key' . $i];
+                          }
+                          continue;
+                      } elseif (strlen($pconfig['key' . $i]) == 13) {
+                          /* 128 bit */
+                          continue;
+                      } elseif (strlen($pconfig['key' . $i]) == 26) {
+                          /* hex key */
+                          if (stristr($pconfig['key' . $i], "0x") == false)
+                            $_POST['key' . $i] = "0x" . $pconfig['key' . $i];
+                          continue;
+                      } elseif (strlen($pconfig['key' . $i]) == 28) {
+                          continue;
+                      } else {
+                          $input_errors[] = gettext("Invalid WEP key size. Sizes should be 40 (64) bit keys or 104 (128) bit.");
+                      }
+                  }
+              }
+  
+              if (!empty($pconfig['passphrase'])) {
+                  $passlen = strlen($pconfig['passphrase']);
+                  if ($passlen < 8 || $passlen > 63) {
+                      $input_errors[] = gettext("The length of the passphrase should be between 8 and 63 characters.");
+                  }
+              }
+          }
+          // save form data
+          // 當沒有輸入錯誤時，開始準備將設定寫入
+          if (count($input_errors) == 0) {
+              $old_config = $a_interfaces[$if];
+              // retrieve our interface names before anything changes
+              $old_config['realif'] = get_real_interface($if);
+              $old_config['realifv6'] = get_real_interface($if, "inet6");
+              $new_config = array();
+              $new_ppp_config = array();
+  
+              // copy physical interface data (wireless is a strange case, partly managed via interface_sync_wireless_clones)
+              $new_config['if'] = $old_config['if'];
+              if (isset($old_config['wireless'])) {
+                  $new_config['wireless'] = $old_config['wireless'];
+              }
+              //
+              $new_config['descr'] = preg_replace('/[^a-z_0-9]/i', '', $pconfig['descr']);
+              $new_config['enable'] = !empty($pconfig['enable']);
+              $new_config['lock'] = !empty($pconfig['lock']);
+              $new_config['spoofmac'] = $pconfig['spoofmac'];
+  
+              $new_config['blockpriv'] = !empty($pconfig['blockpriv']);
+              $new_config['blockbogons'] = !empty($pconfig['blockbogons']);
+              $new_config['gateway_interface'] = !empty($pconfig['gateway_interface']);
+              $new_config['promisc'] = !empty($pconfig['promisc']);
+              if (!empty($pconfig['mtu'])) {
+                  $new_config['mtu'] = $pconfig['mtu'];
+              }
+              if (!empty($pconfig['mss'])) {
+                  $new_config['mss'] = $pconfig['mss'];
+              }
+              if (!empty($pconfig['mediaopt'])) {
+                  $mediaopts = explode(' ', $pconfig['mediaopt']);
+                  if (isset($mediaopts[0])) {
+                      $new_config['media'] = $mediaopts[0];
+                  }
+                  if (isset($mediaopts[0])) {
+                      $new_config ['mediaopt'] = $mediaopts[1];
+                  }
+              }
+  
+              // 切換v4 config type
+              // switch ipv4 config by type
+              switch ($pconfig['type']) {
+                  case "staticv4":
+                      $new_config['ipaddr'] = $pconfig['ipaddr'];
+                      $new_config['subnet'] = $pconfig['subnet'];
+                      if ($pconfig['gateway'] != "none") {
+                          $new_config['gateway'] = $pconfig['gateway'];
+                      }
+                      break;
+                  case "dhcp":
+                      $new_config['ipaddr'] = "dhcp";
+                      $new_config['dhcphostname'] = $pconfig['dhcphostname'];
+                      $new_config['alias-address'] = $pconfig['alias-address'];
+                      $new_config['alias-subnet'] = $pconfig['alias-subnet'];
+                      $new_config['dhcprejectfrom'] = $pconfig['dhcprejectfrom'];
+                      $new_config['adv_dhcp_pt_timeout'] = $pconfig['adv_dhcp_pt_timeout'];
+                      $new_config['adv_dhcp_pt_retry'] = $pconfig['adv_dhcp_pt_retry'];
+                      $new_config['adv_dhcp_pt_select_timeout'] = $pconfig['adv_dhcp_pt_select_timeout'];
+                      $new_config['adv_dhcp_pt_reboot'] = $pconfig['adv_dhcp_pt_reboot'];
+                      $new_config['adv_dhcp_pt_backoff_cutoff'] = $pconfig['adv_dhcp_pt_backoff_cutoff'];
+                      $new_config['adv_dhcp_pt_initial_interval'] = $pconfig['adv_dhcp_pt_initial_interval'];
+                      $new_config['adv_dhcp_pt_values'] = $pconfig['adv_dhcp_pt_values'];
+                      $new_config['adv_dhcp_send_options'] = $pconfig['adv_dhcp_send_options'];
+                      $new_config['adv_dhcp_request_options'] = $pconfig['adv_dhcp_request_options'];
+                      $new_config['adv_dhcp_required_options'] = $pconfig['adv_dhcp_required_options'];
+                      $new_config['adv_dhcp_option_modifiers'] = $pconfig['adv_dhcp_option_modifiers'];
+                      $new_config['adv_dhcp_config_advanced'] = $pconfig['adv_dhcp_config_advanced'];
+                      $new_config['adv_dhcp_config_file_override'] = $pconfig['adv_dhcp_config_file_override'];
+                      $new_config['adv_dhcp_config_file_override_path'] = $pconfig['adv_dhcp_config_file_override_path'];
+                      /* flipped in GUI on purpose */
+                      if (empty($pconfig['dhcpoverridemtu'])) {
+                          $new_config['dhcphonourmtu'] = true;
+                      }
+                      break;
+                  case "ppp":
+                      $new_config['if'] = $pconfig['type'] . $pconfig['ptpid'];
+                      $new_config['ipaddr'] = $pconfig['type'];
+                      $new_ppp_config['ptpid'] = $pconfig['ptpid'];
+                      $new_ppp_config['type'] = $pconfig['type'];
+                      $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
+                      $new_ppp_config['ports'] = $pconfig['ports'];
+                      $new_ppp_config['username'] = $pconfig['username'];
+                      $new_ppp_config['password'] = base64_encode($pconfig['password']);
+                      $new_ppp_config['phone'] = $pconfig['phone'];
+                      $new_ppp_config['apn'] = $pconfig['apn'];
+                      break;
+                  case "pppoe":
+                      $new_config['if'] = $pconfig['type'].$pconfig['ptpid'];
+                      $new_config['ipaddr'] = $pconfig['type'];
+                      $new_ppp_config['ptpid'] = $pconfig['ptpid'];
+                      $new_ppp_config['type'] = $pconfig['type'];
+                      $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
+                      if (!empty($pconfig['ppp_port'])) {
+                          $new_ppp_config['ports'] = $pconfig['ppp_port'];
+                      } else {
+                          $new_ppp_config['ports'] = $old_config['if'];
+                      }
+                      $new_ppp_config['username'] = $pconfig['pppoe_username'];
+                      $new_ppp_config['password'] = base64_encode($pconfig['pppoe_password']);
+                      if (!empty($pconfig['provider'])) {
+                          $new_ppp_config['provider'] = $pconfig['provider'];
+                      }
+                      if (!empty($pconfig['pppoe_hostuniq'])) {
+                          $new_ppp_config['hostuniq'] = $pconfig['pppoe_hostuniq'];
+                      }
+                      $new_ppp_config['ondemand'] = !empty($pconfig['pppoe_dialondemand']);
+                      if (!empty($pconfig['pppoe_idletimeout'])) {
+                          $new_ppp_config['idletimeout'] = $pconfig['pppoe_idletimeout'];
+                      }
+                      break;
+                  case "pptp":
+                  case "l2tp":
+                      $new_config['if'] = $pconfig['type'].$pconfig['ptpid'];
+                      $new_config['ipaddr'] = $pconfig['type'];
+                      $new_ppp_config['ptpid'] = $pconfig['ptpid'];
+                      $new_ppp_config['type'] = $pconfig['type'];
+                      $new_ppp_config['if'] = $pconfig['type'].$pconfig['ptpid'];
+                      if (!empty($pconfig['ppp_port'])) {
+                          $new_ppp_config['ports'] = $pconfig['ppp_port'];
+                      } else {
+                          $new_ppp_config['ports'] = $old_config['if'];
+                      }
+                      $new_ppp_config['username'] = $pconfig['pptp_username'];
+                      $new_ppp_config['password'] = base64_encode($pconfig['pptp_password']);
+                      $new_ppp_config['localip'] = $pconfig['localip'];
+                      $new_ppp_config['subnet'] = $pconfig['pptp_subnet'];
+                      $new_ppp_config['gateway'] = $pconfig['pptp_remote'];
+                      $new_ppp_config['ondemand'] = !empty($pconfig['pptp_dialondemand']);
+                      if (!empty($pconfig['pptp_idletimeout'])) {
+                          $new_ppp_config['idletimeout'] = $pconfig['pptp_idletimeout'];
+                      }
+                      break;
+              }
+  
+              // switch ipv6 config by type
+              switch ($pconfig['type6']) {
+                  case 'staticv6':
+                      if (!empty($pconfig['staticv6usev4iface'])) {
+                          $new_config['dhcp6usev4iface'] = true;
+                      }
+                      $new_config['ipaddrv6'] = $pconfig['ipaddrv6'];
+                      $new_config['subnetv6'] = $pconfig['subnetv6'];
+                      if ($pconfig['gatewayv6'] != 'none') {
+                          $new_config['gatewayv6'] = $pconfig['gatewayv6'];
+                      }
+                      break;
+                  case 'slaac':
+                      if (!empty($pconfig['slaacusev4iface'])) {
+                          $new_config['dhcp6usev4iface'] = true;
+                      }
+                      $new_config['ipaddrv6'] = 'slaac';
+                      break;
+                  case 'dhcp6':
+                      $new_config['ipaddrv6'] = 'dhcp6';
+                      $new_config['dhcp6-ia-pd-len'] = $pconfig['dhcp6-ia-pd-len'];
+                      if (!empty($pconfig['dhcp6-ia-pd-send-hint'])) {
+                          $new_config['dhcp6-ia-pd-send-hint'] = true;
+                      }
+                      if (!empty($pconfig['dhcp6prefixonly'])) {
+                          $new_config['dhcp6prefixonly'] = true;
+                      }
+                      if (!empty($pconfig['dhcp6usev4iface'])) {
+                          $new_config['dhcp6usev4iface'] = true;
+                      }
+                      if (isset($pconfig['dhcp6vlanprio']) && $pconfig['dhcp6vlanprio'] !== '') {
+                          $new_config['dhcp6vlanprio'] = $pconfig['dhcp6vlanprio'];
+                      }
+                      $new_config['adv_dhcp6_interface_statement_send_options'] = $pconfig['adv_dhcp6_interface_statement_send_options'];
+                      $new_config['adv_dhcp6_interface_statement_request_options'] = $pconfig['adv_dhcp6_interface_statement_request_options'];
+                      $new_config['adv_dhcp6_interface_statement_information_only_enable'] = $pconfig['adv_dhcp6_interface_statement_information_only_enable'];
+                      $new_config['adv_dhcp6_interface_statement_script'] = $pconfig['adv_dhcp6_interface_statement_script'];
+                      $new_config['adv_dhcp6_id_assoc_statement_address_enable'] = $pconfig['adv_dhcp6_id_assoc_statement_address_enable'];
+                      $new_config['adv_dhcp6_id_assoc_statement_address'] = $pconfig['adv_dhcp6_id_assoc_statement_address'];
+                      $new_config['adv_dhcp6_id_assoc_statement_address_id'] = $pconfig['adv_dhcp6_id_assoc_statement_address_id'];
+                      $new_config['adv_dhcp6_id_assoc_statement_address_pltime'] = $pconfig['adv_dhcp6_id_assoc_statement_address_pltime'];
+                      $new_config['adv_dhcp6_id_assoc_statement_address_vltime'] = $pconfig['adv_dhcp6_id_assoc_statement_address_vltime'];
+                      $new_config['adv_dhcp6_id_assoc_statement_prefix_enable'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_enable'];
+                      $new_config['adv_dhcp6_id_assoc_statement_prefix'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix'];
+                      $new_config['adv_dhcp6_id_assoc_statement_prefix_id'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_id'];
+                      $new_config['adv_dhcp6_id_assoc_statement_prefix_pltime'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_pltime'];
+                      $new_config['adv_dhcp6_id_assoc_statement_prefix_vltime'] = $pconfig['adv_dhcp6_id_assoc_statement_prefix_vltime'];
+                      $new_config['adv_dhcp6_prefix_interface_statement_sla_len'] = $pconfig['adv_dhcp6_prefix_interface_statement_sla_len'];
+                      $new_config['adv_dhcp6_authentication_statement_authname'] = $pconfig['adv_dhcp6_authentication_statement_authname'];
+                      $new_config['adv_dhcp6_authentication_statement_protocol'] = $pconfig['adv_dhcp6_authentication_statement_protocol'];
+                      $new_config['adv_dhcp6_authentication_statement_algorithm'] = $pconfig['adv_dhcp6_authentication_statement_algorithm'];
+                      $new_config['adv_dhcp6_authentication_statement_rdm'] = $pconfig['adv_dhcp6_authentication_statement_rdm'];
+                      $new_config['adv_dhcp6_key_info_statement_keyname'] = $pconfig['adv_dhcp6_key_info_statement_keyname'];
+                      $new_config['adv_dhcp6_key_info_statement_realm'] = $pconfig['adv_dhcp6_key_info_statement_realm'];
+                      $new_config['adv_dhcp6_key_info_statement_keyid'] = $pconfig['adv_dhcp6_key_info_statement_keyid'];
+                      $new_config['adv_dhcp6_key_info_statement_secret'] = $pconfig['adv_dhcp6_key_info_statement_secret'];
+                      $new_config['adv_dhcp6_key_info_statement_expire'] = $pconfig['adv_dhcp6_key_info_statement_expire'];
+                      $new_config['adv_dhcp6_config_advanced'] = $pconfig['adv_dhcp6_config_advanced'];
+                      $new_config['adv_dhcp6_config_file_override'] = $pconfig['adv_dhcp6_config_file_override'];
+                      $new_config['adv_dhcp6_config_file_override_path'] = $pconfig['adv_dhcp6_config_file_override_path'];
+                      break;
+                  case '6rd':
+                      $new_config['ipaddrv6'] = '6rd';
+                      $new_config['prefix-6rd'] = $pconfig['prefix-6rd'];
+                      $new_config['prefix-6rd-v4addr'] = $pconfig['prefix-6rd-v4addr'];
+                      $new_config['prefix-6rd-v4plen'] = $pconfig['prefix-6rd-v4plen'];
+                      $new_config['gateway-6rd'] = $pconfig['gateway-6rd'];
+                      break;
+                  case '6to4':
+                      $new_config['ipaddrv6'] = '6to4';
+                      break;
+                  case 'track6':
+                      $new_config['ipaddrv6'] = 'track6';
+                      $new_config['track6-interface'] = $pconfig['track6-interface'];
+                      $new_config['track6-prefix-id'] = 0;
+                      if (ctype_xdigit($pconfig['track6-prefix-id--hex'])) {
+                          $new_config['track6-prefix-id'] = intval($pconfig['track6-prefix-id--hex'], 16);
+                      }
+                      $new_config['dhcpd6track6allowoverride'] = !empty($pconfig['dhcpd6track6allowoverride']);
+                      break;
+              }
+  
+              // wireless
+              if (isset($new_config['wireless'])) {
+                  $new_config['wireless']['wpa'] = array();
+                  $new_config['wireless']['wme'] = array();
+                  $new_config['wireless']['wep'] = array();
+                  $new_config['wireless']['hidessid'] = array();
+                  $new_config['wireless']['pureg'] = array();
+                  $new_config['wireless']['puren'] = array();
+                  $new_config['wireless']['ieee8021x'] = array();
+                  $new_config['wireless']['standard'] = $pconfig['standard'];
+                  $new_config['wireless']['mode'] = $pconfig['mode'];
+                  $new_config['wireless']['protmode'] = $pconfig['protmode'];
+                  $new_config['wireless']['ssid'] = $pconfig['ssid'];
+                  $new_config['wireless']['hidessid']['enable'] = !empty($pconfig['hidessid_enable']);
+                  $new_config['wireless']['channel'] = $pconfig['channel'];
+                  $new_config['wireless']['authmode'] = $pconfig['authmode'];
+                  $new_config['wireless']['txpower'] = $pconfig['txpower'];
+                  $new_config['wireless']['regdomain'] = $pconfig['regdomain'];
+                  $new_config['wireless']['regcountry'] = $pconfig['regcountry'];
+                  $new_config['wireless']['reglocation'] = $pconfig['reglocation'];
+                  if (!empty($pconfig['regcountry']) && !empty($pconfig['reglocation'])) {
+                      $wl_regdomain_xml_attr = array();
+                      $wl_regdomain_xml = parse_xml_regdomain($wl_regdomain_xml_attr);
+                      $wl_countries_attr = &$wl_regdomain_xml_attr['country-codes']['country'];
+  
+                      foreach($wl_countries_attr as $wl_country) {
+                          if ($pconfig['regcountry'] == $wl_country['ID']) {
+                              $new_config['wireless']['regdomain'] = $wl_country['rd'][0]['REF'];
+                              break;
+                          }
+                      }
+                  }
+                  if (isset($pconfig['diversity']) && is_numeric($pconfig['diversity'])) {
+                      $new_config['wireless']['diversity'] = $pconfig['diversity'];
+                  } elseif (isset($new_config['wireless']['diversity'])) {
+                      unset($new_config['wireless']['diversity']);
+                  }
+                  if (isset($pconfig['txantenna']) && is_numeric($pconfig['txantenna'])) {
+                      $new_config['wireless']['txantenna'] = $pconfig['txantenna'];
+                  } elseif (isset($new_config['wireless']['txantenna'])) {
+                      unset($new_config['wireless']['txantenna']);
+                  }
+                  if (isset($pconfig['rxantenna']) && is_numeric($pconfig['rxantenna'])) {
+                      $new_config['wireless']['rxantenna'] = $_POST['rxantenna'];
+                  } elseif (isset($new_config['wireless']['rxantenna'])) {
+                      unset($new_config['wireless']['rxantenna']);
+                  }
+                  $new_config['wireless']['wpa']['macaddr_acl'] = $pconfig['macaddr_acl'];
+                  $new_config['wireless']['wpa']['auth_algs'] = $pconfig['auth_algs'];
+                  $new_config['wireless']['wpa']['wpa_mode'] = $pconfig['wpa_mode'];
+                  $new_config['wireless']['wpa']['wpa_key_mgmt'] = $pconfig['wpa_key_mgmt'];
+                  $new_config['wireless']['wpa']['wpa_eap_method'] = $pconfig['wpa_eap_method'];
+                  $new_config['wireless']['wpa']['wpa_eap_p2_auth'] = $pconfig['wpa_eap_p2_auth'];
+                  $new_config['wireless']['wpa']['wpa_eap_cacertref'] = $pconfig['wpa_eap_cacertref'];
+                  $new_config['wireless']['wpa']['wpa_eap_cltcertref'] = $pconfig['wpa_eap_cltcertref'];
+                  $new_config['wireless']['wpa']['wpa_pairwise'] = $pconfig['wpa_pairwise'];
+                  $new_config['wireless']['wpa']['wpa_group_rekey'] = $pconfig['wpa_group_rekey'];
+                  $new_config['wireless']['wpa']['wpa_gmk_rekey'] = $pconfig['wpa_gmk_rekey'];
+                  $new_config['wireless']['wpa']['identity'] = $pconfig['identity'];
+                  $new_config['wireless']['wpa']['passphrase'] = $pconfig['passphrase'];
+                  $new_config['wireless']['wpa']['ext_wpa_sw'] = $pconfig['ext_wpa_sw'];
+                  $new_config['wireless']['wpa']['mac_acl_enable'] = !empty($pconfig['mac_acl_enable']);
+                  $new_config['wireless']['wpa']['rsn_preauth'] = !empty($pconfig['rsn_preauth']);
+                  $new_config['wireless']['wpa']['ieee8021x']['enable'] = !empty($pconfig['ieee8021x']);
+                  $new_config['wireless']['wpa']['wpa_strict_rekey'] = !empty($pconfig['wpa_strict_rekey']);
+                  $new_config['wireless']['wpa']['debug_mode'] = !empty($pconfig['debug_mode']);
+                  $new_config['wireless']['wpa']['enable'] = $_POST['wpa_enable'] = !empty($pconfig['wpa_enable']);
+  
+                  $new_config['wireless']['auth_server_addr'] = $pconfig['auth_server_addr'];
+                  $new_config['wireless']['auth_server_port'] = $pconfig['auth_server_port'];
+                  $new_config['wireless']['auth_server_shared_secret'] = $pconfig['auth_server_shared_secret'];
+                  $new_config['wireless']['auth_server_addr2'] = $pconfig['auth_server_addr2'];
+                  $new_config['wireless']['auth_server_port2'] = $pconfig['auth_server_port2'];
+                  $new_config['wireless']['auth_server_shared_secret2'] = $pconfig['auth_server_shared_secret2'];
+  
+                  $new_config['wireless']['wep']['enable'] = !empty($pconfig['wep_enable']);
+                  $new_config['wireless']['wme']['enable'] = !empty($pconfig['wme_enable']);
+  
+                  $new_config['wireless']['pureg']['enable'] = !empty($pconfig['puremode']) && $pconfig['puremode'] == "11g";
+                  $new_config['wireless']['puren']['enable'] = !empty($pconfig['puremode']) && $pconfig['puremode'] == "11n";
+                  $new_config['wireless']['apbridge'] = array();
+                  $new_config['wireless']['apbridge']['enable'] = !empty($pconfig['apbridge_enable']);
+                  $new_config['wireless']['turbo'] = array();
+                  $new_config['wireless']['turbo']['enable'] = $pconfig['standard'] == "11g Turbo" || $pconfig['standard'] == "11a Turbo";
+  
+                  $new_config['wireless']['wep']['key'] = array();
+                  for ($i = 1; $i <= 4; $i++) {
+                      if (!empty($pconfig['key' . $i])) {
+                          $newkey = array();
+                          $newkey['value'] = $pconfig['key' . $i];
+                          if ($pconfig['txkey'] == $i) {
+                              $newkey['txkey'] = true;
+                          }
+                          $new_config['wireless']['wep']['key'][] = $newkey;
+                      }
+                  }
+  
+                  // todo: it's probably better to choose one place to store wireless data
+                  //       this construction implements a lot of weirdness (more info interface_sync_wireless_clones)
+                  $wlanbaseif = interface_get_wireless_base($a_interfaces[$if]['if']);
+                  if (!empty($pconfig['persistcommonwireless'])) {
+                      config_read_array('wireless', 'interfaces', $wlanbaseif);
+                  } elseif (isset($config['wireless']['interfaces'][$wlanbaseif])) {
+                      unset($config['wireless']['interfaces'][$wlanbaseif]);
+                  }
+  
+                  // quite obscure this... copies parts of the config
+                  interface_sync_wireless_clones($new_config, true);
+              }
+              // hardware (offloading) Settings
+              if (!empty($pconfig['hw_settings_overwrite'])) {
+                  $new_config['hw_settings_overwrite'] = true;
+                  if (!empty($pconfig['disablechecksumoffloading'])) {
+                      $new_config['disablechecksumoffloading'] = true;
+                  }
+                  if (!empty($pconfig['disablesegmentationoffloading'])) {
+                      $new_config['disablesegmentationoffloading'] = true;
+                  }
+                  if (!empty($pconfig['disablelargereceiveoffloading'])) {
+                      $new_config['disablelargereceiveoffloading'] = true;
+                  }
+                  if (!empty($pconfig['disablevlanhwfilter'])) {
+                      $new_config['disablevlanhwfilter'] = $pconfig['disablevlanhwfilter'];
+                  }
+              }
+  
+              if (count($new_ppp_config) > 0) {
+                  // ppp details changed
+                  $a_ppps[$pppid] = $new_ppp_config;
+              } elseif (!empty($a_ppps[$pppid])) {
+                  // ppp removed
+                  $new_config['if'] = $a_ppps[$pppid]['ports'];
+                  unset($a_ppps[$pppid]);
+              }
+  
+              // save interface details
+              $a_interfaces[$if] = $new_config;
+  
+              // save to config
+              write_config();
+  
+              // log changes for apply action
+              // (it would be better to diff the physical situation with the new config for changes)
+              if (file_exists('/tmp/.interfaces.apply')) {
+                  $toapplylist = unserialize(file_get_contents('/tmp/.interfaces.apply'));
+              } else {
+                  $toapplylist = array();
+              }
+  
+              if (empty($toapplylist[$if])) {
+                  // only flush if the running config is not in our list yet
+                  $toapplylist[$if]['ifcfg'] = $old_config;
+                  $toapplylist[$if]['ppps'] = $old_ppps;
+                  file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
+              }
+  
+              mark_subsystem_dirty('interfaces');
+  
+              if (!empty($ifgroup)) {
+                  header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+              } else {
+                  echo('<br/>$pconfig資料內容<br/>');
+                  print_r ($pconfig);
+                  
+                  echo ('<br/>原始$rely_pconfig回傳值<br/>');
+                  print_r ($prely_pconfig);
+              
+                  echo('<br/>原始$pconfig資料內容<br/>');
+                  print_r ($ppconfig);
+                  // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+              }
+              exit;
+          }
+      }
     }
 }
 
