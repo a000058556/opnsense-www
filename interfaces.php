@@ -1909,7 +1909,7 @@ include("head.inc");
           }
       }).change();
 
-      window_highlight_table_option();
+      // window_highlight_table_option();
   });
 
 </script>
