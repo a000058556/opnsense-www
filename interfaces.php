@@ -3928,8 +3928,6 @@ $service_hook = 'dhcrelay';
                 print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
               } else {
         ?>
-                <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
-                <?php if (isset($savemsg)) print_info_box($savemsg); ?>
                 <section class="col-xs-12">
                   <div class="content-box">
                     <form method="post" name="relay_iform" id="relay_iform">
