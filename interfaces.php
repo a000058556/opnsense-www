@@ -3848,7 +3848,6 @@ if (is_array($config['dhcpd'])) {
 }
 $service_hook = 'dhcrelay';
 
-
 ?>                       
 
           <div id="relay" class="tab-pane fade in">
@@ -3863,7 +3862,7 @@ $service_hook = 'dhcrelay';
                 <?php if (isset($savemsg)) print_info_box($savemsg); ?>
                 <section class="col-xs-12">
                   <div class="content-box">
-                    <form method="post" name="iform" id="iform">
+                    <form method="post" name="relay_iform" id="relay_iform">
                       <div>
                         <div class="table-responsive">
                           <table class="table table-striped opnsense_standard_table_form">
@@ -3877,7 +3876,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
                               <td>
-                                <input name="enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                                <input name="enable" type="checkbox" value="yes" <?=!empty($relay_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
                               </td>
                             </tr>
                             <tr>
@@ -3889,7 +3888,7 @@ $service_hook = 'dhcrelay';
                                 if (!is_ipaddr(get_interface_ip($ifent))) {
                                     continue;
                                 }?>
-                                  <option value="<?=$ifent;?>" <?=isset($pconfig['interface']) && in_array($ifent, $pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                                  <option value="<?=$ifent;?>" <?=isset($relay_pconfig['interface']) && in_array($ifent, $relay_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
                                     <?=$ifdesc;?>
                                   </option>
         <?php
@@ -3903,7 +3902,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
                               <td>
-                                  <input name="agentoption" type="checkbox" value="yes" <?=!empty($pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                                  <input name="agentoption" type="checkbox" value="yes" <?=!empty($relay_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
                                   <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
                                   <div class="hidden" data-for="help_for_agentoption">
                                     <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
@@ -3913,7 +3912,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
                               <td>
-                                <input name="server" type="text" value="<?=!empty($pconfig['server']) ? htmlspecialchars($pconfig['server']):"";?>" />
+                                <input name="server" type="text" value="<?=!empty($relay_pconfig['server']) ? htmlspecialchars($relay_pconfig['server']):"";?>" />
                                 <div class="hidden" data-for="help_for_server">
                                   <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
                                 </div>
@@ -3922,7 +3921,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td>&nbsp;</td>
                               <td>
-                                <input name="Submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" onclick="enable_change(true)" />
+                                <input name="relay_Submit" type="submit" class="btn btn-primary" value="<?=html_safe(gettext('Save'));?>" onclick="enable_change(true)" />
                               </td>
                             </tr>
                           </table>
