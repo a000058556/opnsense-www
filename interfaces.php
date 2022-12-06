@@ -1910,6 +1910,17 @@ include("head.inc");
       }).change();
 
       // window_highlight_table_option();
+
+      // update history on tab state and implement navigation
+      let selected_tab = window.location.hash != "" ? window.location.hash : "#{{default_tab}}";
+      $('a[href="' +selected_tab + '"]').click();
+      $('.nav-tabs a').on('shown.bs.tab', function (e) {
+          history.pushState(null, null, e.target.hash);
+      });
+      $(window).on('hashchange', function(e) {
+          $('a[href="' + window.location.hash + '"]').click()
+      });
+
   });
 
 </script>
@@ -3916,17 +3927,7 @@ $service_hook = 'dhcrelay';
 
 ?> 
 
-<script>
-      // update history on tab state and implement navigation
-      let selected_tab = window.location.hash != "" ? window.location.hash : "#{{default_tab}}";
-      $('a[href="' +selected_tab + '"]').click();
-      $('.nav-tabs a').on('shown.bs.tab', function (e) {
-          history.pushState(null, null, e.target.hash);
-      });
-      $(window).on('hashchange', function(e) {
-          $('a[href="' + window.location.hash + '"]').click()
-      });
-</script>
+
 
           <div id="relay" class="tab-pane fade in">
           <div class="container-fluid">
