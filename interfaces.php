@@ -339,8 +339,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!empty($_GET['if']) && !empty($a_interfaces[$_GET['if']])) {
         $if = $_GET['if'];
     } else {
+        // 當沒有interface時(新流程不會有這問題)
         // no interface provided, redirect to interface assignments
-        header(url_safe('Location: /interfaces_assign.php'));
+        // header(url_safe('Location: /interfaces_assign.php'));
         exit;
     }
     // 建立$pconfig
@@ -613,11 +614,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         @unlink('/tmp/.interfaces.apply');
-        if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
+        // if (!empty($ifgroup)) {
+        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        // } else {
+        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        // }
         exit;
     } elseif (empty($pconfig['enable'])) {
         if (isset($a_interfaces[$if]['enable'])) {
@@ -649,11 +650,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $toapplylist[$if]['ppps'] = $a_ppps;
             file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
         }
-        if (!empty($ifgroup)) {
-            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        } else {
-            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        }
+        // if (!empty($ifgroup)) {
+        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        // } else {
+        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        // }
         exit;
     } else {
         // locate sequence in ppp list
@@ -1397,11 +1398,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             mark_subsystem_dirty('interfaces');
 
-            if (!empty($ifgroup)) {
-                header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-            } else {
-                header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-            }
+            // if (!empty($ifgroup)) {
+            //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+            // } else {
+            //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+            // }
             exit;
         }
     }
