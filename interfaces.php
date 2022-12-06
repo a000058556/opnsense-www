@@ -340,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $if = $_GET['if'];
     } else {
         // no interface provided, redirect to interface assignments
-        // header(url_safe('Location: /interfaces_assign.php'));
+        header(url_safe('Location: /interfaces_assign.php'));
         exit;
     }
     // 建立$pconfig
@@ -582,7 +582,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig = $_POST;
 
     $input_errors = array();
-    // 當$_POST['if']不為空值，取得interface name
+    // 取得interface name
     if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
         $if = $_POST['if'];
         // read physical interface name from config.xml
@@ -613,11 +613,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         @unlink('/tmp/.interfaces.apply');
-        // if (!empty($ifgroup)) {
-        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        // } else {
-        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        // }
+        if (!empty($ifgroup)) {
+            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        } else {
+            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        }
         exit;
     } elseif (empty($pconfig['enable'])) {
         if (isset($a_interfaces[$if]['enable'])) {
@@ -650,10 +650,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
         }
         if (!empty($ifgroup)) {
-        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        // } else {
-        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        // }
+            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        } else {
+            header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        }
         exit;
     } else {
         // locate sequence in ppp list
@@ -1398,10 +1398,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             mark_subsystem_dirty('interfaces');
 
             if (!empty($ifgroup)) {
-            //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-            // } else {
-            //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-            // }
+                header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+            } else {
+                header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+            }
             exit;
         }
     }
@@ -3827,18 +3827,18 @@ $service_hook = 'dhcrelay';
 ?>                       
 
           <div id="relay" class="tab-pane fade in">
-            <div class="container-fluid">
+          <div class="container-fluid">
               <div class="row">
-<?php
+        <?php
               if ($dhcpd_enabled) {
                 print_info_box(gettext('DHCP Server is currently enabled. Cannot enable the DHCP Relay service while the DHCP Server is enabled on any interface.'));
               } else {
-?>
+        ?>
                 <?php if (isset($input_errors) && count($input_errors) > 0) print_input_errors($input_errors); ?>
                 <?php if (isset($savemsg)) print_info_box($savemsg); ?>
                 <section class="col-xs-12">
                   <div class="content-box">
-                    <form method="post" name="relay_iform" id="relay_iform">
+                    <form method="post" name="iform" id="iform">
                       <div>
                         <div class="table-responsive">
                           <table class="table table-striped opnsense_standard_table_form">
@@ -3852,22 +3852,22 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Enable') ?></td>
                               <td>
-                                <input name="enable" type="checkbox" value="yes" <?=!empty($relay_pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
+                                <input name="enable" type="checkbox" value="yes" <?=!empty($pconfig['enable']) ? "checked=\"checked\"" : ""; ?> onclick="enable_change(false)" />
                               </td>
                             </tr>
                             <tr>
                               <td><a id="help_for_interface" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Interface(s)') ?></td>
                               <td>
                                 <select id="interface" name="interface[]" multiple="multiple" class="selectpicker">
-<?php
+        <?php
                                 foreach ($iflist as $ifent => $ifdesc):
                                 if (!is_ipaddr(get_interface_ip($ifent))) {
                                     continue;
                                 }?>
-                                  <option value="<?=$ifent;?>" <?=isset($relay_pconfig['interface']) && in_array($ifent, $relay_pconfig['interface']) ? "selected=\"selected\"" : "";?>>
+                                  <option value="<?=$ifent;?>" <?=isset($pconfig['interface']) && in_array($ifent, $pconfig['interface']) ? "selected=\"selected\"" : "";?>>
                                     <?=$ifdesc;?>
                                   </option>
-<?php
+        <?php
                                 endforeach;?>
                                 </select>
                                 <div class="hidden" data-for="help_for_interface">
@@ -3878,7 +3878,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><a id="help_for_agentoption" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Append circuit ID");?></td>
                               <td>
-                                  <input name="agentoption" type="checkbox" value="yes" <?=!empty($relay_pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
+                                  <input name="agentoption" type="checkbox" value="yes" <?=!empty($pconfig['agentoption']) ? "checked=\"checked\"" : ""; ?> />
                                   <strong><?=gettext("Append circuit ID and agent ID to requests"); ?></strong><br />
                                   <div class="hidden" data-for="help_for_agentoption">
                                     <?= gettext('If this is checked, the DHCP relay will append the circuit ID (interface number) and the agent ID to the DHCP request.') ?>
@@ -3888,7 +3888,7 @@ $service_hook = 'dhcrelay';
                             <tr>
                               <td><a id="help_for_server" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Destination servers");?></td>
                               <td>
-                                <input name="server" type="text" value="<?=!empty($relay_pconfig['server']) ? htmlspecialchars($relay_pconfig['server']):"";?>" />
+                                <input name="server" type="text" value="<?=!empty($pconfig['server']) ? htmlspecialchars($pconfig['server']):"";?>" />
                                 <div class="hidden" data-for="help_for_server">
                                   <?=gettext("These are the IP addresses of servers to which DHCP requests are relayed. You can enter multiple server IP addresses, separated by commas.");?>
                                 </div>
@@ -3951,6 +3951,11 @@ $service_hook = 'dhcrelay';
     }
     print_r ($iface);
     
+    echo ('<br/>原始$rely_pconfig回傳值<br/>');
+    print_r ($prely_pconfig);
+
+    echo('<br/>原始$pconfig資料內容<br/>');
+    print_r ($ppconfig);
 
 ?>
   </section>
