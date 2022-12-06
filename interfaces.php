@@ -614,11 +614,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         @unlink('/tmp/.interfaces.apply');
-        // if (!empty($ifgroup)) {
-        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        // } else {
-        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        // }
+        if (!empty($ifgroup)) {
+            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        } else {
+            echo('<br/>$pconfig資料內容<br/>');
+            print_r ($pconfig);
+            
+            echo ('<br/>原始$rely_pconfig回傳值<br/>');
+            print_r ($prely_pconfig);
+        
+            echo('<br/>原始$pconfig資料內容<br/>');
+            print_r ($ppconfig);
+            // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        }
         exit;
     } elseif (empty($pconfig['enable'])) {
         if (isset($a_interfaces[$if]['enable'])) {
@@ -650,11 +658,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $toapplylist[$if]['ppps'] = $a_ppps;
             file_put_contents('/tmp/.interfaces.apply', serialize($toapplylist));
         }
-        // if (!empty($ifgroup)) {
-        //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-        // } else {
-        //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-        // }
+        if (!empty($ifgroup)) {
+            header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+        } else {
+            echo('<br/>$pconfig資料內容<br/>');
+            print_r ($pconfig);
+            
+            echo ('<br/>原始$rely_pconfig回傳值<br/>');
+            print_r ($prely_pconfig);
+        
+            echo('<br/>原始$pconfig資料內容<br/>');
+            print_r ($ppconfig);
+            // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+        }
         exit;
     } else {
         // locate sequence in ppp list
@@ -1398,11 +1414,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             mark_subsystem_dirty('interfaces');
 
-            // if (!empty($ifgroup)) {
-            //     header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
-            // } else {
-            //     header(url_safe('Location: /interfaces.php?if=%s', array($if)));
-            // }
+            if (!empty($ifgroup)) {
+                header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+            } else {
+                echo('<br/>$pconfig資料內容<br/>');
+                print_r ($pconfig);
+                
+                echo ('<br/>原始$rely_pconfig回傳值<br/>');
+                print_r ($prely_pconfig);
+            
+                echo('<br/>原始$pconfig資料內容<br/>');
+                print_r ($ppconfig);
+                // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+            }
             exit;
         }
     }
@@ -3951,6 +3975,9 @@ $service_hook = 'dhcrelay';
       }
     }
     print_r ($iface);
+
+    echo('<br/>$pconfig資料內容<br/>');
+    print_r ($pconfig);
     
     echo ('<br/>原始$rely_pconfig回傳值<br/>');
     print_r ($prely_pconfig);
