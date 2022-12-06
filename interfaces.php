@@ -581,6 +581,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
     // $_POST = 表格傳入參數與內容
     $pconfig = $_POST;
+    $ppconfig = $_POST;
 
     // 當收到relay的表格傳值時取消動作
     if ($pconfig["relay_Submit"] == "Save") {
