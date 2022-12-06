@@ -577,17 +577,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
     }
+/***************************************************************************************************************
+ * relay use start
+ ***************************************************************************************************************/
+
+    $relay_pconfig['enable'] = isset($config['dhcrelay']['enable']);
+    // 若沒有$config['dhcrelay']['interface']) ， $relay_pconfig['enable'] = array();
+    if (empty($config['dhcrelay']['interface'])) {
+        $relay_pconfig['interface'] = array();
+    } else {
+        $relay_pconfig['interface'] = explode(",", $config['dhcrelay']['interface']);
+    }
+    // 若沒有$config['dhcrelay']['server']) ， $relay_pconfig['server'] = "";
+    if (empty($config['dhcrelay']['server'])) {
+        $relay_pconfig['server'] = "";
+    } else {
+        $relay_pconfig['server'] = $config['dhcrelay']['server'];
+    }
+    $relay_pconfig['agentoption'] = isset($config['dhcrelay']['agentoption']);
+
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 當$_SERVER['REQUEST_METHOD'] === 'POST' / 表格送出資料
     // $_POST = 表格傳入參數與內容
     $pconfig = $_POST;
-    $ppconfig = $_POST;
 
-    // 當收到relay的表格傳值時取消動作
+    // 當收到relay的表格傳值時動作
     if ($pconfig["relay_Submit"] == "Save") {
-      echo ("exit");
-      exit;
+      $input_errors = array();
+      $prelay_pconfig = $_POST;
+      // $ifgroup跳轉頁面用
+      $ifgroup = !empty($_GET['group']) ? $_GET['group'] : '';
+  
+      /* input validation */
+      $reqdfields = explode(" ", "server interface");
+      $reqdfieldsn = array(gettext("Destination Server"), gettext("Interface"));
+  
+      do_input_validation($pconfig, $reqdfields, $reqdfieldsn, $input_errors);
+  
+      if (!empty($pconfig['server'])) {
+          $checksrv = explode(",", $pconfig['server']);
+          foreach ($checksrv as $srv) {
+              if (!is_ipaddr($srv)) {
+                  $input_errors[] = gettext("A valid Destination Server IP address must be specified.");
+              }
+          }
+      }
+  
+      // 當沒有輸入錯誤時，將post收到的資料寫入config中
+      if (count($input_errors) == 0) {
+          if (empty($config['dhcrelay'])) {
+              $config['dhcrelay'] =  array();
+          }
+          $config['dhcrelay']['enable'] = !empty($pconfig['enable']);
+          $config['dhcrelay']['interface'] = implode(",", $pconfig['interface']);
+          $config['dhcrelay']['agentoption'] = !empty($pconfig['agentoption']);
+          $config['dhcrelay']['server'] = $pconfig['server'];
+          write_config();
+          plugins_configure('dhcrelay', false, array('inet'));
+          if (!empty($ifgroup)) {
+              header(url_safe('Location: /interfaces.php?if=%s&group=%s', array($if, $ifgroup)));
+          } else {
+              echo('<br/>$pconfig資料內容<br/>');
+              print_r ($pconfig);
+              
+              echo ('<br/>原始$rely_pconfig回傳值<br/>');
+              print_r ($prely_pconfig);
+          
+              echo('<br/>原始$pconfig資料內容<br/>');
+              print_r ($ppconfig);
+              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+          }
+          exit;
+      }
     }else{
+      $ppconfig = $_POST;
       $input_errors = array();
       // 取得interface name
       if (!empty($_POST['if']) && !empty($a_interfaces[$_POST['if']])) {
