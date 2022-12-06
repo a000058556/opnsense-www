@@ -645,7 +645,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           
               echo('<br/>原始$pconfig資料內容<br/>');
               print_r ($ppconfig);
-              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+              header(url_safe('Location: /interfaces.php?if=%s', array($if).'#relay'));
           }
           exit;
       }
@@ -694,7 +694,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           
               echo('<br/>原始$pconfig資料內容<br/>');
               print_r ($ppconfig);
-              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+              header(url_safe('Location: /interfaces.php?if=%s', array($if)));
           }
           exit;
       } elseif (empty($pconfig['enable'])) {
@@ -733,12 +733,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
               echo('<br/>$pconfig資料內容<br/>');
               print_r ($pconfig);
               
-              echo ('<br/>原始$rely_pconfig回傳值<br/>');
-              print_r ($prely_pconfig);
-          
               echo('<br/>原始$pconfig資料內容<br/>');
               print_r ($ppconfig);
-              // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+              header(url_safe('Location: /interfaces.php?if=%s', array($if)));
           }
           exit;
       } else {
@@ -1489,12 +1486,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                   echo('<br/>$pconfig資料內容<br/>');
                   print_r ($pconfig);
                   
-                  echo ('<br/>原始$rely_pconfig回傳值<br/>');
-                  print_r ($prely_pconfig);
-              
                   echo('<br/>原始$pconfig資料內容<br/>');
                   print_r ($ppconfig);
-                  // header(url_safe('Location: /interfaces.php?if=%s', array($if)));
+                  header(url_safe('Location: /interfaces.php?if=%s', array($if)));
               }
               exit;
           }
