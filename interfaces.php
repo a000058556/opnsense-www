@@ -645,7 +645,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           
               echo('<br/>原始$pconfig資料內容<br/>');
               print_r ($ppconfig);
-              header(url_safe('Location: /interfaces.php?if=%s', array($if).'#relay'));
+              header(url_safe('Location: /interfaces.php?if=%s', ($if.'#relay')));
           }
           exit;
       }
