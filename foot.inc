@@ -108,6 +108,12 @@ $product = product::getInstance();
             $(".bar-bottom").toggleClass("bottom bottom-close");
         });
       });
+    
+    	/*樣板用dropdown Sidebar Navigation*/
+      $(document).on('click', '#toggle_nav_btn,#open_right_sidebar,#setting_panel_btn', function (e) {
+        $(".dropdown.open > .dropdown-toggle").dropdown("toggle");
+        return false;
+      });
     </script>
   </body>
 </html>
