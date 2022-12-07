@@ -101,6 +101,21 @@ $aclObj = new \OPNsense\Core\ACL();
                           <a href="#" class="dropdown-toggle pr-0 level-2-drp"><i class="zmdi zmdi-check text-success"></i><?=gettext("Language");?></a>
                           <ul class="dropdown-menu open-left-side">
 <?php
+
+require_once("system.inc");
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $lang_config = array();
+
+    if (isset($_GET['savemsg'])) {
+        $savemsg = htmlspecialchars(gettext($_GET['savemsg']));
+    }
+
+	$lang_config['language'] = $config['system']['language'];
+}
+
+?>
+<?php
                   // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                       foreach (get_locale_list() as $lcode => $ldesc):?>
                       <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
