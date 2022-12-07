@@ -130,7 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                             foreach (get_locale_list() as $lcode => $ldesc):?>
                               <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
                                 <form method="post" name="<?=$lcode."_form";?>" id="<?=$lcode."_form";?>">
-                                  <input name="<?=$lcode."Submit";?>" type="submit" class="btn btn-primary zmdi zmdi-check" value="<?=html_safe(gettext($ldesc));?>" />
+                                  <input name="<?=$lcode;?>" type="text" value="<?=$lcode;?>"/>
+                                  <input name="<?=$lcode."_Submit";?>" type="submit" class="btn btn-primary zmdi zmdi-check" value="<?=html_safe(gettext($ldesc));?>" />
                                 </form>  
                               </li>
 <?php
