@@ -124,16 +124,18 @@ if ($lang_config['language'] !== $config['system']['language']) {
 }
 
 ?>
+                            <select name="language" class="selectpicker" data-style="btn-default">
 <?php
                               // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                             foreach (get_locale_list() as $lcode => $ldesc):?>
-                              <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
-                                <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check">
+                              
+                                <option value="<?=$lcode;?>" <?= $lcode == $lang_config['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check">
                                   <?=$ldesc;?>
                                 </option>
-                              </li>
+
 <?php
                             endforeach;?>
+                            </select>
 				  
                               <!-- <li>
                                   <a href="#"><i class="zmdi zmdi-check text-success"></i><span>available</span></a>
