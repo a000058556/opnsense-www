@@ -81,7 +81,7 @@ $aclObj = new \OPNsense\Core\ACL();
               </div>
             </form>
           </li>
-          <!-- <li id="menu_messages"><?= // get_menu_messages() ?></li> -->
+          <!--  // get_menu_messages() -->
           <li id="menu_messages">root@UGuard.localdomain</li>
           <!-- Log Out/password -->
           <li>
