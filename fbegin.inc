@@ -129,9 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                               // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                             foreach (get_locale_list() as $lcode => $ldesc):?>
                               <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
-                                <from>
+                                <form method="post" name="<?=$lcode."_form";?>" id="<?=$lcode."_form";?>">
                                   <input name="<?=$lcode."Submit";?>" type="submit" class="btn btn-primary zmdi zmdi-check" value="<?=html_safe(gettext($ldesc));?>" />
-                                </from>  
+                                </form>  
                               </li>
 <?php
                             endforeach;?>
