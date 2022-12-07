@@ -128,9 +128,9 @@ if ($lang_config['language'] !== $config['system']['language']) {
                               // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                             foreach (get_locale_list() as $lcode => $ldesc):?>
                               <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
-                                <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check">
-                                  <?=$ldesc;?>
-                                </option>
+                                <from>
+                                  <input name="<?=$lcode."Submit";?>" type="submit" class="btn btn-primary zmdi zmdi-check" value="<?=html_safe(gettext($ldesc));?>" />
+                                </from>  
                               </li>
 <?php
                             endforeach;?>
