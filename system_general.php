@@ -325,11 +325,13 @@ $( document ).ready(function() {
                 </div>
               </td>
             </tr>
+            <!-- 語言轉換選項 -->
             <tr>
               <td><a id="help_for_language" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Language");?></td>
               <td>
                 <select name="language" class="selectpicker" data-style="btn-default">
 <?php
+                  // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                   foreach (get_locale_list() as $lcode => $ldesc):?>
                   <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?>>
                     <?=$ldesc;?>

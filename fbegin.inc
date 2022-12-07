@@ -90,11 +90,27 @@ $aclObj = new \OPNsense\Core\ACL();
                   <a href="#" class="dropdown-toggle pr-0" data-toggle="dropdown"><img style="width: 30px;" src="<?= cache_safe("/ui/themes/{$themename}/build/images/user-02.jpg") ?>" alt="user_auth" class="user-auth-img img-circle"/><span class="user-online-status"></span></a>
                   <ul class="dropdown-menu user-auth-dropdown" data-dropdown-in="flipInX" data-dropdown-out="flipOutX">
                     <li>
-                      <a href="/system_usermanager_passwordmg.php"><i class="zmdi zmdi-settings"></i><span>Password</span></a>
+                      <a href="/system_usermanager_passwordmg.php"><i class="zmdi zmdi-settings"></i><span></i><?=gettext("Password");?></span></a>
                     </li>
                     <li>
-                      <a href="/index.php?logout"><i class="zmdi zmdi-power"></i><span>Log Out</span></a>
+                      <a href="/index.php?logout"><i class="zmdi zmdi-power"></i><span><?=gettext("Log Out");?></span></a>
                     </li>
+                    <li class="divider"></li>
+                      <li class="sub-menu show-on-hover">
+                          <a href="#" class="dropdown-toggle pr-0 level-2-drp"><i class="zmdi zmdi-check text-success"></i><?=gettext("Language");?></a>
+                          <ul class="dropdown-menu open-left-side">
+                              <li>
+                                  <a href="#"><i class="zmdi zmdi-check text-success"></i><span>available</span></a>
+                              </li>
+                              <li>
+                                  <a href="#"><i class="zmdi zmdi-circle-o text-warning"></i><span>busy</span></a>
+                              </li>
+                              <li>
+                                  <a href="#"><i class="zmdi zmdi-minus-circle-outline text-danger"></i><span>offline</span></a>
+                              </li>
+                          </ul>	
+                      </li>
+                    <li class="divider"></li>
                   </ul>
                 </li>
               </ul>
