@@ -100,7 +100,18 @@ $aclObj = new \OPNsense\Core\ACL();
                       <li class="sub-menu show-on-hover">
                           <a href="#" class="dropdown-toggle pr-0 level-2-drp"><i class="zmdi zmdi-check text-success"></i><?=gettext("Language");?></a>
                           <ul class="dropdown-menu open-left-side">
-                              <li>
+<?php
+                  // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
+                      foreach (get_locale_list() as $lcode => $ldesc):?>
+                      <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
+                        <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check text-success">
+                          <?=$ldesc;?>
+                        </option>
+                      </li>
+<?php
+                      endforeach;?>
+				  
+                              <!-- <li>
                                   <a href="#"><i class="zmdi zmdi-check text-success"></i><span>available</span></a>
                               </li>
                               <li>
@@ -108,7 +119,7 @@ $aclObj = new \OPNsense\Core\ACL();
                               </li>
                               <li>
                                   <a href="#"><i class="zmdi zmdi-minus-circle-outline text-danger"></i><span>offline</span></a>
-                              </li>
+                              </li> -->
                           </ul>	
                       </li>
                     <li class="divider"></li>
