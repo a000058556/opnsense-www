@@ -116,11 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	  $lang_config['language'] = $config['system']['language'];
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pconfig = $_POST;
-    print_r ($pconfig);
 
-    // $config['system']['language'] = $lang_config['language'];
-    // write_config();
-    // header(url_safe('Location: *', array('The changes have been applied successfully.')));
+    $config['system']['language'] = $pconfig['language'];
+    write_config();
+    header(url_safe('Location: *', array('The changes have been applied successfully.')));
     exit;
 }
 
@@ -130,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                             foreach (get_locale_list() as $lcode => $ldesc):?>
                               <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
                                 <form method="post" name="<?=$lcode."_form";?>" id="<?=$lcode."_form";?>">
-                                  <input name="<?=$lcode;?>" type="text" value="<?=$lcode;?>"/>
+                                  <input name="language" type="text" value="<?=$lcode;?>"/>
                                   <input name="<?=$lcode."_Submit";?>" type="submit" class="btn btn-primary zmdi zmdi-check" value="<?=html_safe(gettext($ldesc));?>" />
                                 </form>  
                               </li>
