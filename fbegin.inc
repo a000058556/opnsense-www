@@ -102,7 +102,9 @@ $aclObj = new \OPNsense\Core\ACL();
                           <ul class="dropdown-menu open-left-side">
 <?php
 
+require_once("guiconfig.inc");
 require_once("system.inc");
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $lang_config = array();
@@ -111,20 +113,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $savemsg = htmlspecialchars(gettext($_GET['savemsg']));
     }
 
-	$lang_config['language'] = $config['system']['language'];
+	  $lang_config['language'] = $config['system']['language'];
+}
+
+if ($lang_config['language'] !== $config['system']['language']) {
+    $config['system']['language'] = $lang_config['language'];
+    write_config();
+    header(url_safe('Location: *', array('The changes have been applied successfully.')));
+    exit;
 }
 
 ?>
 <?php
-                  // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
-                      foreach (get_locale_list() as $lcode => $ldesc):?>
-                      <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
-                        <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check">
-                          <?=$ldesc;?>
-                        </option>
-                      </li>
+                              // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
+                            foreach (get_locale_list() as $lcode => $ldesc):?>
+                              <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
+                                <option value="<?=$lcode;?>" <?= $lcode == $pconfig['language'] ? 'selected="selected"' : '' ?> class="zmdi zmdi-check">
+                                  <?=$ldesc;?>
+                                </option>
+                              </li>
 <?php
-                      endforeach;?>
+                            endforeach;?>
 				  
                               <!-- <li>
                                   <a href="#"><i class="zmdi zmdi-check text-success"></i><span>available</span></a>
