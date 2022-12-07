@@ -114,12 +114,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
 	  $lang_config['language'] = $config['system']['language'];
-}
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $pconfig = $_POST;
+    print_r ($pconfig);
 
-if ($lang_config['language'] !== $config['system']['language']) {
-    $config['system']['language'] = $lang_config['language'];
-    write_config();
-    header(url_safe('Location: *', array('The changes have been applied successfully.')));
+    // $config['system']['language'] = $lang_config['language'];
+    // write_config();
+    // header(url_safe('Location: *', array('The changes have been applied successfully.')));
     exit;
 }
 
