@@ -517,7 +517,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $pconfig['ptpid'] = interfaces_ptpid_next();
         $pppid = count($a_ppps);
     }
-
+    // 這裡不一樣
     if (isset($a_interfaces[$if]['wireless'])) {
         /* Sync first to be sure it displays the actual settings that will be used */
         interface_sync_wireless_clones($a_interfaces[$if], false);
@@ -3982,7 +3982,7 @@ $service_hook = 'dhcrelay';
 ?> 
 
           <div id="relay" class="tab-pane fade in">
-          <div class="container-fluid">
+            <div class="container-fluid">
               <div class="row">
         <?php
               if ($dhcpd_enabled) {
