@@ -170,13 +170,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                           foreach($menuSystem as $topMenuItem): ?>
 <?php
                           if (count($topMenuItem->Children) >= 1): ?>
+                            <!-- 最外層 -->
                             <a href="#<?=$topMenuItem->Id;?>" class="list-group-item <?= $topMenuItem->Selected ? 'active-menu-title' : ''; ?>" data-toggle="collapse" data-parent="#mainmenu"><span class="<?=$topMenuItem->CssClass;?> __iconspacer"></span><?=html_safe(gettext($topMenuItem->VisibleName));?>  </a>
                             <div class="collapse <?=$topMenuItem->Selected ? 'active-menu in' :'';?>" id="<?=$topMenuItem->Id;?>">
 <?php
                             foreach($topMenuItem->Children as $subMenuItem): ?>
 <?php
                               if ($subMenuItem->Url == '' ):?>
-                               <a href="#<?=$topMenuItem->Id;?>_<?=$subMenuItem->Id;?>" class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? "active-menu-title" : '';?>" data-toggle="collapse" data-parent="#<?=$topMenuItem->Id;?>" aria-expanded="<?=$subMenuItem->Selected ? "true" : "false";?>">
+                              <!-- 第二層 -->
+                               <a href="#<?=$topMenuItem->Id;?>_<?=$subMenuItem->Id;?>" 
+                                  class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? "active-menu-title" : '';?> <?=$subMenuItem->Id == "DHCPv4" || "DHCPv6"  ? "hide" : '';?> " 
+                                  data-toggle="collapse" data-parent="#<?=$topMenuItem->Id;?>" aria-expanded="<?=$subMenuItem->Selected ? "true" : "false";?>">
                                   <div style="display: table;width: 90%;">
                                     <div style="display: table-row">
                                       <div style="display: table-cell"><?=html_safe(gettext($subMenuItem->VisibleName));?></div>
