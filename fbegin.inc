@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 ?>
 <?php
-                              // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
+                            // 從system.inc調用get_locale_list() 取語言清單，例如:$locales['en_US'] = gettext('English');
                             foreach (get_locale_list() as $lcode => $ldesc):?>
                               <li <?= $lcode == $lang_config['language'] ? "class=\"language_on\"": "" ; ?> >
                                 <form method="post" name="<?=$lcode."_form";?>" id="<?=$lcode."_form";?>">
@@ -136,15 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 <?php
                             endforeach;?>
 				  
-                              <!-- <li>
-                                  <a href="#"><i class="zmdi zmdi-check text-success"></i><span>available</span></a>
-                              </li>
-                              <li>
-                                  <a href="#"><i class="zmdi zmdi-circle-o text-warning"></i><span>busy</span></a>
-                              </li>
-                              <li>
-                                  <a href="#"><i class="zmdi zmdi-minus-circle-outline text-danger"></i><span>offline</span></a>
-                              </li> -->
                           </ul>	
                       </li>
                     <li class="divider"></li>
