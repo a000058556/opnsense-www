@@ -42,9 +42,11 @@ $product = product::getInstance();
 <?php
               // XXX: ${$} is intentional here, the widgets leave global vars [widget_name]_title_link and [widget_name]_title
               if (isset(${$widgettitle})):?>
+                  <p><?=print_r ($widgetItem) ?></p>
                   <td style="cursor: pointer;" onclick='return addWidget("<?= html_safe($widgetItem['name']) ?>")'><?= ${$widgettitle} ?></td>
 <?php
               elseif (!empty($widgetItem['display_name'])): ?>
+                  <p><?=print_r ($widgetItem) ?></p>
                   <td style="cursor: pointer;" onclick='return addWidget("<?= html_safe($widgetItem['name']) ?>")'><?= $widgetItem['display_name'] ?></td>
 <?php
               endif;?>
