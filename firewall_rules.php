@@ -834,7 +834,7 @@ $( document ).ready(function() {
                       <td class="view-stats hidden-xs hidden-sm"><strong><?= gettext('States') ?></strong></td>
                       <td class="view-stats"><strong><?= gettext('Packets') ?></strong></td>
                       <td class="view-stats"><strong><?= gettext('Bytes') ?></strong></td>
-                      <td class="text-nowrap"><strong><?= gettext('Interfaces') ?></strong></td>
+                      <td class="view-stats"><strong><?= gettext('Interfaces') ?></strong></td>
                       <td class="text-nowrap">
                         <strong><?= gettext('Description') ?></strong>
                         <i class="fa fa-question-circle" data-toggle="collapse" data-target=".rule_md5_hash" ></i>
