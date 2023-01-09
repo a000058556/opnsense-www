@@ -834,11 +834,11 @@ $( document ).ready(function() {
                       <td class="view-stats hidden-xs hidden-sm"><strong><?= gettext('States') ?></strong></td>
                       <td class="view-stats"><strong><?= gettext('Packets') ?></strong></td>
                       <td class="view-stats"><strong><?= gettext('Bytes') ?></strong></td>
+                      <td class="text-nowrap"><strong><?= gettext('Interfaces') ?></strong></td>
                       <td class="text-nowrap">
                         <strong><?= gettext('Description') ?></strong>
                         <i class="fa fa-question-circle" data-toggle="collapse" data-target=".rule_md5_hash" ></i>
                       </td>
-                      <td class="text-nowrap"><strong><?= gettext('Interfaces') ?></strong></td>
                       <!-- 表格按鈕 -->
                       <td class="text-nowrap button-th">
                         <!-- add頁面鏈接用$selected_if內容引導至add頁面 -->
@@ -921,10 +921,10 @@ $( document ).ready(function() {
                           <a href="/ui/diagnostics/firewall/states#<?=html_safe($rule->getLabel());?>" id="<?=$rule->getLabel();?>_states" data-toggle="tooltip" title="<?=html_safe("open states view");?>" ><?=  gettext('N/A');?></a>
                       <td class="view-stats" id="<?=$rule->getLabel();?>_packets"><?= gettext('N/A') ?></td>
                       <td class="view-stats" id="<?=$rule->getLabel();?>_bytes"><?= gettext('N/A') ?></td>
-                      <td><?=$rule->getDescr();?></td>
                       <td class="view-info">
                         <?= !empty($filterent['interface']) ? $filterent['interface'] : "*";?>
                       </td>
+                      <td><?=$rule->getDescr();?></td>
                       <td>
 <?php if (!empty($rule->getRef())): ?>
                           <a href="firewall_rule_lookup.php?rid=<?=html_safe($rule->getLabel());?>" class="btn btn-default btn-xs"><i class="fa fa-fw fa-search"></i></a>
