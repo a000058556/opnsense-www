@@ -838,10 +838,14 @@ $( document ).ready(function() {
                         <strong><?= gettext('Description') ?></strong>
                         <i class="fa fa-question-circle" data-toggle="collapse" data-target=".rule_md5_hash" ></i>
                       </td>
+                      <td class="text-nowrap"><strong><?= gettext('Interfaces') ?></strong></td>
+                      <!-- 表格按鈕 -->
                       <td class="text-nowrap button-th">
+                        <!-- add頁面鏈接用$selected_if內容引導至add頁面 -->
                         <a href="<?= url_safe('firewall_rules_edit.php?if=%s', array($selected_if)) ?>" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<?= html_safe(gettext('Add')) ?>">
                           <i class="fa fa-plus fa-fw"></i>
                         </a>
+                        <!-- 移動選取項目至最後 -->
                         <button id="move_<?= count($a_filter) ?>" name="move_<?= count($a_filter) ?>_x" data-toggle="tooltip" title="<?= html_safe(gettext('Move selected rules to end')) ?>" class="act_move btn btn-default btn-xs">
                           <i class="fa fa-arrow-left fa-fw"></i>
                         </button>
@@ -856,6 +860,7 @@ $( document ).ready(function() {
                         </button>
                       </td>
                   </tr>
+                  <!-- expand-internal-rules -->
                   <tr id="expand-internal-rules" style="display: none;">
                       <td><i class="fa fa-folder-o text-muted"></i></td>
                       <td></td>
@@ -917,6 +922,9 @@ $( document ).ready(function() {
                       <td class="view-stats" id="<?=$rule->getLabel();?>_packets"><?= gettext('N/A') ?></td>
                       <td class="view-stats" id="<?=$rule->getLabel();?>_bytes"><?= gettext('N/A') ?></td>
                       <td><?=$rule->getDescr();?></td>
+                      <td class="view-info">
+                        <?= !empty($filterent['interface']) ? $filterent['interface'] : "*";?>
+                      </td>
                       <td>
 <?php if (!empty($rule->getRef())): ?>
                           <a href="firewall_rule_lookup.php?rid=<?=html_safe($rule->getLabel());?>" class="btn btn-default btn-xs"><i class="fa fa-fw fa-search"></i></a>
@@ -1094,6 +1102,7 @@ $( document ).ready(function() {
 ?>
                 </tbody>
               </table>
+              <!-- 下方圖示說明 -->
               <table class="table table-condensed table-striped opnsense-rules">
                 <tbody>
                   <tr class="hidden-xs hidden-sm">
