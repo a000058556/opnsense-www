@@ -1067,6 +1067,9 @@ $( document ).ready(function() {
                     </td>
                     <td class="view-stats" id="<?=$rule_hash;?>_packets"><?= gettext('N/A') ?></td>
                     <td class="view-stats" id="<?=$rule_hash;?>_bytes"><?= gettext('N/A') ?></td>
+                    <td class="view-info">
+                        <?= !empty($filterent['interface']) ? $filterent['interface'] : "*";?>
+                    </td>
                     <td  class="rule-description">
                       <?=$filterent['descr'];?>
                       <div class="collapse rule_md5_hash">
