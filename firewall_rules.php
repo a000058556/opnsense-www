@@ -798,17 +798,18 @@ $( document ).ready(function() {
             }
           } ?>
 <?php if (!$interface_has_rules): ?>
-<?php if ($selected_if == 'FloatingRules'): ?>
-        <?php print_info_box(gettext('No floating rules are currently defined. Floating rules are ' .
-          'not bound to a single interface and can therefore be used to span ' .
-          'policies over multiple networks at the same time.')) ?>
-<?php else: ?>
-        <?php print_info_box(sprintf(gettext('No %s rules are currently defined. All incoming connections ' .
-          'on this interface will be blocked until you add a pass rule. Exceptions for automatically generated ' .
-          'rules may apply.'),
-          !empty($config['interfaces'][$selected_if]['descr']) ?
-          $config['interfaces'][$selected_if]['descr'] : strtoupper($selected_if))) ?>
-<?php endif ?>
+  <?php if ($selected_if == 'FloatingRules'): ?>
+          <?php print_info_box(gettext('No floating rules are currently defined. Floating rules are ' .
+            'not bound to a single interface and can therefore be used to span ' .
+            'policies over multiple networks at the same time.')) ?>
+  <?php else: ?>
+          <?php print_info_box(sprintf(gettext('No %s rules are currently defined. All incoming connections ' .
+            'on this interface will be blocked until you add a pass rule. Exceptions for automatically generated ' .
+            'rules may apply.'),
+            !empty($config['interfaces'][$selected_if]['descr']) ? // 當interfaces別名不為空時
+            // %s = $config['interfaces'][$selected_if]['descr'] ，若為空則顯示原始名稱$selected_if(大寫)
+            $config['interfaces'][$selected_if]['descr'] : strtoupper($selected_if))) ?>
+  <?php endif ?>
 <?php endif ?>
         <section class="col-xs-12">
           <div class="content-box">
@@ -881,7 +882,7 @@ $( document ).ready(function() {
 <?php
                 $fw = filter_core_get_initialized_plugin_system();
                 filter_core_bootstrap($fw);
-                plugins_firewall($fw);
+                plugins_firewall($fw); // 載入插件
                 foreach ($fw->iterateFilterRules() as $rule):
                     $is_selected = $rule->getInterface() == $selected_if || (
                         ($rule->getInterface() == "" || strpos($rule->getInterface(), ",") !== false) && $selected_if == "FloatingRules"
@@ -1268,6 +1269,15 @@ $( document ).ready(function() {
           echo('<br/>json_decode($return, true);資料內容:<br/>');
           $result = json_decode($return, true);
           print_r ($result);
+          
+          echo('$fw 資料內容:<br/>');
+          print_r ($fw);
+          
+          echo('$filterent 資料內容:<br/>');
+          print_r ($filterent);
+
+          echo('$rule 資料內容:<br/>');
+          print_r ($rule);
 
           ?>
                     </td>

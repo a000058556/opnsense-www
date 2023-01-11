@@ -172,7 +172,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                               <!-- 非url生成 -->
                               <!-- 第三層 -->
                                <a href="#<?=$topMenuItem->Id;?>_<?=$subMenuItem->Id;?>" 
-                                  class="menu-a-radius list-group-item <?=$subMenuItem->Selected ? "active-menu-title" : '';?> <?=($subMenuItem->Id) == "DHCPv4" ? "hide" : '';?> <?=($subMenuItem->Id) == "DHCPv6" ? "hide" : '';?>" 
+                                  class="menu-a-radius list-group-item 
+                                  <?=$subMenuItem->Selected ? "active-menu-title" : '';?> 
+                                  <?=($subMenuItem->Id) == "DHCPv4" ? "hide" : '';?> 
+                                  <?=($subMenuItem->Id) == "DHCPv6" ? "hide" : '';?>
+                                  <?=($subMenuItem->Id) == "Wireless" ? "hide" : '';?>
+                                  " 
                                   data-toggle="collapse" data-parent="#<?=$topMenuItem->Id;?>" aria-expanded="<?=$subMenuItem->Selected ? "true" : "false";?>">
                                   <div style="display: table;width: 90%;">
                                     <div style="display: table-row">
